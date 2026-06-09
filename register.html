@@ -733,11 +733,23 @@
 
   /* Mobile */
   @media (max-width: 700px) {
-    nav { padding: 16px 20px; }
-    .panel-card { padding: 32px 24px; }
+    nav { padding: 14px 16px; }
+    .panel-card { padding: 24px 16px; }
     .form-row { grid-template-columns: 1fr; }
     .plans-grid { grid-template-columns: 1fr; }
-    .plans-wrap { max-width: 480px; }
+    .plans-wrap { max-width: 100%; }
+
+    /* Fix step indicator overflow on mobile */
+    .progress-wrap { padding: 90px 8px 0; overflow: hidden; }
+    .steps { width: 100%; justify-content: center; }
+    .step-line { width: 24px; }
+    .step-circle { width: 32px; height: 32px; font-size: 0.75rem; }
+    .step-label { font-size: 0.6rem; max-width: 48px; line-height: 1.2; }
+
+    /* Nav login button visible on mobile */
+    nav .nav-right { gap: 8px; }
+    nav .nav-right a { font-size: 0.78rem; padding: 8px 12px; }
+    .lang-switcher { display: none; }
   }
 
   /* ─── DEVICE STEP ─── */
@@ -868,6 +880,7 @@
       <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
       <button class="lang-btn" onclick="setLang('ar')" id="lang-ar">AR</button>
     </div>
+    <a href="dashboard.html" style="padding:9px 18px;background:transparent;border:1px solid rgba(245,240,232,0.2);border-radius:100px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.82rem;text-decoration:none;transition:all 0.2s;white-space:nowrap" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='rgba(245,240,232,0.2)';this.style.color='var(--cream)'">Logga in</a>
   </div>
 </nav>
 

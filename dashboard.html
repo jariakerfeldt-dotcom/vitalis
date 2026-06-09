@@ -551,22 +551,15 @@ nav.sidebar-nav{
         <div class="card">
           <div class="card-title" data-i18n="c_weight_trend">Viktutveckling (4 v)</div>
           <div class="mini-chart">
-            <svg viewBox="0 0 300 80" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#7ec850" stop-opacity="0.3"/>
-                  <stop offset="100%" stop-color="#7ec850" stop-opacity="0"/>
-                </linearGradient>
-              </defs>
-              <path d="M0,60 L42,55 L85,50 L127,48 L170,45 L212,42 L255,39 L300,36" fill="none" stroke="#7ec850" stroke-width="2.5" stroke-linecap="round"/>
-              <path d="M0,60 L42,55 L85,50 L127,48 L170,45 L212,42 L255,39 L300,36 L300,80 L0,80Z" fill="url(#wg)"/>
-              <circle cx="300" cy="36" r="4" fill="#7ec850"/>
-            </svg>
+            <canvas id="weight-chart" height="80" style="width:100%"></canvas>
           </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-dim)">
-            <span data-i18n="four_weeks_ago">4 v sedan</span><span>69.0 kg</span>
-            <span data-i18n="today">Idag</span><span style="color:var(--lime)">68.2 kg</span>
+          <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-dim);margin-top:4px">
+            <span data-i18n="four_weeks_ago">4 v sedan</span>
+            <span id="weight-start-val" style="color:var(--text-dim)">–</span>
+            <span data-i18n="today">Idag</span>
+            <span id="weight-end-val" style="color:var(--lime)">–</span>
           </div>
+          <div id="weight-trend-label" style="text-align:center;font-size:0.72rem;margin-top:8px;color:var(--text-dim)">Ingen data ännu – logga din vikt för att se kurvan</div>
         </div>
       </div>
 
@@ -1461,7 +1454,87 @@ function setLang(lang){
   });
 }
 
-// ── AI FOOD PHOTO ──
+// ── WEIGHT CHART ──
+// Simulated weight data – in a real app this comes from user's logged entries
+// Direction: down = losing weight (goal), up = gaining (e.g. muscle)
+const weightGoal = 'down'; // 'down' or 'up'
+const weightData = []; // empty = no data logged yet
+
+function drawWeightChart() {
+  const canvas = document.getElementById('weight-chart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 300;
+  const H = 80;
+  canvas.width = W;
+  canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+
+  if (weightData.length < 2) {
+    // No data – show placeholder line
+    ctx.strokeStyle = 'rgba(126,200,80,0.15)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6,4]);
+    ctx.beginPath();
+    ctx.moveTo(0, H/2);
+    ctx.lineTo(W, H/2);
+    ctx.stroke();
+    return;
+  }
+
+  const min = Math.min(...weightData) - 0.5;
+  const max = Math.max(...weightData) + 0.5;
+  const points = weightData.map((v, i) => ({
+    x: (i / (weightData.length - 1)) * W,
+    y: H - ((v - min) / (max - min)) * (H - 16) - 8
+  }));
+
+  const going = weightData[weightData.length-1] < weightData[0];
+  const color = going ? '#7ec850' : '#c9a84c'; // green if losing, gold if gaining
+
+  // Fill
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, color.replace(')', ',0.3)').replace('rgb', 'rgba'));
+  grad.addColorStop(1, color.replace(')', ',0)').replace('rgb', 'rgba'));
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  points.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fillStyle = going ? 'rgba(126,200,80,0.15)' : 'rgba(201,168,76,0.15)';
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  points.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.setLineDash([]);
+  ctx.stroke();
+
+  // End dot
+  const last = points[points.length-1];
+  ctx.beginPath();
+  ctx.arc(last.x, last.y, 4, 0, Math.PI*2);
+  ctx.fillStyle = color;
+  ctx.fill();
+
+  // Update labels
+  document.getElementById('weight-start-val').textContent = weightData[0].toFixed(1) + ' kg';
+  document.getElementById('weight-end-val').textContent = weightData[weightData.length-1].toFixed(1) + ' kg';
+  document.getElementById('weight-end-val').style.color = color;
+
+  const diff = weightData[weightData.length-1] - weightData[0];
+  const label = diff < 0
+    ? `↓ ${Math.abs(diff).toFixed(1)} kg minskning`
+    : `↑ ${diff.toFixed(1)} kg ökning`;
+  const lel = document.getElementById('weight-trend-label');
+  lel.textContent = label;
+  lel.style.color = diff < 0 ? '#6fd47a' : '#c9a84c';
+}
+
+window.addEventListener('resize', drawWeightChart);
+setTimeout(drawWeightChart, 100);
 let currentPhotoBase64 = null;
 let aiResult = null;
 

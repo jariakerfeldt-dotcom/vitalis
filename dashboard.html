@@ -411,10 +411,22 @@ nav.sidebar-nav{
   .sidebar.open{transform:translateX(0);}
   .main{margin-left:0;}
   .burger{display:flex;align-items:center;}
-  .topbar{padding:16px 20px 0;padding-top:64px;}
-  .content{padding:16px 20px 60px;}
+  .topbar{padding:16px 16px 0;padding-top:64px;flex-direction:column;gap:8px;}
+  .content{padding:12px 14px 60px;}
   .grid-4{grid-template-columns:repeat(2,1fr);}
   .grid-2,.grid-3{grid-template-columns:1fr;}
+  .card{padding:16px;}
+  .metric-big .val{font-size:1.8rem;}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tab{font-size:0.75rem;padding:8px 12px;white-space:nowrap;}
+  .meal-subtab{font-size:0.72rem !important;padding:8px 8px !important;}
+  .chat-box{max-height:240px;}
+  .prog-label{width:70px;font-size:0.72rem;}
+  .topbar-title{font-size:1.5rem;}
+}
+@media(max-width:420px){
+  .grid-4{grid-template-columns:1fr 1fr;}
+  .metric-big .val{font-size:1.5rem;}
 }
 </style>
 </head>

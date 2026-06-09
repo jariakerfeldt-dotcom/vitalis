@@ -531,50 +531,34 @@ nav.sidebar-nav{
         <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_kcal">Kalorier idag</div>
           <div class="val" style="color:var(--text-dim)">–<span class="unit"> kcal</span></div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
+          <div style="font-size:0.68rem;color:var(--text-dim);margin-top:6px;font-style:italic">Ingen data ännu</div>
         </div>
         <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_sleep">Sömn igår</div>
           <div class="val" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
+          <div style="font-size:0.68rem;color:var(--text-dim);margin-top:6px;font-style:italic">Ingen data ännu</div>
         </div>
         <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_steps">Steg idag</div>
           <div class="val" style="color:var(--text-dim)">–</div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
+          <div style="font-size:0.68rem;color:var(--text-dim);margin-top:6px;font-style:italic">Ingen data ännu</div>
         </div>
         <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_weight">Vikt</div>
           <div class="val" style="color:var(--text-dim)">–<span class="unit"> kg</span></div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
+          <div style="font-size:0.68rem;color:var(--text-dim);margin-top:6px;font-style:italic">Ange i Profil</div>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="card">
           <div class="card-title" data-i18n="c_nutrition">Näring idag</div>
-          <div class="prog-item">
-            <span class="prog-label" data-i18n="pr_protein">Protein</span>
-            <div class="prog-bar"><div class="prog-fill" style="width:72%"></div></div>
-            <span class="prog-val">86g / 120g</span>
-          </div>
-          <div class="prog-item">
-            <span class="prog-label" data-i18n="pr_carbs">Kolhydrater</span>
-            <div class="prog-bar"><div class="prog-fill" style="width:58%"></div></div>
-            <span class="prog-val">145g / 250g</span>
-          </div>
-          <div class="prog-item">
-            <span class="prog-label" data-i18n="pr_fat">Fett</span>
-            <div class="prog-bar"><div class="prog-fill" style="width:84%"></div></div>
-            <span class="prog-val">63g / 75g</span>
-          </div>
-          <div class="prog-item">
-            <span class="prog-label" data-i18n="pr_water">Vatten</span>
-            <div class="prog-bar"><div class="prog-fill" style="width:45%"></div></div>
-            <span class="prog-val">1.1L / 2.5L</span>
+          <div style="text-align:center;padding:24px 0">
+            <div style="font-size:2rem;margin-bottom:8px;opacity:0.3">🥗</div>
+            <div style="font-size:0.84rem;color:var(--text-dim)">Inga måltider loggade ännu</div>
+            <button onclick="showTab('food')" style="margin-top:12px;padding:8px 18px;background:var(--lime);color:var(--deep-green);border:none;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer">+ Logga din första måltid</button>
           </div>
         </div>
-
         <div class="card">
           <div class="card-title" data-i18n="c_weight_trend">Viktutveckling (4 v)</div>
           <div class="mini-chart">
@@ -586,43 +570,16 @@ nav.sidebar-nav{
             <span data-i18n="today">Idag</span>
             <span id="weight-end-val" style="color:var(--lime)">–</span>
           </div>
-          <div id="weight-trend-label" style="text-align:center;font-size:0.72rem;margin-top:8px;color:var(--text-dim)">Ingen data ännu – logga din vikt för att se kurvan</div>
+          <div id="weight-trend-label" style="text-align:center;font-size:0.72rem;margin-top:8px;color:var(--text-dim);font-style:italic">Ange vikt i Profil för att se kurvan</div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-title" data-i18n="c_recent_activity">Senaste aktiviteter</div>
-        <div class="activity-item">
-          <div class="activity-icon">🥗</div>
-          <div class="activity-text">
-            <div class="title" data-i18n="act1">Loggade frukost – Havregrynsgröt med bär</div>
-            <div class="time">Idag 07:42</div>
-          </div>
-          <div class="activity-val">320 kcal</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">🤖</div>
-          <div class="activity-text">
-            <div class="title" data-i18n="act2">AI-coach: Sömnråd mottagna</div>
-            <div class="time">Idag 08:05</div>
-          </div>
-          <div class="activity-val">3 tips</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">🏃</div>
-          <div class="activity-text">
-            <div class="title" data-i18n="act3">Morgonpromenad registrerad</div>
-            <div class="time">Idag 06:30</div>
-          </div>
-          <div class="activity-val">4 230 steg</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">💤</div>
-          <div class="activity-text">
-            <div class="title" data-i18n="act4">Sömn: 22:45 – 06:10</div>
-            <div class="time">Igår kväll</div>
-          </div>
-          <div class="activity-val">7.4 h</div>
+        <div style="text-align:center;padding:32px 0">
+          <div style="font-size:2.5rem;margin-bottom:10px;opacity:0.25">📋</div>
+          <div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:6px">Inga aktiviteter ännu</div>
+          <div style="font-size:0.76rem;color:var(--text-dim);opacity:0.7">Börja logga mat, sömn eller aktivitet så visas det här</div>
         </div>
       </div>
     </div>
@@ -632,15 +589,15 @@ nav.sidebar-nav{
       <div class="grid-3" style="margin-bottom:20px">
         <div class="card metric-big">
           <div class="card-title" data-i18n="f_eaten">Ätit idag</div>
-          <div class="val" id="total-kcal">960<span class="unit"> kcal</span></div>
+          <div class="val" id="total-kcal">0<span class="unit"> kcal</span></div>
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="f_remaining">Kvar av mål</div>
-          <div class="val" id="remaining-kcal">1 040<span class="unit"> kcal</span></div>
+          <div class="val" id="remaining-kcal">2 000<span class="unit"> kcal</span></div>
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="f_meals">Måltider</div>
-          <div class="val" id="meal-count">3</div>
+          <div class="val" id="meal-count">0</div>
         </div>
       </div>
 
@@ -717,17 +674,10 @@ nav.sidebar-nav{
         </div>
 
         <div id="food-list">
-          <div class="food-item" data-kcal="320">
-            <div class="food-left"><span class="food-emoji">🥣</span><div><div class="food-name" data-i18n="meal1">Havregrynsgröt med bär</div><div class="food-time">07:42</div></div></div>
-            <div style="display:flex;align-items:center"><span class="food-kcal">320 kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>
-          </div>
-          <div class="food-item" data-kcal="480">
-            <div class="food-left"><span class="food-emoji">🥗</span><div><div class="food-name" data-i18n="meal2">Kycklingsallad</div><div class="food-time">12:15</div></div></div>
-            <div style="display:flex;align-items:center"><span class="food-kcal">480 kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>
-          </div>
-          <div class="food-item" data-kcal="160">
-            <div class="food-left"><span class="food-emoji">🍎</span><div><div class="food-name" data-i18n="meal3">Äpple & nötter</div><div class="food-time">15:30</div></div></div>
-            <div style="display:flex;align-items:center"><span class="food-kcal">160 kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>
+          <div id="food-empty-state" style="text-align:center;padding:24px 0;color:var(--text-dim)">
+            <div style="font-size:2rem;margin-bottom:8px;opacity:0.3">🍽️</div>
+            <div style="font-size:0.84rem">Inga måltider loggade idag</div>
+            <div style="font-size:0.75rem;opacity:0.7;margin-top:4px">Skriv eller fotografera din måltid nedan</div>
           </div>
         </div>
 
@@ -827,51 +777,33 @@ nav.sidebar-nav{
       <div class="grid-3" style="margin-bottom:20px">
         <div class="card metric-big">
           <div class="card-title" data-i18n="sl_last">Senaste natten</div>
-          <div class="val">7.4<span class="unit"> h</span></div>
-          <div class="delta up">↑ Bra sömn</div>
+          <div class="val" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
+          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="sl_avg">Veckosnitt</div>
-          <div class="val">6.9<span class="unit"> h</span></div>
-          <div class="delta down">↓ Under rekommenderat</div>
+          <div class="val" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
+          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="sl_score">Sömnpoäng</div>
-          <div class="val" style="color:var(--gold)">82<span class="unit">/100</span></div>
-          <div class="delta up">↑ +5 denna vecka</div>
+          <div class="val" style="color:var(--text-dim)">–</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
         </div>
       </div>
       <div class="card" style="margin-bottom:20px">
         <div class="card-title" data-i18n="sl_week">Sömn senaste 7 nätterna</div>
-        <div class="sleep-bars" id="sleep-bars">
-          <div class="sleep-bar-wrap"><div class="sleep-bar" style="height:63%"></div><span class="sleep-bar-label" data-i18n="day_mon">Mån</span></div>
-          <div class="sleep-bar-wrap"><div class="sleep-bar" style="height:58%"></div><span class="sleep-bar-label" data-i18n="day_tue">Tis</span></div>
-          <div class="sleep-bar-wrap"><div class="sleep-bar" style="height:70%"></div><span class="sleep-bar-label" data-i18n="day_wed">Ons</span></div>
-          <div class="sleep-bar-wrap"><div class="sleep-bar" style="height:53%"></div><span class="sleep-bar-label" data-i18n="day_thu">Tor</span></div>
-          <div class="sleep-bar-wrap"><div class="sleep-bar" style="height:75%"></div><span class="sleep-bar-label" data-i18n="day_fri">Fre</span></div>
-          <div class="sleep-bar-wrap"><div class="sleep-bar" style="height:88%"></div><span class="sleep-bar-label" data-i18n="day_sat">Lör</span></div>
-          <div class="sleep-bar-wrap"><div class="sleep-bar" style="height:74%"></div><span class="sleep-bar-label" data-i18n="day_sun">Sön</span></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-dim);margin-top:4px">
-          <span>5h</span><span>6h</span><span>7h</span><span>8h</span><span data-i18n="sl_ideal">Ideal: 8h</span>
+        <div style="text-align:center;padding:28px 0">
+          <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">💤</div>
+          <div style="font-size:0.84rem;color:var(--text-dim)">Ingen sömndata ännu</div>
+          <div style="font-size:0.75rem;color:var(--text-dim);opacity:0.7;margin-top:4px">Koppla en enhet eller logga manuellt för att se din sömnkurva</div>
         </div>
       </div>
       <div class="card">
         <div class="card-title" data-i18n="sl_log">Sömnlogg</div>
-        <div class="activity-item">
-          <div class="activity-icon">🌙</div>
-          <div class="activity-text"><div class="title" data-i18n="sl_entry1">Sömn: 22:45 – 06:10</div><div class="time" data-i18n="yesterday">Igår</div></div>
-          <div class="activity-val">7.4 h</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">🌙</div>
-          <div class="activity-text"><div class="title" data-i18n="sl_entry2">Sömn: 23:20 – 07:05</div><div class="time" data-i18n="two_days">2 dagar sedan</div></div>
-          <div class="activity-val">7.7 h</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">😴</div>
-          <div class="activity-text"><div class="title" data-i18n="sl_entry3">Sömn: 00:10 – 05:45 – orolig sömn</div><div class="time" data-i18n="three_days">3 dagar sedan</div></div>
-          <div class="activity-val">5.6 h</div>
+        <div style="text-align:center;padding:24px 0;color:var(--text-dim)">
+          <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">🌙</div>
+          <div style="font-size:0.84rem">Inga nätter loggade ännu</div>
         </div>
       </div>
     </div>
@@ -881,46 +813,31 @@ nav.sidebar-nav{
       <div class="grid-4" style="margin-bottom:20px">
         <div class="card metric-big">
           <div class="card-title" data-i18n="ac_steps">Steg idag</div>
-          <div class="val">8 230</div>
-          <div class="delta down">↓ Mål: 10 000</div>
+          <div class="val" style="color:var(--text-dim)">–</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Koppla enhet</div>
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="ac_kcal">Förbrända kcal</div>
-          <div class="val">420<span class="unit"> kcal</span></div>
-          <div class="delta up">↑ Bra!</div>
+          <div class="val" style="color:var(--text-dim)">–<span class="unit"> kcal</span></div>
+          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="ac_hr">Vilopuls</div>
-          <div class="val">68<span class="unit"> bpm</span></div>
-          <div class="delta up">↓ Bättre än förra v.</div>
+          <div class="val" style="color:var(--text-dim)">–<span class="unit"> bpm</span></div>
+          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Koppla enhet</div>
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="ac_active">Aktiva min</div>
-          <div class="val">42<span class="unit"> min</span></div>
-          <div class="delta up">↑ +12 min</div>
+          <div class="val" style="color:var(--text-dim)">–<span class="unit"> min</span></div>
+          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
         </div>
       </div>
       <div class="card">
         <div class="card-title" data-i18n="ac_log">Aktivitetslogg</div>
-        <div class="activity-item">
-          <div class="activity-icon">🚶</div>
-          <div class="activity-text"><div class="title" data-i18n="ac1">Morgonpromenad – Stadsskogen</div><div class="time">06:30 – 07:05</div></div>
-          <div class="activity-val">4 230 steg</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">🏋️</div>
-          <div class="activity-text"><div class="title" data-i18n="ac2">Styrketräning – överkropp</div><div class="time">Igår 17:15</div></div>
-          <div class="activity-val">45 min</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">🚴</div>
-          <div class="activity-text"><div class="title" data-i18n="ac3">Cykling till jobbet</div><div class="time">Igår 08:00</div></div>
-          <div class="activity-val">3.2 km</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">🧘</div>
-          <div class="activity-text"><div class="title" data-i18n="ac4">Yoga & stretching</div><div class="time">2 dagar sedan</div></div>
-          <div class="activity-val">30 min</div>
+        <div id="activity-list" style="text-align:center;padding:24px 0;color:var(--text-dim)">
+          <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">🏃</div>
+          <div style="font-size:0.84rem">Inga aktiviteter loggade ännu</div>
+          <div style="font-size:0.75rem;opacity:0.7;margin-top:4px">Logga din första aktivitet nedan</div>
         </div>
         <div class="add-row" style="margin-top:16px">
           <input type="text" id="activity-input" placeholder="Logga aktivitet..." data-i18n-ph="ac_ph">
@@ -936,15 +853,7 @@ nav.sidebar-nav{
         <div class="chat-box" id="chat-box">
           <div class="msg ai">
             <div class="msg-av">🤖</div>
-            <div class="msg-bubble" data-i18n="ai1">Hej Anna! Baserat på dina data den här veckan: du sover bra men behöver dricka mer vatten – du når bara 45% av ditt dagliga vattenmål. Vill du ha ett schema?</div>
-          </div>
-          <div class="msg user">
-            <div class="msg-av">👤</div>
-            <div class="msg-bubble" data-i18n="ai2">Ja, vad rekommenderar du?</div>
-          </div>
-          <div class="msg ai">
-            <div class="msg-av">🤖</div>
-            <div class="msg-bubble" data-i18n="ai3">Prova att dricka ett glas (250ml) vid uppvaknande, ett till frukost, ett vid 10, 12, 14 och 16 – det ger dig 1.5L utan att behöva tänka. Resten tar du till middagen. Vill du att jag sätter påminnelser?</div>
+            <div class="msg-bubble">Hej! Jag är din personliga AI-hälsocoach. Ställ en fråga om kost, träning, sömn eller välmående – så hjälper jag dig! 🌿</div>
           </div>
         </div>
         <div class="add-row">
@@ -954,17 +863,9 @@ nav.sidebar-nav{
       </div>
       <div class="card">
         <div class="card-title" data-i18n="ai_history">Tidigare råd</div>
-        <div class="activity-item">
-          <div class="activity-icon">💧</div>
-          <div class="activity-text"><div class="title" data-i18n="aih1">Vattenintag – drick ett glas vid varje måltid</div><div class="time" data-i18n="today">Idag</div></div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">🌙</div>
-          <div class="activity-text"><div class="title" data-i18n="aih2">Sömnschema – samma läggningstid varje kväll</div><div class="time" data-i18n="yesterday">Igår</div></div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">🥩</div>
-          <div class="activity-text"><div class="title" data-i18n="aih3">Proteinmål – lägg till ägg eller kvarg till frukost</div><div class="time" data-i18n="two_days">2 dagar sedan</div></div>
+        <div id="ai-history-list" style="text-align:center;padding:24px 0;color:var(--text-dim)">
+          <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">💬</div>
+          <div style="font-size:0.84rem">Inga råd ännu – börja chatta!</div>
         </div>
       </div>
     </div>
@@ -1656,7 +1557,7 @@ function closeFoodLogPreview() {
   document.getElementById('food-log-img').src = '';
   foodLogPhotoB64 = null;
 }
-let totalKcal = 960;
+let totalKcal = 0;
 function addFood(){
   const input = document.getElementById('food-input');
   const val = input.value.trim(); if(!val) return;
@@ -1670,6 +1571,8 @@ function addFood(){
   item.className='food-item'; item.setAttribute('data-kcal',kcal);
   item.innerHTML=`<div class="food-left"><span class="food-emoji">${em}</span><div><div class="food-name">${val}</div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal">${kcal} kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>`;
   item.style.opacity='0'; item.style.transform='translateY(-8px)';
+  const empty = document.getElementById('food-empty-state');
+  if(empty) empty.style.display='none';
   document.getElementById('food-list').appendChild(item);
   setTimeout(()=>{item.style.transition='all 0.3s';item.style.opacity='1';item.style.transform='none';},10);
   input.value=''; updateFoodStats(); showToast('Måltid tillagd ✓');
@@ -1679,11 +1582,20 @@ function deleteFood(btn){
   const kcal = parseInt(item.getAttribute('data-kcal')||0);
   totalKcal -= kcal;
   item.style.transition='all 0.3s'; item.style.opacity='0'; item.style.transform='translateX(10px)';
-  setTimeout(()=>item.remove(), 300); updateFoodStats();
+  setTimeout(()=>{
+    item.remove();
+    const list = document.getElementById('food-list');
+    const meals = list.querySelectorAll('.food-item').length;
+    if(meals === 0) {
+      const empty = document.getElementById('food-empty-state');
+      if(empty) empty.style.display='block';
+    }
+  }, 300);
+  updateFoodStats();
 }
 function updateFoodStats(){
   const goal=2000; const remaining=Math.max(0,goal-totalKcal);
-  const meals=document.getElementById('food-list').children.length;
+  const meals=document.getElementById('food-list').querySelectorAll('.food-item').length;
   document.getElementById('total-kcal').innerHTML=totalKcal.toLocaleString('sv')+'<span class="unit"> kcal</span>';
   document.getElementById('remaining-kcal').innerHTML=remaining.toLocaleString('sv')+'<span class="unit"> kcal</span>';
   document.getElementById('meal-count').textContent=meals;
@@ -1698,13 +1610,14 @@ function addActivity(){
   const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
   const icons = ['🏃','🚴','🧘','🏋️','🤸','⛹️'];
   const ic = icons[Math.floor(Math.random()*icons.length)];
-  const logEl = document.querySelector('#tab-activity .card .activity-item:last-of-type');
-  const container = document.querySelector('#tab-activity .card');
+  const list = document.getElementById('activity-list');
+  // Clear empty state placeholder
+  if(list.querySelector('[style*="opacity:0.25"]')) list.innerHTML='';
   const item = document.createElement('div');
   item.className='activity-item';
   item.innerHTML=`<div class="activity-icon">${ic}</div><div class="activity-text"><div class="title">${val}</div><div class="time">${time}</div></div><div class="activity-val">Loggad</div>`;
   item.style.opacity='0';
-  container.insertBefore(item, container.querySelector('.add-row'));
+  list.appendChild(item);
   setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
   input.value=''; showToast('Aktivitet loggad ✓');
 }

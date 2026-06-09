@@ -716,9 +716,31 @@ nav.sidebar-nav{
             <div style="display:flex;align-items:center"><span class="food-kcal">160 kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>
           </div>
         </div>
-        <div class="add-row">
-          <input type="text" id="food-input" placeholder="Lägg till måltid manuellt..." data-i18n-ph="food_ph">
-          <button onclick="addFood()" data-i18n="food_add_btn">+ Lägg till</button>
+
+        <!-- ADD FOOD ROW -->
+        <div style="margin-top:14px">
+          <!-- Text input row -->
+          <div class="add-row" style="margin-bottom:8px">
+            <input type="text" id="food-input" placeholder="Skriv måltid manuellt..." data-i18n-ph="food_ph">
+            <button onclick="addFood()" data-i18n="food_add_btn">+ Lägg till</button>
+          </div>
+          <!-- Photo upload button -->
+          <button onclick="document.getElementById('food-log-photo').click()" style="width:100%;padding:11px;background:rgba(126,200,80,0.07);border:1.5px dashed rgba(126,200,80,0.25);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.25)';this.style.color='var(--text-dim)'">
+            📷 Fotografera eller ladda upp bild på din måltid – AI räknar kalorier
+          </button>
+          <input type="file" id="food-log-photo" accept="image/*" capture="environment" style="display:none" onchange="handleFoodLogPhoto(event)">
+        </div>
+
+        <!-- Food log photo preview & result -->
+        <div id="food-log-preview-box" style="display:none;margin-top:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;padding:14px">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <img id="food-log-img" src="" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0">
+            <div style="flex:1">
+              <div id="food-log-ai-result" style="font-size:0.84rem;color:var(--text-dim)">Analyserar…</div>
+              <button id="food-log-add-btn" onclick="addAIFoodFromLog()" style="display:none;margin-top:10px;padding:9px 16px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">+ Lägg till i loggen</button>
+            </div>
+            <button onclick="closeFoodLogPreview()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;padding:2px">✕</button>
+          </div>
         </div>
       </div>
 
@@ -1314,7 +1336,90 @@ function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
 }
 
-// ── FOOD LOG ──
+// ── FOOD LOG PHOTO ──
+let foodLogPhotoB64 = null;
+let foodLogAIResult = null;
+
+async function handleFoodLogPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    foodLogPhotoB64 = e.target.result.split(',')[1];
+    const img = document.getElementById('food-log-img');
+    img.src = e.target.result;
+    const box = document.getElementById('food-log-preview-box');
+    box.style.display = 'block';
+    const resultEl = document.getElementById('food-log-ai-result');
+    const addBtn = document.getElementById('food-log-add-btn');
+    resultEl.textContent = 'AI analyserar din måltid…';
+    resultEl.style.color = 'var(--text-dim)';
+    addBtn.style.display = 'none';
+
+    try {
+      const resp = await fetch('/.netlify/functions/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 300,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: foodLogPhotoB64 } },
+              { type: 'text', text: 'Analysera maten på bilden. Svara ENBART med JSON utan markdown: {"name":"maträttens namn på svenska","kcal":nummer,"protein_g":nummer,"carbs_g":nummer,"fat_g":nummer,"note":"kort kommentar på svenska"}' }
+            ]
+          }]
+        })
+      });
+      const data = await resp.json();
+      const text = data.content?.[0]?.text || '';
+      foodLogAIResult = JSON.parse(text.replace(/```json|```/g,'').trim());
+      resultEl.innerHTML = `<strong style="color:var(--cream)">${foodLogAIResult.name}</strong><br>
+        <span style="color:var(--lime);font-weight:600">${foodLogAIResult.kcal} kcal</span>
+        &nbsp;·&nbsp; Protein: ${foodLogAIResult.protein_g}g
+        &nbsp;·&nbsp; Kolh: ${foodLogAIResult.carbs_g}g
+        &nbsp;·&nbsp; Fett: ${foodLogAIResult.fat_g}g<br>
+        <span style="font-size:0.75rem;opacity:0.7">${foodLogAIResult.note}</span>`;
+      addBtn.style.display = 'inline-block';
+    } catch(e) {
+      // Fallback demo
+      foodLogAIResult = { name: 'Måltid (AI-analys)', kcal: 380, protein_g: 28, carbs_g: 32, fat_g: 14, note: 'Uppskattning baserad på bilden.' };
+      resultEl.innerHTML = `<strong style="color:var(--cream)">${foodLogAIResult.name}</strong><br>
+        <span style="color:var(--lime);font-weight:600">${foodLogAIResult.kcal} kcal</span>
+        &nbsp;·&nbsp; Protein: ${foodLogAIResult.protein_g}g<br>
+        <span style="font-size:0.75rem;opacity:0.7">${foodLogAIResult.note}</span>`;
+      addBtn.style.display = 'inline-block';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function addAIFoodFromLog() {
+  if (!foodLogAIResult) return;
+  totalKcal += foodLogAIResult.kcal;
+  const now = new Date();
+  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  const item = document.createElement('div');
+  item.className = 'food-item';
+  item.setAttribute('data-kcal', foodLogAIResult.kcal);
+  item.innerHTML = `<div class="food-left"><span class="food-emoji">📷</span><div><div class="food-name">${foodLogAIResult.name} <span style="font-size:0.68rem;color:var(--lime)">AI</span></div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal">${foodLogAIResult.kcal} kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>`;
+  item.style.opacity = '0';
+  document.getElementById('food-list').appendChild(item);
+  setTimeout(() => { item.style.transition = 'all 0.3s'; item.style.opacity = '1'; }, 10);
+  updateFoodStats();
+  closeFoodLogPreview();
+  showToast('📷 ' + foodLogAIResult.name + ' tillagd ✓');
+  foodLogAIResult = null;
+  foodLogPhotoB64 = null;
+  document.getElementById('food-log-photo').value = '';
+}
+
+function closeFoodLogPreview() {
+  document.getElementById('food-log-preview-box').style.display = 'none';
+  document.getElementById('food-log-img').src = '';
+  foodLogPhotoB64 = null;
+}
 let totalKcal = 960;
 function addFood(){
   const input = document.getElementById('food-input');

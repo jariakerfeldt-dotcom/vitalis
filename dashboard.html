@@ -1291,6 +1291,59 @@ nav.sidebar-nav{
           </div>
         </div>
       </div>
+
+      <!-- MEDICINE SECTION -->
+      <div class="card" style="margin-top:20px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--soft-white)">💊 Mediciner & kosttillskott</div>
+          <span style="font-size:0.68rem;padding:3px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:100px;color:var(--gold)">Dagliga loggas automatiskt</span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:16px">Fasta mediciner fylls i automatiskt i matloggen. AI tar hänsyn till dessa vid alla analyser.</div>
+
+        <!-- Disclaimer -->
+        <div style="padding:12px 16px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:12px;margin-bottom:16px;font-size:0.76rem;color:var(--text-dim);line-height:1.6">
+          ⚕️ <strong style="color:var(--gold)">Medicinsk ansvarsfriskrivning:</strong> Vitalis ersätter inte läkare eller farmaceut. Informationen används enbart för att ge bättre hälsoråd. Rådfråga alltid sjukvårdspersonal vid frågor om din medicinering.
+        </div>
+
+        <!-- Search medicine -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Sök medicin (FASS/Läkemedelsdatabasen)</div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="med-search" placeholder="Sök på namn, t.ex. Metformin, Omega-3..." style="flex:1;padding:11px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none" onkeydown="if(event.key==='Enter')searchMedicine()" oninput="onMedInput(this.value)">
+            <button onclick="searchMedicine()" style="padding:11px 18px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">🔍 Sök</button>
+          </div>
+          <!-- Search results dropdown -->
+          <div id="med-search-results" style="display:none;background:var(--mid-green);border:1px solid var(--border);border-radius:12px;margin-top:4px;overflow:hidden;max-height:200px;overflow-y:auto"></div>
+        </div>
+
+        <!-- Manual add -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Lägg till manuellt</div>
+          <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center">
+            <input type="text" id="med-name" placeholder="Namn (t.ex. Vitamin D3)" style="padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none">
+            <input type="text" id="med-dose" placeholder="Dos (t.ex. 1000mg)" style="padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none;width:130px">
+            <select id="med-type" style="padding:10px 12px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none">
+              <option value="daglig">💊 Daglig</option>
+              <option value="vid_behov">🔔 Vid behov</option>
+              <option value="vitamin">🌿 Vitamin</option>
+              <option value="kosttillskott">⚗️ Kosttillskott</option>
+              <option value="smärtlindring">💉 Smärtlindring</option>
+            </select>
+          </div>
+          <button onclick="addMedicine()" style="width:100%;margin-top:8px;padding:11px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.25);border-radius:12px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:600;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(201,168,76,0.2)'" onmouseout="this.style.background='rgba(201,168,76,0.12)'">+ Lägg till medicin</button>
+        </div>
+
+        <!-- Medicine list -->
+        <div style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Dina mediciner</div>
+        <div id="medicine-list">
+          <div style="text-align:center;padding:20px;color:var(--text-dim)">
+            <div style="font-size:1.8rem;opacity:0.25;margin-bottom:6px">💊</div>
+            <div style="font-size:0.84rem">Inga mediciner registrerade</div>
+            <div style="font-size:0.75rem;opacity:0.7;margin-top:4px">Sök eller lägg till manuellt ovan</div>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -1769,9 +1822,9 @@ const aiReplies = [
   'För att nå ditt viktmål rekommenderar jag att du håller dig under 2 000 kcal/dag och prioriterar protein framför kolhydrater på kvällen.',
 ];
 let replyIdx = 0;
-function sendChat(){
+async function sendChat(){
   const input = document.getElementById('chat-input');
-  const val = input.value.trim() || 'Hur mår jag den här veckan?';
+  const val = input.value.trim(); if(!val) return;
   const box = document.getElementById('chat-box');
   const userMsg = document.createElement('div');
   userMsg.className='msg user';
@@ -1780,16 +1833,26 @@ function sendChat(){
   input.value=''; box.scrollTop=box.scrollHeight;
   const typing = document.createElement('div');
   typing.className='msg ai typing';
-  typing.innerHTML='<div class="msg-av">🤖</div><div class="msg-bubble">...</div>';
+  typing.innerHTML='<div class="msg-av">🤖</div><div class="msg-bubble" style="opacity:0.5">•••</div>';
   box.appendChild(typing); box.scrollTop=box.scrollHeight;
-  setTimeout(()=>{
+  const medCtx = getMedicineContext();
+  const system = `Du är en vänlig professionell AI-hälsocoach för Vitalis. Svara kort och konkret på svenska (max 4 meningar). ${medCtx ? 'Användarens mediciner: ' + medCtx + ' Ta hänsyn till detta i dina råd.' : ''} Håll en varm men seriös ton.`;
+  try {
+    const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,system,messages:[{role:'user',content:val}]})});
+    const data = await resp.json();
+    const reply = data.content?.[0]?.text || '...';
     typing.remove();
     const aiMsg = document.createElement('div');
     aiMsg.className='msg ai';
-    aiMsg.innerHTML=`<div class="msg-av">🤖</div><div class="msg-bubble">${aiReplies[replyIdx % aiReplies.length]}</div>`;
-    replyIdx++;
+    aiMsg.innerHTML=`<div class="msg-av">🤖</div><div class="msg-bubble">${reply.replace(/\n/g,'<br>')}</div>`;
     box.appendChild(aiMsg); box.scrollTop=box.scrollHeight;
-  },1000);
+  } catch(e) {
+    typing.remove();
+    const aiMsg = document.createElement('div');
+    aiMsg.className='msg ai';
+    aiMsg.innerHTML='<div class="msg-av">🤖</div><div class="msg-bubble">Kunde inte svara just nu – försök igen!</div>';
+    box.appendChild(aiMsg); box.scrollTop=box.scrollHeight;
+  }
 }
 
 // ── I18N ──
@@ -1968,6 +2031,144 @@ function calcBMI() {
 }
 
 loadProfile();
+
+// ── MEDICINE SYSTEM ──
+let medicines = JSON.parse(localStorage.getItem('vitalis_medicines') || '[]');
+
+const typeLabels = {
+  daglig:'💊 Daglig', vid_behov:'🔔 Vid behov',
+  vitamin:'🌿 Vitamin', kosttillskott:'⚗️ Kosttillskott', smärtlindring:'💉 Smärtlindring'
+};
+
+function saveMedicines() {
+  try { localStorage.setItem('vitalis_medicines', JSON.stringify(medicines)); } catch(e){}
+}
+
+function renderMedicines() {
+  const list = document.getElementById('medicine-list');
+  if (!list) return;
+  if (!medicines.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim)"><div style="font-size:1.8rem;opacity:0.25;margin-bottom:6px">💊</div><div style="font-size:0.84rem">Inga mediciner registrerade</div><div style="font-size:0.75rem;opacity:0.7;margin-top:4px">Sök eller lägg till manuellt ovan</div></div>';
+    return;
+  }
+  list.innerHTML = medicines.map((m,i) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);display:flex;align-items:center;justify-content:center;font-size:1rem">${typeLabels[m.type]?.split(' ')[0]||'💊'}</div>
+        <div>
+          <div style="font-size:0.88rem;color:var(--cream);font-weight:500">${m.name}</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px">${m.dose} · ${typeLabels[m.type]||m.type} ${m.type==='daglig'?'· <span style="color:var(--lime)">Loggas automatiskt</span>':''}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${m.type!=='daglig'?`<button onclick="logMedicineDose(${i})" style="padding:5px 10px;background:var(--lime);color:var(--deep-green);border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">+ Logga dos</button>`:''}
+        <button onclick="removeMedicine(${i})" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:4px 8px" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button>
+      </div>
+    </div>`).join('');
+  autoLogDailyMedicines();
+}
+
+function autoLogDailyMedicines() {
+  const daily = medicines.filter(m => m.type === 'daglig');
+  if (!daily.length) return;
+  const todayKey = new Date().toDateString();
+  if (localStorage.getItem('vitalis_med_logged_' + todayKey)) return;
+  daily.forEach(m => {
+    const item = document.createElement('div');
+    item.className = 'food-item'; item.setAttribute('data-kcal', 0);
+    const now = new Date();
+    const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+    item.innerHTML = `<div class="food-left"><span class="food-emoji">💊</span><div><div class="food-name">${m.name} ${m.dose} <span style="font-size:0.68rem;color:var(--gold)">Medicin</span></div><div class="food-time">${time} – daglig dos</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal" style="color:var(--gold)">–</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>`;
+    const empty = document.getElementById('food-empty-state');
+    if(empty) empty.style.display='none';
+    document.getElementById('food-list')?.appendChild(item);
+  });
+  try { localStorage.setItem('vitalis_med_logged_' + todayKey, '1'); } catch(e){}
+  showToast(`💊 ${daily.length} daglig${daily.length>1?'a':''} medicin${daily.length>1?'er':''} loggad${daily.length>1?'e':''}`);
+}
+
+function logMedicineDose(i) {
+  const m = medicines[i];
+  const item = document.createElement('div');
+  item.className = 'food-item'; item.setAttribute('data-kcal', 0);
+  const now = new Date();
+  const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  item.innerHTML = `<div class="food-left"><span class="food-emoji">💊</span><div><div class="food-name">${m.name} ${m.dose} <span style="font-size:0.68rem;color:var(--gold)">Medicin</span></div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal" style="color:var(--gold)">–</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>`;
+  const empty = document.getElementById('food-empty-state');
+  if(empty) empty.style.display='none';
+  document.getElementById('food-list')?.appendChild(item);
+  showToast(`💊 ${m.name} loggad ✓`);
+}
+
+function addMedicine() {
+  const name = document.getElementById('med-name').value.trim();
+  const dose = document.getElementById('med-dose').value.trim();
+  const type = document.getElementById('med-type').value;
+  if (!name) { showToast('Ange namn på medicinen!'); return; }
+  medicines.push({ name, dose: dose||'–', type });
+  saveMedicines(); renderMedicines();
+  document.getElementById('med-name').value = '';
+  document.getElementById('med-dose').value = '';
+  showToast(`💊 ${name} tillagd ✓`);
+}
+
+function removeMedicine(i) {
+  const name = medicines[i].name;
+  medicines.splice(i, 1);
+  saveMedicines(); renderMedicines();
+  showToast(`${name} borttagen`);
+}
+
+async function searchMedicine() {
+  const query = document.getElementById('med-search').value.trim();
+  if (!query) return;
+  const resultsEl = document.getElementById('med-search-results');
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = '<div style="padding:12px 16px;font-size:0.82rem;color:var(--text-dim)">🔍 Söker…</div>';
+  try {
+    const resp = await fetch('/.netlify/functions/ai', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:600,
+        messages:[{role:'user',content:`Ge information om medicinen/kosttillskottet: "${query}". Svara ENBART med JSON utan markdown: {"results":[{"name":"exakt namn","type":"receptbelagd/receptfri/kosttillskott/vitamin","dose_common":"vanlig dos","description":"kort beskrivning på svenska max 1 mening","fass_url":"https://www.fass.se om känd annars tom sträng"}]}`}]
+      })
+    });
+    const data = await resp.json();
+    const json = JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+    if (!json.results?.length) throw new Error('Inga resultat');
+    resultsEl.innerHTML = json.results.slice(0,5).map(r => `
+      <div onclick="selectMedicine('${r.name.replace(/'/g,"\\'")}','${(r.dose_common||'').replace(/'/g,"\\'")}','${r.type}')" style="padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.2s" onmouseover="this.style.background='rgba(126,200,80,0.05)'" onmouseout="this.style.background='transparent'">
+        <div style="font-size:0.86rem;color:var(--cream);font-weight:500">${r.name} <span style="font-size:0.7rem;color:var(--gold)">${r.type}</span></div>
+        <div style="font-size:0.74rem;color:var(--text-dim);margin-top:3px">${r.description}</div>
+        ${r.dose_common?`<div style="font-size:0.72rem;color:var(--lime);margin-top:2px">Vanlig dos: ${r.dose_common}</div>`:''}
+        ${r.fass_url?`<a href="${r.fass_url}" target="_blank" onclick="event.stopPropagation()" style="font-size:0.7rem;color:var(--gold);text-decoration:none;margin-top:2px;display:inline-block">→ FASS</a>`:''}
+      </div>`).join('');
+  } catch(e) {
+    resultsEl.innerHTML = `<div style="padding:12px 16px;font-size:0.82rem;color:var(--text-dim)">Hittade inget för "${query}". Lägg till manuellt nedan.</div>`;
+  }
+}
+
+function selectMedicine(name, dose, type) {
+  document.getElementById('med-name').value = name;
+  document.getElementById('med-dose').value = dose;
+  const map = {'receptbelagd':'daglig','receptfri':'vid_behov','kosttillskott':'kosttillskott','vitamin':'vitamin'};
+  document.getElementById('med-type').value = map[type]||'vid_behov';
+  document.getElementById('med-search-results').style.display = 'none';
+  document.getElementById('med-search').value = '';
+  showToast(`${name} vald – klicka "Lägg till" för att spara`);
+}
+
+function onMedInput(val) {
+  if (!val) document.getElementById('med-search-results').style.display = 'none';
+}
+
+function getMedicineContext() {
+  if (!medicines.length) return '';
+  const daily = medicines.filter(m=>m.type==='daglig').map(m=>`${m.name} ${m.dose}`).join(', ');
+  const other = medicines.filter(m=>m.type!=='daglig').map(m=>`${m.name} ${m.dose}`).join(', ');
+  return [daily?`Dagliga mediciner: ${daily}`:''  , other?`Övriga: ${other}`:''].filter(Boolean).join('. ');
+}
+
+renderMedicines();
 // Simulated weight data – in a real app this comes from user's logged entries
 // Direction: down = losing weight (goal), up = gaining (e.g. muscle)
 const weightGoal = 'down'; // 'down' or 'up'

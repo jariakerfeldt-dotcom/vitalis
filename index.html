@@ -1024,36 +1024,64 @@
 <section class="section animate-in">
   <div class="section-label" data-i18n="feat_label">Funktioner</div>
   <h2 class="section-title" data-i18n="feat_title">Allt du behöver,<br><em>samlat på ett ställe</em></h2>
+  <!-- FEATURE LOCK MODAL -->
+  <div id="feature-lock" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(8,20,13,0.88);backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--mid-green);border:1px solid rgba(126,200,80,0.25);border-radius:28px;width:100%;max-width:440px;padding:44px 40px;text-align:center;position:relative;animation:fadeUp 0.3s ease both">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);border-radius:28px 28px 0 0"></div>
+      <div style="font-size:2.8rem;margin-bottom:16px" id="feature-lock-icon">🥗</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:300;color:var(--soft-white);margin-bottom:8px" id="feature-lock-title">Smart matlogg</div>
+      <div style="font-size:0.84rem;color:var(--text-dim);line-height:1.75;margin-bottom:12px" id="feature-lock-desc">Logga måltider med AI som känner igen mat från bild eller text.</div>
+      <div style="padding:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;margin-bottom:24px">
+        <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">Ingår i Vitalis</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:0.82rem;color:var(--lime);display:flex;align-items:center;gap:8px">✓ <span>Gratis konto – grundfunktioner</span></div>
+          <div style="font-size:0.82rem;color:var(--gold);display:flex;align-items:center;gap:8px">✓ <span>Hälsa 149 kr/mån – full tillgång</span></div>
+          <div style="font-size:0.82rem;color:var(--gold);display:flex;align-items:center;gap:8px">✓ <span>Wellness Pro 299 kr/mån – allt + AI</span></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a href="register.html" style="padding:14px;background:var(--lime);color:var(--deep-green);border-radius:12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;display:block">Skapa gratis konto →</a>
+        <button onclick="closeFeatureLock()" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.88rem;cursor:pointer">Stäng – fortsätt utforska</button>
+      </div>
+    </div>
+  </div>
+
   <div class="feature-grid">
-    <div class="feature-card animate-in">
+    <div class="feature-card animate-in" onclick="openFeatureLock('🥗','Smart matlogg','Logga måltider med AI som känner igen mat från bild eller text. Få näringsvärden, kalorier och personliga rekommendationer.')" style="cursor:pointer">
       <span class="feature-icon">🥗</span>
       <h3 data-i18n="f1_title">Smart matlogg</h3>
       <p data-i18n="f1_desc">Logga måltider med AI som känner igen mat från bild eller text. Få näringsvärden, kalorier och personliga rekommendationer.</p>
+      <div style="margin-top:12px;font-size:0.72rem;color:rgba(126,200,80,0.5)">🔒 Registrera dig för tillgång</div>
     </div>
-    <div class="feature-card animate-in">
+    <div class="feature-card animate-in" onclick="openFeatureLock('🤖','Din AI-coach','En personlig hälsocoach som lär sig dina mål, vikt och livsstil. Ger råd om träning, mat och återhämtning dygnet runt.')" style="cursor:pointer">
       <span class="feature-icon">🤖</span>
       <h3 data-i18n="f2_title">Din AI-coach</h3>
       <p data-i18n="f2_desc">En personlig hälsocoach som lär sig dina mål, vikt och livsstil. Ger råd om träning, mat och återhämtning dygnet runt.</p>
+      <div style="margin-top:12px;font-size:0.72rem;color:rgba(126,200,80,0.5)">🔒 Registrera dig för tillgång</div>
     </div>
-    <div class="feature-card animate-in">
+    <div class="feature-card animate-in" onclick="openFeatureLock('💤','Sömn & återhämtning','Förstå dina sömnmönster och hur de påverkar din energi, hunger och träningsprestanda.')" style="cursor:pointer">
       <span class="feature-icon">💤</span>
       <h3 data-i18n="f3_title">Sömn & återhämtning</h3>
       <p data-i18n="f3_desc">Förstå dina sömnmönster och hur de påverkar din energi, hunger och träningsprestanda.</p>
+      <div style="margin-top:12px;font-size:0.72rem;color:rgba(126,200,80,0.5)">🔒 Registrera dig för tillgång</div>
     </div>
-    <div class="feature-card animate-in">
+    <div class="feature-card animate-in" onclick="openFeatureLock('📊','Insikter & trender','Se hur din hälsa utvecklas över tid med vackra grafer och meningsfulla insikter anpassade just för dig.')" style="cursor:pointer">
       <span class="feature-icon">📊</span>
       <h3 data-i18n="f4_title">Insikter & trender</h3>
       <p data-i18n="f4_desc">Se hur din hälsa utvecklas över tid med vackra grafer och meningsfulla insikter anpassade just för dig.</p>
+      <div style="margin-top:12px;font-size:0.72rem;color:rgba(126,200,80,0.5)">🔒 Registrera dig för tillgång</div>
     </div>
-    <div class="feature-card animate-in">
+    <div class="feature-card animate-in" onclick="openFeatureLock('🌿','Social hälsa','Dela din hälsoresa med vänner. Inspirera och bli inspirerad i ett positivt community.')" style="cursor:pointer">
       <span class="feature-icon">🌿</span>
       <h3 data-i18n="f5_title">Social hälsa</h3>
       <p data-i18n="f5_desc">Dela din hälsoresa med vänner. Inspirera och bli inspirerad i ett positivt community.</p>
+      <div style="margin-top:12px;font-size:0.72rem;color:rgba(126,200,80,0.5)">🔒 Registrera dig för tillgång</div>
     </div>
-    <div class="feature-card animate-in">
+    <div class="feature-card animate-in" onclick="openFeatureLock('⌚','Wearable-synk','Koppla ihop med Apple Watch, Garmin eller Fitbit för automatisk puls- och aktivitetsspårning.')" style="cursor:pointer">
       <span class="feature-icon">⌚</span>
       <h3 data-i18n="f6_title">Wearable-synk</h3>
       <p data-i18n="f6_desc">Koppla ihop med Apple Watch, Garmin eller Fitbit för automatisk puls- och aktivitetsspårning.</p>
+      <div style="margin-top:12px;font-size:0.72rem;color:rgba(126,200,80,0.5)">🔒 Registrera dig för tillgång</div>
     </div>
   </div>
 </section>
@@ -1516,6 +1544,26 @@ function addFood() {
 document.getElementById('food-input').addEventListener('keydown', e => { if (e.key === 'Enter') addFood(); });
 
 // ─── CHAT ───
+function openFeatureLock(icon, title, desc) {
+  document.getElementById('feature-lock-icon').textContent = icon;
+  document.getElementById('feature-lock-title').textContent = title;
+  document.getElementById('feature-lock-desc').textContent = desc;
+  const m = document.getElementById('feature-lock');
+  m.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeFeatureLock() {
+  document.getElementById('feature-lock').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('click', function(e) {
+  const m = document.getElementById('feature-lock');
+  if (m && e.target === m) closeFeatureLock();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeFeatureLock();
+});
+
 let freeQuestionsUsed = 0;
 const FREE_LIMIT = 2;
 

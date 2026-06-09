@@ -415,9 +415,9 @@ nav.sidebar-nav{
   <a href="index.html" class="sidebar-logo">Vita<span>lis</span></a>
 
   <div class="sidebar-user">
-    <div class="user-avatar" id="nav-avatar">AL</div>
+    <div class="user-avatar" id="nav-avatar">?</div>
     <div class="user-info">
-      <div class="user-name" id="nav-name">Anna Lindgren</div>
+      <div class="user-name" id="nav-name" style="color:var(--text-dim);font-style:italic">Inte inloggad</div>
       <div class="user-plan">✦ Wellness Pro</div>
     </div>
   </div>
@@ -471,7 +471,7 @@ nav.sidebar-nav{
 <div class="main">
   <div class="topbar">
     <div>
-      <div class="topbar-title" data-i18n="dash_greeting">God morgon, <em id="greeting-name">Anna</em> 🌿</div>
+      <div class="topbar-title">God morgon, <em id="greeting-name" style="color:var(--lime)">du</em> 🌿</div>
       <div class="topbar-date" id="top-date"></div>
     </div>
     <div class="streak-pill">
@@ -503,26 +503,22 @@ nav.sidebar-nav{
       <div class="grid-4">
         <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_kcal">Kalorier idag</div>
-          <div class="val">1 840<span class="unit"> kcal</span></div>
-          <div class="delta up">↑ +120 <span data-i18n="vs_goal">vs mål</span></div>
+          <div class="val" style="color:var(--text-dim)">–<span class="unit"> kcal</span></div>
           <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
         </div>
         <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_sleep">Sömn igår</div>
-          <div class="val">7.4<span class="unit"> h</span></div>
-          <div class="delta up">↑ +0.4h <span data-i18n="vs_avg">vs snitt</span></div>
+          <div class="val" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
           <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
         </div>
         <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_steps">Steg idag</div>
-          <div class="val">8 230</div>
-          <div class="delta down">↓ -1 770 <span data-i18n="vs_goal">vs mål</span></div>
+          <div class="val" style="color:var(--text-dim)">–</div>
           <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
         </div>
         <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_weight">Vikt</div>
-          <div class="val">68.2<span class="unit"> kg</span></div>
-          <div class="delta up">↓ −0.8kg <span data-i18n="this_month">denna månad</span></div>
+          <div class="val" style="color:var(--text-dim)">–<span class="unit"> kg</span></div>
           <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
         </div>
       </div>
@@ -1188,9 +1184,9 @@ nav.sidebar-nav{
     <!-- PROFILE TAB -->
     <div class="tab-content" id="tab-profile">
       <div class="profile-header">
-        <div class="profile-avatar-big">AL</div>
+        <div class="profile-avatar-big" id="profile-avatar-big">–</div>
         <div>
-          <div class="profile-name">Anna Lindgren</div>
+          <div class="profile-name" id="profile-fullname" style="color:var(--text-dim);font-style:italic">Ditt namn visas här</div>
           <div class="profile-plan">✦ Wellness Pro</div>
         </div>
       </div>
@@ -1206,17 +1202,17 @@ nav.sidebar-nav{
       <div class="grid-2">
         <div class="card">
           <div class="card-title" data-i18n="pr_personal">Personliga uppgifter</div>
-          <div class="profile-field"><label data-i18n="label_fname">Förnamn</label><div class="val">Anna</div></div>
-          <div class="profile-field"><label data-i18n="label_lname">Efternamn</label><div class="val">Lindgren</div></div>
-          <div class="profile-field"><label data-i18n="label_email">E-post</label><div class="val">anna@vitalis.se</div></div>
-          <div class="profile-field"><label data-i18n="label_phone">Telefon</label><div class="val">+46 70 123 45 67</div></div>
+          <div class="profile-field"><label data-i18n="label_fname">Förnamn</label><div class="val" id="pf-fname" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
+          <div class="profile-field"><label data-i18n="label_lname">Efternamn</label><div class="val" id="pf-lname" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
+          <div class="profile-field"><label data-i18n="label_email">E-post</label><div class="val" id="pf-email" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
+          <div class="profile-field"><label data-i18n="label_phone">Telefon</label><div class="val" id="pf-phone" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
         </div>
         <div class="card">
           <div class="card-title" data-i18n="pr_health">Hälsoprofil</div>
-          <div class="profile-field"><label data-i18n="pr_weight">Vikt</label><div class="val">68.2 kg</div></div>
-          <div class="profile-field"><label data-i18n="pr_height">Längd</label><div class="val">170 cm</div></div>
-          <div class="profile-field"><label data-i18n="pr_bmi">BMI</label><div class="val">23.6 – Normalvikt ✓</div></div>
-          <div class="profile-field"><label data-i18n="pr_goal">Mål</label><div class="val" data-i18n="goal_val">Gå ner 2 kg & förbättra sömn</div></div>
+          <div class="profile-field"><label data-i18n="pr_weight">Vikt</label><div class="val" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
+          <div class="profile-field"><label data-i18n="pr_height">Längd</label><div class="val" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
+          <div class="profile-field"><label data-i18n="pr_bmi">BMI</label><div class="val" style="color:var(--text-dim);font-style:italic">Beräknas när vikt & längd anges</div></div>
+          <div class="profile-field"><label data-i18n="pr_goal">Mål</label><div class="val" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
         </div>
       </div>
 
@@ -1224,19 +1220,19 @@ nav.sidebar-nav{
         <div class="card-title" data-i18n="pr_stats">Din statistik totalt</div>
         <div class="grid-4" style="margin:16px 0 0">
           <div style="text-align:center">
-            <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--lime)">47</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--lime)">0</div>
             <div style="font-size:0.72rem;color:var(--text-dim)" data-i18n="stat_days">Aktiva dagar</div>
           </div>
           <div style="text-align:center">
-            <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--lime)">312</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--lime)">0</div>
             <div style="font-size:0.72rem;color:var(--text-dim)" data-i18n="stat_meals">Måltider loggade</div>
           </div>
           <div style="text-align:center">
-            <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--lime)">89</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--lime)">0</div>
             <div style="font-size:0.72rem;color:var(--text-dim)" data-i18n="stat_ai">AI-frågor ställda</div>
           </div>
           <div style="text-align:center">
-            <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--gold)">−1.8</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--gold)">–</div>
             <div style="font-size:0.72rem;color:var(--text-dim)" data-i18n="stat_weight">kg sedan start</div>
           </div>
         </div>

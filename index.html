@@ -800,9 +800,15 @@
 
   /* Mobile */
   @media (max-width: 640px) {
-    nav { padding: 16px 20px; }
+    nav { padding: 14px 16px; }
     .nav-right { gap: 8px; }
-    .nav-right a[data-i18n-login] { display: none; }
+    .lang-switcher { display: none; }
+    .nav-right a[data-i18n-login] {
+      display: inline-block !important;
+      font-size: 0.78rem;
+      padding: 8px 12px;
+    }
+    .nav-cta { font-size: 0.78rem; padding: 8px 14px; }
     .hero { padding: 100px 20px 60px; }
     .section, .dashboard-section, .ai-section { padding: 60px 20px; }
     .stats-strip { gap: 32px; padding: 20px; }

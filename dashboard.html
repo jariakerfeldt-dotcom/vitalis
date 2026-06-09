@@ -2128,23 +2128,45 @@ async function searchMedicine() {
   try {
     const resp = await fetch('/.netlify/functions/ai', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:600,
-        messages:[{role:'user',content:`Ge information om medicinen/kosttillskottet: "${query}". Svara ENBART med JSON utan markdown: {"results":[{"name":"exakt namn","type":"receptbelagd/receptfri/kosttillskott/vitamin","dose_common":"vanlig dos","description":"kort beskrivning på svenska max 1 mening","fass_url":"https://www.fass.se om känd annars tom sträng"}]}`}]
+      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:800,
+        system: 'Du är en medicinsk databas. Svara ALLTID ENBART med ren JSON utan markdown, förklaringar eller backticks.',
+        messages:[{role:'user',content:`Ge information om: "${query}". Returnera detta exakta JSON-format:
+{"results":[{"name":"Fullständigt namn","type":"receptbelagd eller receptfri eller kosttillskott eller vitamin","dose_common":"t.ex. 500mg 1 gång dagligen","description":"En mening om vad det är och används för på svenska.","fass_url":""}]}`}]
       })
     });
     const data = await resp.json();
-    const json = JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
-    if (!json.results?.length) throw new Error('Inga resultat');
+    let text = data.content?.[0]?.text || '';
+    // Strip any markdown fences
+    text = text.replace(/```json/g,'').replace(/```/g,'').trim();
+    // Extract JSON if wrapped in text
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON');
+    const json = JSON.parse(match[0]);
+    if (!json.results?.length) throw new Error('Empty');
     resultsEl.innerHTML = json.results.slice(0,5).map(r => `
-      <div onclick="selectMedicine('${r.name.replace(/'/g,"\\'")}','${(r.dose_common||'').replace(/'/g,"\\'")}','${r.type}')" style="padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.2s" onmouseover="this.style.background='rgba(126,200,80,0.05)'" onmouseout="this.style.background='transparent'">
-        <div style="font-size:0.86rem;color:var(--cream);font-weight:500">${r.name} <span style="font-size:0.7rem;color:var(--gold)">${r.type}</span></div>
-        <div style="font-size:0.74rem;color:var(--text-dim);margin-top:3px">${r.description}</div>
+      <div onclick="selectMedicine('${(r.name||'').replace(/'/g,"\\'")}','${(r.dose_common||'').replace(/'/g,"\\'")}','${r.type||''}')"
+        style="padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.2s"
+        onmouseover="this.style.background='rgba(126,200,80,0.06)'"
+        onmouseout="this.style.background='transparent'">
+        <div style="font-size:0.86rem;color:var(--cream);font-weight:500">${r.name} <span style="font-size:0.7rem;color:var(--gold);font-weight:400">${r.type||''}</span></div>
+        <div style="font-size:0.74rem;color:var(--text-dim);margin-top:3px">${r.description||''}</div>
         ${r.dose_common?`<div style="font-size:0.72rem;color:var(--lime);margin-top:2px">Vanlig dos: ${r.dose_common}</div>`:''}
-        ${r.fass_url?`<a href="${r.fass_url}" target="_blank" onclick="event.stopPropagation()" style="font-size:0.7rem;color:var(--gold);text-decoration:none;margin-top:2px;display:inline-block">→ FASS</a>`:''}
+        <div style="font-size:0.72rem;color:rgba(126,200,80,0.5);margin-top:4px">Klicka för att välja →</div>
       </div>`).join('');
   } catch(e) {
-    resultsEl.innerHTML = `<div style="padding:12px 16px;font-size:0.82rem;color:var(--text-dim)">Hittade inget för "${query}". Lägg till manuellt nedan.</div>`;
+    // Fallback – show manual add hint with what was typed pre-filled
+    resultsEl.innerHTML = `
+      <div style="padding:14px 16px">
+        <div style="font-size:0.82rem;color:var(--text-dim);margin-bottom:10px">Hittade inget exakt för "<strong style="color:var(--cream)">${query}</strong>" – lägg till manuellt:</div>
+        <button onclick="prefillMedicine('${query.replace(/'/g,"\\'")}');document.getElementById('med-search-results').style.display='none'" style="width:100%;padding:10px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer">+ Lägg till "${query}" manuellt</button>
+      </div>`;
   }
+}
+
+function prefillMedicine(name) {
+  document.getElementById('med-name').value = name;
+  document.getElementById('med-dose').focus();
+  showToast('Fyll i dos och typ – klicka sedan "Lägg till"');
 }
 
 function selectMedicine(name, dose, type) {

@@ -526,13 +526,70 @@ select option:checked {
 <div class="main">
   <div class="topbar">
     <div>
-      <div class="topbar-title">God morgon, <em id="greeting-name" style="color:var(--lime)">du</em> 🌿</div>
+      <div class="topbar-title"><span id="greeting-time">God kväll</span>, <em id="greeting-name" style="color:var(--lime)">du</em> 🌿</div>
       <div class="topbar-date" id="top-date"></div>
     </div>
-    <div class="streak-pill">
-      <span class="fire">🔥</span>
-      <span class="streak-num">14</span>
-      <span class="streak-label" data-i18n="streak_label">dagars streak</span>
+    <div class="streak-pill" style="flex-direction:column;align-items:flex-end;gap:4px;min-width:160px" onclick="showStreakDetails()" title="Klicka för detaljer">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="fire">🔥</span>
+        <span class="streak-num" id="streak-num">0</span>
+        <span class="streak-label" data-i18n="streak_label">dagars streak</span>
+        <span id="streak-badge" style="display:none;font-size:0.65rem;padding:2px 7px;border-radius:100px;font-weight:700;margin-left:2px"></span>
+      </div>
+      <!-- Progress bar -->
+      <div style="width:100%">
+        <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--text-dim);margin-bottom:3px">
+          <span id="streak-progress-label">Nästa: 35 dagar → 7 dagar gratis</span>
+          <span id="streak-progress-pct">0%</span>
+        </div>
+        <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:100px;overflow:hidden">
+          <div id="streak-progress-bar" style="height:100%;width:0%;border-radius:100px;background:linear-gradient(90deg,var(--lime),var(--gold));transition:width 1s ease"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STREAK DETAILS MODAL -->
+    <div id="streak-modal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(8,20,13,0.88);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px">
+      <div style="background:var(--mid-green);border:1px solid rgba(126,200,80,0.2);border-radius:28px;width:100%;max-width:400px;padding:36px;text-align:center;position:relative">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);border-radius:28px 28px 0 0"></div>
+        <div style="font-size:2.5rem;margin-bottom:12px">🔥</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--soft-white);margin-bottom:6px"><span id="modal-streak-num">0</span> dagars streak</div>
+        <div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:24px">Logga in och uppdatera din logg varje dag för att nå belöningarna</div>
+
+        <!-- Milestone 1: 35 days -->
+        <div id="milestone-35" style="padding:14px;border-radius:14px;margin-bottom:10px;border:1px solid rgba(126,200,80,0.15);background:rgba(255,255,255,0.02)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:0.86rem;color:var(--cream);font-weight:600">🎯 35 dagar</div>
+            <div style="font-size:0.78rem;color:var(--lime);font-weight:700" id="reward-35-label">7 dagar gratis</div>
+          </div>
+          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:6px">
+            <div id="bar-35" style="height:100%;width:0%;background:linear-gradient(90deg,var(--lime),#a8e063);border-radius:100px;transition:width 1s ease"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-dim)">
+            <span>0 dagar</span>
+            <span id="days-left-35">35 dagar kvar</span>
+            <span>35 dagar</span>
+          </div>
+        </div>
+
+        <!-- Milestone 2: 65 days -->
+        <div id="milestone-65" style="padding:14px;border-radius:14px;margin-bottom:20px;border:1px solid rgba(201,168,76,0.15);background:rgba(255,255,255,0.02)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:0.86rem;color:var(--cream);font-weight:600">🏆 65 dagar</div>
+            <div style="font-size:0.78rem;color:var(--gold);font-weight:700">30 dagar gratis</div>
+          </div>
+          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:6px">
+            <div id="bar-65" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gold),#e8c870);border-radius:100px;transition:width 1s ease"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-dim)">
+            <span>0 dagar</span>
+            <span id="days-left-65">65 dagar kvar</span>
+            <span>65 dagar</span>
+          </div>
+        </div>
+
+        <button onclick="document.getElementById('streak-modal').style.display='none';document.body.style.overflow=''" style="width:100%;padding:12px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer">Stäng</button>
+      </div>
     </div>
   </div>
 
@@ -556,25 +613,25 @@ select option:checked {
       </div>
 
       <div class="grid-4">
-        <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
+        <div class="card metric-big" onclick="showTab('food')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_kcal">Kalorier idag</div>
           <div class="val" style="color:var(--text-dim)">–<span class="unit"> kcal</span></div>
-          <div style="font-size:0.68rem;color:var(--text-dim);margin-top:6px;font-style:italic">Ingen data ännu</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Matlogg</div>
         </div>
-        <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
+        <div class="card metric-big" onclick="showTab('sleep')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_sleep">Sömn igår</div>
           <div class="val" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
-          <div style="font-size:0.68rem;color:var(--text-dim);margin-top:6px;font-style:italic">Ingen data ännu</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Sömn</div>
         </div>
-        <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
+        <div class="card metric-big" onclick="showTab('activity')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_steps">Steg idag</div>
           <div class="val" style="color:var(--text-dim)">–</div>
-          <div style="font-size:0.68rem;color:var(--text-dim);margin-top:6px;font-style:italic">Ingen data ännu</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Aktivitet</div>
         </div>
-        <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
+        <div class="card metric-big" onclick="showTab('profile')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_weight">Vikt</div>
           <div class="val" style="color:var(--text-dim)">–<span class="unit"> kg</span></div>
-          <div style="font-size:0.68rem;color:var(--text-dim);margin-top:6px;font-style:italic">Ange i Profil</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Profil</div>
         </div>
       </div>
 
@@ -1429,12 +1486,111 @@ select option:checked {
 <div class="toast" id="toast"></div>
 
 <script>
-// ── DATE ──
+// ── DATE & GREETING ──
 (function(){
   const d = new Date();
   const sv = d.toLocaleDateString('sv-SE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('top-date').textContent = sv.charAt(0).toUpperCase()+sv.slice(1);
+
+  // Dynamic greeting
+  const h = d.getHours();
+  let greeting;
+  if (h >= 5 && h < 11) greeting = 'God morgon';
+  else if (h >= 11 && h < 14) greeting = 'God förmiddag';
+  else if (h >= 14 && h < 18) greeting = 'God eftermiddag';
+  else if (h >= 18 && h < 22) greeting = 'God kväll';
+  else greeting = 'God natt';
+  const greetEl = document.getElementById('greeting-time');
+  if (greetEl) greetEl.textContent = greeting;
+
+  // Streak
+  try {
+    const today = d.toDateString();
+    const last = localStorage.getItem('vitalis_streak_last');
+    let streak = parseInt(localStorage.getItem('vitalis_streak') || '0');
+    if (last !== today) {
+      const yesterday = new Date(d); yesterday.setDate(d.getDate()-1);
+      streak = (last === yesterday.toDateString()) ? streak + 1 : 1;
+      localStorage.setItem('vitalis_streak', streak);
+      localStorage.setItem('vitalis_streak_last', today);
+    }
+    updateStreakUI(streak);
+  } catch(e){}
 })();
+
+function updateStreakUI(streak) {
+  // Update pill number
+  const numEl = document.getElementById('streak-num');
+  if (numEl) numEl.textContent = streak;
+
+  // Determine next milestone
+  const m1 = 35, m2 = 65;
+  let nextMilestone, nextLabel, pct;
+  if (streak < m1) {
+    nextMilestone = m1;
+    nextLabel = `Nästa: ${m1} dagar → 7 dagar gratis`;
+    pct = Math.round((streak / m1) * 100);
+  } else if (streak < m2) {
+    nextMilestone = m2;
+    nextLabel = `Nästa: ${m2} dagar → 30 dagar gratis 🏆`;
+    pct = Math.round(((streak - m1) / (m2 - m1)) * 100);
+  } else {
+    nextLabel = '🏆 Alla belöningar upplåsta!';
+    pct = 100;
+  }
+
+  // Update progress bar in pill
+  const labelEl = document.getElementById('streak-progress-label');
+  const pctEl = document.getElementById('streak-progress-pct');
+  const barEl = document.getElementById('streak-progress-bar');
+  if (labelEl) labelEl.textContent = nextLabel;
+  if (pctEl) pctEl.textContent = pct + '%';
+  setTimeout(() => { if (barEl) barEl.style.width = pct + '%'; }, 300);
+
+  // Badge
+  const badge = document.getElementById('streak-badge');
+  if (badge) {
+    if (streak >= m2) {
+      badge.style.display = 'inline';
+      badge.textContent = '🏆 Platina';
+      badge.style.background = 'rgba(201,168,76,0.2)';
+      badge.style.color = 'var(--gold)';
+    } else if (streak >= m1) {
+      badge.style.display = 'inline';
+      badge.textContent = '🎯 Grön';
+      badge.style.background = 'rgba(126,200,80,0.15)';
+      badge.style.color = 'var(--lime)';
+    }
+  }
+}
+
+function showStreakDetails() {
+  const streak = parseInt(localStorage.getItem('vitalis_streak') || '0');
+  const m1 = 35, m2 = 65;
+  document.getElementById('modal-streak-num').textContent = streak;
+
+  // Bar 35
+  const pct35 = Math.min(100, Math.round((streak / m1) * 100));
+  setTimeout(() => { document.getElementById('bar-35').style.width = pct35 + '%'; }, 100);
+  const left35 = Math.max(0, m1 - streak);
+  document.getElementById('days-left-35').textContent = left35 > 0 ? left35 + ' dagar kvar' : '✅ Uppnådd!';
+  document.getElementById('bar-35').style.background = left35 === 0
+    ? 'linear-gradient(90deg,var(--lime),#a8e063)'
+    : 'linear-gradient(90deg,var(--lime),#a8e063)';
+  const label35 = document.getElementById('reward-35-label');
+  if (label35) label35.textContent = left35 === 0 ? '✅ 7 dagar gratis upplåst!' : '7 dagar gratis';
+  if (left35 === 0) { label35.style.color = 'var(--lime)'; document.getElementById('milestone-35').style.borderColor = 'rgba(126,200,80,0.4)'; }
+
+  // Bar 65
+  const pct65 = Math.min(100, Math.round((streak / m2) * 100));
+  setTimeout(() => { document.getElementById('bar-65').style.width = pct65 + '%'; }, 150);
+  const left65 = Math.max(0, m2 - streak);
+  document.getElementById('days-left-65').textContent = left65 > 0 ? left65 + ' dagar kvar' : '✅ Uppnådd!';
+  if (left65 === 0) { document.getElementById('milestone-65').style.borderColor = 'rgba(201,168,76,0.4)'; }
+
+  document.getElementById('streak-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
 
 // ── TABS ──
 const tabMap = {

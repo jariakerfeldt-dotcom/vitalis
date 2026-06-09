@@ -683,6 +683,20 @@ nav.sidebar-nav{
 
         <!-- ADD FOOD ROW -->
         <div style="margin-top:14px">
+          <!-- Quick meal suggestions -->
+          <div style="margin-bottom:10px">
+            <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⚡ Snabbval</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+              <button onclick="quickAddFood('🥣 Havregrynsgröt med bär',320)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🥣 Havregrynsgröt</button>
+              <button onclick="quickAddFood('🍳 Äggröra med rostat bröd',380)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🍳 Äggröra</button>
+              <button onclick="quickAddFood('🥗 Kycklingsallad',450)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🥗 Kycklingsallad</button>
+              <button onclick="quickAddFood('🍱 Laxfilé med ris',520)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🍱 Lax med ris</button>
+              <button onclick="quickAddFood('🍌 Banan',89)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🍌 Banan</button>
+              <button onclick="quickAddFood('🧃 Proteinshake',180)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🧃 Proteinshake</button>
+              <button onclick="quickAddFood('☕ Kaffe med mjölk',30)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">☕ Kaffe</button>
+              <button onclick="quickAddFood('🍕 Pizza (2 skivor)',580)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🍕 Pizza</button>
+            </div>
+          </div>
           <div class="add-row" style="margin-bottom:10px">
             <input type="text" id="food-input" placeholder="Skriv måltid manuellt..." data-i18n-ph="food_ph">
             <button onclick="addFood()" data-i18n="food_add_btn">+ Lägg till</button>
@@ -801,9 +815,33 @@ nav.sidebar-nav{
       </div>
       <div class="card">
         <div class="card-title" data-i18n="sl_log">Sömnlogg</div>
-        <div style="text-align:center;padding:24px 0;color:var(--text-dim)">
+        <div id="sleep-list" style="text-align:center;padding:20px 0;color:var(--text-dim)">
           <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">🌙</div>
           <div style="font-size:0.84rem">Inga nätter loggade ännu</div>
+        </div>
+        <!-- Quick sleep options -->
+        <div style="margin-top:14px">
+          <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⚡ Snabbval</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+            <button onclick="quickAddSleep(3,'😵 Mycket dålig sömn')" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">😵 3h</button>
+            <button onclick="quickAddSleep(3.5,'😵 Mycket dålig sömn')" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">😵 3.5h</button>
+            <button onclick="quickAddSleep(4,'😣 Kort sömn')" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">😣 4h</button>
+            <button onclick="quickAddSleep(4.5,'😣 Kort sömn')" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">😣 4.5h</button>
+            <button onclick="quickAddSleep(5.5,'😴 Dålig sömn')" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">😴 5.5h – Dålig</button>
+            <button onclick="quickAddSleep(6.5,'🙂 Okej sömn')" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🙂 6.5h – Okej</button>
+            <button onclick="quickAddSleep(7.5,'😊 Bra sömn')" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">😊 7.5h – Bra</button>
+            <button onclick="quickAddSleep(8.5,'🌟 Utmärkt sömn')" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🌟 8.5h – Utmärkt</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="number" id="sleep-hours" placeholder="Timmar (t.ex. 7.5)" step="0.5" min="0" max="24" style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none" onkeydown="if(event.key==='Enter')addSleep()">
+            <select id="sleep-quality" style="padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none">
+              <option value="bra">😊 Bra</option>
+              <option value="okej">🙂 Okej</option>
+              <option value="dalig">😴 Dålig</option>
+              <option value="orolig">😰 Orolig</option>
+            </select>
+            <button onclick="addSleep()" style="padding:10px 18px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap">+ Logga</button>
+          </div>
         </div>
       </div>
     </div>
@@ -834,14 +872,26 @@ nav.sidebar-nav{
       </div>
       <div class="card">
         <div class="card-title" data-i18n="ac_log">Aktivitetslogg</div>
-        <div id="activity-list" style="text-align:center;padding:24px 0;color:var(--text-dim)">
+        <div id="activity-list" style="text-align:center;padding:20px 0;color:var(--text-dim)">
           <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">🏃</div>
           <div style="font-size:0.84rem">Inga aktiviteter loggade ännu</div>
-          <div style="font-size:0.75rem;opacity:0.7;margin-top:4px">Logga din första aktivitet nedan</div>
         </div>
-        <div class="add-row" style="margin-top:16px">
-          <input type="text" id="activity-input" placeholder="Logga aktivitet..." data-i18n-ph="ac_ph">
-          <button onclick="addActivity()" data-i18n="ac_add_btn">+ Logga</button>
+        <!-- Quick activity options -->
+        <div style="margin-top:14px">
+          <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⚡ Snabbval</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+            <button onclick="quickAddActivity('🚶 Promenad',30,150)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🚶 Promenad</button>
+            <button onclick="quickAddActivity('🏃 Löpning',45,400)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏃 Löpning</button>
+            <button onclick="quickAddActivity('🚴 Cykling',60,350)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🚴 Cykling</button>
+            <button onclick="quickAddActivity('🏋️ Styrketräning',45,300)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏋️ Styrketräning</button>
+            <button onclick="quickAddActivity('🧘 Yoga',30,120)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🧘 Yoga</button>
+            <button onclick="quickAddActivity('🏊 Simning',45,380)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏊 Simning</button>
+            <button onclick="quickAddActivity('⛹️ Lagsport',60,420)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">⛹️ Lagsport</button>
+          </div>
+          <div class="add-row">
+            <input type="text" id="activity-input" placeholder="Annan aktivitet (t.ex. tennis 45 min)..." data-i18n-ph="ac_ph" onkeydown="if(event.key==='Enter')addActivity()">
+            <button onclick="addActivity()" data-i18n="ac_add_btn">+ Logga</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1280,7 +1330,65 @@ function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
 }
 
-// ── FOOD LOG PHOTO ──
+// ── QUICK ADD FOOD ──
+function quickAddFood(name, kcal) {
+  totalKcal += kcal;
+  const now = new Date();
+  const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  const item = document.createElement('div');
+  item.className='food-item'; item.setAttribute('data-kcal',kcal);
+  item.innerHTML=`<div class="food-left"><span class="food-emoji">${name.split(' ')[0]}</span><div><div class="food-name">${name}</div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal">${kcal} kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>`;
+  item.style.opacity='0';
+  const empty = document.getElementById('food-empty-state');
+  if(empty) empty.style.display='none';
+  document.getElementById('food-list').appendChild(item);
+  setTimeout(()=>{item.style.transition='all 0.3s';item.style.opacity='1';},10);
+  updateFoodStats(); showToast(name + ' tillagd ✓');
+}
+
+// ── SLEEP LOG ──
+function quickAddSleep(hours, label) {
+  addSleepEntry(hours, label);
+}
+
+function addSleep() {
+  const h = parseFloat(document.getElementById('sleep-hours').value);
+  if (!h || h <= 0) { showToast('Ange antal timmar!'); return; }
+  const q = document.getElementById('sleep-quality').value;
+  const labels = {bra:'😊 Bra sömn', okej:'🙂 Okej sömn', dalig:'😴 Dålig sömn', orolig:'😰 Orolig sömn'};
+  addSleepEntry(h, labels[q] || 'Sömn');
+  document.getElementById('sleep-hours').value = '';
+}
+
+function addSleepEntry(hours, label) {
+  const list = document.getElementById('sleep-list');
+  if(list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('sv-SE', {weekday:'short', month:'short', day:'numeric'});
+  const item = document.createElement('div');
+  item.className = 'activity-item';
+  const color = hours >= 8 ? 'var(--lime)' : hours >= 7 ? 'var(--gold)' : '#e05c5c';
+  item.innerHTML = `<div class="activity-icon">🌙</div><div class="activity-text"><div class="title">${label}</div><div class="time">${dateStr}</div></div><div class="activity-val" style="color:${color}">${hours}h</div>`;
+  item.style.opacity='0';
+  list.appendChild(item);
+  setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
+  showToast(`${hours}h sömn loggad ✓`);
+}
+
+// ── QUICK ADD ACTIVITY ──
+function quickAddActivity(name, minutes, kcal) {
+  const list = document.getElementById('activity-list');
+  if(list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
+  const now = new Date();
+  const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  const item = document.createElement('div');
+  item.className='activity-item';
+  item.innerHTML=`<div class="activity-icon">${name.split(' ')[0]}</div><div class="activity-text"><div class="title">${name}</div><div class="time">${time} · ${minutes} min</div></div><div class="activity-val" style="color:var(--lime)">${kcal} kcal</div>`;
+  item.style.opacity='0';
+  list.appendChild(item);
+  setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
+  showToast(name + ' loggad ✓');
+}
 let foodLogPhotoB64 = null;
 let foodLogAIResult = null;
 let foodPhotosB64 = [];
@@ -1606,13 +1714,12 @@ document.getElementById('food-input').addEventListener('keydown',e=>{if(e.key===
 function addActivity(){
   const input = document.getElementById('activity-input');
   const val = input.value.trim(); if(!val) return;
+  const list = document.getElementById('activity-list');
+  if(list.querySelector('[style*="opacity:0.25"]')) list.innerHTML='';
   const now = new Date();
   const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-  const icons = ['🏃','🚴','🧘','🏋️','🤸','⛹️'];
+  const icons = ['🏃','🚴','🧘','🏋️','🤸','⛹️','🎾','🏊'];
   const ic = icons[Math.floor(Math.random()*icons.length)];
-  const list = document.getElementById('activity-list');
-  // Clear empty state placeholder
-  if(list.querySelector('[style*="opacity:0.25"]')) list.innerHTML='';
   const item = document.createElement('div');
   item.className='activity-item';
   item.innerHTML=`<div class="activity-icon">${ic}</div><div class="activity-text"><div class="title">${val}</div><div class="time">${time}</div></div><div class="activity-val">Loggad</div>`;

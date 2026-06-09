@@ -1330,6 +1330,19 @@ function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
 }
 
+// ── DELETE ENTRY (sömn & aktivitet) ──
+function deleteEntry(btn) {
+  const item = btn.closest('.activity-item');
+  if (!item) return;
+  item.style.transition = 'all 0.3s';
+  item.style.opacity = '0';
+  item.style.transform = 'translateX(10px)';
+  setTimeout(() => {
+    item.remove();
+    showToast('Post borttagen ✓');
+  }, 300);
+}
+
 // ── QUICK ADD FOOD ──
 function quickAddFood(name, kcal) {
   totalKcal += kcal;
@@ -1368,7 +1381,7 @@ function addSleepEntry(hours, label) {
   const item = document.createElement('div');
   item.className = 'activity-item';
   const color = hours >= 8 ? 'var(--lime)' : hours >= 7 ? 'var(--gold)' : '#e05c5c';
-  item.innerHTML = `<div class="activity-icon">🌙</div><div class="activity-text"><div class="title">${label}</div><div class="time">${dateStr}</div></div><div class="activity-val" style="color:${color}">${hours}h</div>`;
+  item.innerHTML = `<div class="activity-icon">🌙</div><div class="activity-text"><div class="title">${label}</div><div class="time">${dateStr}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="activity-val" style="color:${color}">${hours}h</div><button onclick="deleteEntry(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:2px 6px;transition:color 0.2s" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button></div>`;
   item.style.opacity='0';
   list.appendChild(item);
   setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
@@ -1383,11 +1396,29 @@ function quickAddActivity(name, minutes, kcal) {
   const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
   const item = document.createElement('div');
   item.className='activity-item';
-  item.innerHTML=`<div class="activity-icon">${name.split(' ')[0]}</div><div class="activity-text"><div class="title">${name}</div><div class="time">${time} · ${minutes} min</div></div><div class="activity-val" style="color:var(--lime)">${kcal} kcal</div>`;
+  item.innerHTML=`<div class="activity-icon">${name.split(' ')[0]}</div><div class="activity-text"><div class="title">${name}</div><div class="time">${time} · ${minutes} min</div></div><div style="display:flex;align-items:center;gap:8px"><div class="activity-val" style="color:var(--lime)">${kcal} kcal</div><button onclick="deleteEntry(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:2px 6px;transition:color 0.2s" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button></div>`;
   item.style.opacity='0';
   list.appendChild(item);
   setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
   showToast(name + ' loggad ✓');
+}
+
+function addActivity(){
+  const input = document.getElementById('activity-input');
+  const val = input.value.trim(); if(!val) return;
+  const list = document.getElementById('activity-list');
+  if(list.querySelector('[style*="opacity:0.25"]')) list.innerHTML='';
+  const now = new Date();
+  const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  const icons = ['🏃','🚴','🧘','🏋️','🤸','⛹️','🎾','🏊'];
+  const ic = icons[Math.floor(Math.random()*icons.length)];
+  const item = document.createElement('div');
+  item.className='activity-item';
+  item.innerHTML=`<div class="activity-icon">${ic}</div><div class="activity-text"><div class="title">${val}</div><div class="time">${time}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="activity-val">Loggad</div><button onclick="deleteEntry(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:2px 6px;transition:color 0.2s" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button></div>`;
+  item.style.opacity='0';
+  list.appendChild(item);
+  setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
+  input.value=''; showToast('Aktivitet loggad ✓');
 }
 let foodLogPhotoB64 = null;
 let foodLogAIResult = null;

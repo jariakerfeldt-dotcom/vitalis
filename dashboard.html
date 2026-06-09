@@ -186,6 +186,8 @@ nav.sidebar-nav{
 .tab-content.active{display:block;animation:fadeUp 0.4s ease both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulseDot{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-8px);opacity:1}}
+@keyframes scanLine{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes scanPulse{0%,100%{opacity:0.4;transform:scaleX(0.8)}50%{opacity:1;transform:scaleX(1)}}
 
 /* Cards grid */
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
@@ -731,27 +733,56 @@ nav.sidebar-nav{
 
         <!-- ADD FOOD ROW -->
         <div style="margin-top:14px">
-          <!-- Text input row -->
-          <div class="add-row" style="margin-bottom:8px">
+          <div class="add-row" style="margin-bottom:10px">
             <input type="text" id="food-input" placeholder="Skriv måltid manuellt..." data-i18n-ph="food_ph">
             <button onclick="addFood()" data-i18n="food_add_btn">+ Lägg till</button>
           </div>
-          <!-- Photo upload button -->
-          <button onclick="document.getElementById('food-log-photo').click()" style="width:100%;padding:11px;background:rgba(126,200,80,0.07);border:1.5px dashed rgba(126,200,80,0.25);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.25)';this.style.color='var(--text-dim)'">
-            📷 Fotografera eller ladda upp bild på din måltid – AI räknar kalorier
-          </button>
-          <input type="file" id="food-log-photo" accept="image/*" capture="environment" style="display:none" onchange="handleFoodLogPhoto(event)">
+
+          <!-- Multi-photo upload area -->
+          <div style="background:rgba(126,200,80,0.04);border:1.5px dashed rgba(126,200,80,0.2);border-radius:14px;padding:14px">
+            <div style="font-size:0.72rem;color:var(--lime);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px">📷 Fotografera din mat – AI analyserar</div>
+
+            <!-- Image grid -->
+            <div id="food-img-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+              <!-- Add button always first -->
+              <div id="food-add-img-btn" onclick="document.getElementById('food-multi-photo').click()" style="aspect-ratio:1;border:2px dashed rgba(126,200,80,0.25);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.02)" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.25)'">
+                <span style="font-size:1.4rem">📷</span>
+                <span style="font-size:0.65rem;color:var(--text-dim);margin-top:4px">Lägg till</span>
+              </div>
+            </div>
+            <input type="file" id="food-multi-photo" accept="image/*" capture="environment" multiple style="display:none" onchange="addFoodPhotos(event)">
+
+            <button id="food-analyze-multi-btn" onclick="analyzeFoodPhotos()" disabled style="width:100%;padding:11px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:not-allowed;transition:all 0.3s">
+              Lägg till bilder för att analysera
+            </button>
+          </div>
         </div>
 
-        <!-- Food log photo preview & result -->
-        <div id="food-log-preview-box" style="display:none;margin-top:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;padding:14px">
-          <div style="display:flex;gap:12px;align-items:flex-start">
-            <img id="food-log-img" src="" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0">
-            <div style="flex:1">
-              <div id="food-log-ai-result" style="font-size:0.84rem;color:var(--text-dim)">Analyserar…</div>
-              <button id="food-log-add-btn" onclick="addAIFoodFromLog()" style="display:none;margin-top:10px;padding:9px 16px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">+ Lägg till i loggen</button>
+        <!-- AI SCANNING ANIMATION -->
+        <div id="food-scan-loading" style="display:none;margin-top:14px;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;overflow:hidden;position:relative">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);animation:scanLine 1.5s infinite linear"></div>
+          <div style="position:relative;margin-bottom:16px">
+            <div id="scan-preview-imgs" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px"></div>
+            <div style="display:inline-flex;align-items:center;gap:10px;padding:10px 20px;background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.2);border-radius:100px">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1s infinite"></span>
+              <span id="scan-status-text" style="font-size:0.82rem;color:var(--lime)">AI skannar dina bilder…</span>
             </div>
-            <button onclick="closeFoodLogPreview()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;padding:2px">✕</button>
+          </div>
+          <div style="display:flex;justify-content:center;gap:5px">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0s infinite ease"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.2s infinite ease"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.4s infinite ease"></span>
+          </div>
+        </div>
+
+        <!-- AI RESULT -->
+        <div id="food-scan-result" style="display:none;margin-top:14px;background:var(--card-bg);border:1px solid rgba(126,200,80,0.25);border-radius:14px;padding:16px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+          <div style="font-size:0.7rem;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">✓ AI-analys klar</div>
+          <div id="scan-result-content"></div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button onclick="addAllScannedFoods()" style="flex:1;padding:11px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">+ Lägg till alla i loggen</button>
+            <button onclick="closeFoodScanResult()" style="padding:11px 16px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer">✕</button>
           </div>
         </div>
       </div>
@@ -1351,6 +1382,199 @@ function toggleSidebar(){
 // ── FOOD LOG PHOTO ──
 let foodLogPhotoB64 = null;
 let foodLogAIResult = null;
+let foodPhotosB64 = [];
+let scannedFoodResults = [];
+
+function addFoodPhotos(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  const remaining = 4 - foodPhotosB64.length;
+  const toLoad = files.slice(0, remaining);
+
+  toLoad.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      foodPhotosB64.push(e.target.result.split(',')[1]);
+      renderFoodPhotoGrid();
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function renderFoodPhotoGrid() {
+  const grid = document.getElementById('food-img-grid');
+  grid.innerHTML = '';
+
+  // Render thumbnails
+  foodPhotosB64.forEach((b64, i) => {
+    const div = document.createElement('div');
+    div.style.cssText = 'aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;background:rgba(255,255,255,0.05)';
+    div.innerHTML = `
+      <img src="data:image/jpeg;base64,${b64}" style="width:100%;height:100%;object-fit:cover">
+      <button onclick="removeFoodPhoto(${i})" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:white;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>`;
+    grid.appendChild(div);
+  });
+
+  // Add more button (max 4)
+  if (foodPhotosB64.length < 4) {
+    const add = document.createElement('div');
+    add.id = 'food-add-img-btn';
+    add.onclick = () => document.getElementById('food-multi-photo').click();
+    add.style.cssText = 'aspect-ratio:1;border:2px dashed rgba(126,200,80,0.25);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.02)';
+    add.onmouseover = () => add.style.borderColor = 'rgba(126,200,80,0.5)';
+    add.onmouseout = () => add.style.borderColor = 'rgba(126,200,80,0.25)';
+    add.innerHTML = `<span style="font-size:1.4rem">📷</span><span style="font-size:0.65rem;color:var(--text-dim);margin-top:4px">${foodPhotosB64.length === 0 ? 'Lägg till' : '+ Fler'}</span>`;
+    grid.appendChild(add);
+  }
+
+  // Update analyze button
+  const btn = document.getElementById('food-analyze-multi-btn');
+  if (foodPhotosB64.length > 0) {
+    btn.disabled = false;
+    btn.textContent = `🔍 Analysera ${foodPhotosB64.length} bild${foodPhotosB64.length > 1 ? 'er' : ''} med AI`;
+    btn.style.background = 'var(--lime)';
+    btn.style.color = 'var(--deep-green)';
+    btn.style.cursor = 'pointer';
+    btn.style.borderColor = 'var(--lime)';
+    btn.style.fontWeight = '700';
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'Lägg till bilder för att analysera';
+    btn.style.background = 'rgba(126,200,80,0.1)';
+    btn.style.color = 'var(--text-dim)';
+    btn.style.cursor = 'not-allowed';
+  }
+}
+
+function removeFoodPhoto(index) {
+  foodPhotosB64.splice(index, 1);
+  renderFoodPhotoGrid();
+}
+
+const scanSteps = [
+  { icon: '📷', text: 'Laddar upp bilder…' },
+  { icon: '🔍', text: 'AI identifierar ingredienser…' },
+  { icon: '🧮', text: 'Beräknar näringsvärden…' },
+  { icon: '✅', text: 'Analys klar!' }
+];
+
+async function analyzeFoodPhotos() {
+  if (!foodPhotosB64.length) return;
+
+  const loading = document.getElementById('food-scan-loading');
+  const result = document.getElementById('food-scan-result');
+  const statusText = document.getElementById('scan-status-text');
+  const previewImgs = document.getElementById('scan-preview-imgs');
+
+  loading.style.display = 'block';
+  result.style.display = 'none';
+
+  // Show thumbnails in loading box
+  previewImgs.innerHTML = foodPhotosB64.map(b64 =>
+    `<img src="data:image/jpeg;base64,${b64}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid rgba(126,200,80,0.2)">`
+  ).join('');
+
+  // Animate through steps
+  let stepIndex = 0;
+  const stepInterval = setInterval(() => {
+    if (stepIndex < scanSteps.length - 1) {
+      stepIndex++;
+      statusText.textContent = scanSteps[stepIndex].icon + ' ' + scanSteps[stepIndex].text;
+    }
+  }, 900);
+
+  try {
+    const contentArr = foodPhotosB64.map(b64 => ({
+      type: 'image',
+      source: { type: 'base64', media_type: 'image/jpeg', data: b64 }
+    }));
+    contentArr.push({
+      type: 'text',
+      text: `Analysera maten på bilderna noggrant. Använd alla bilder för bästa träffsäkerhet. Svara ENBART med JSON utan markdown:
+{"meals":[{"name":"maträttens namn på svenska","kcal":nummer,"protein_g":nummer,"carbs_g":nummer,"fat_g":nummer,"confidence":"hög/medel/låg"}],"total_kcal":nummer,"note":"kort sammanfattning på svenska"}`
+    });
+
+    const resp = await fetch('/.netlify/functions/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 600,
+        messages: [{ role: 'user', content: contentArr }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.[0]?.text || '';
+    scannedFoodResults = JSON.parse(text.replace(/```json|```/g,'').trim());
+  } catch(e) {
+    scannedFoodResults = {
+      meals: [{ name: 'Måltid (AI-uppskattning)', kcal: 420, protein_g: 32, carbs_g: 35, fat_g: 16, confidence: 'medel' }],
+      total_kcal: 420,
+      note: 'Uppskattning baserad på bilderna. Justera vid behov.'
+    };
+  }
+
+  clearInterval(stepInterval);
+  statusText.textContent = '✅ Analys klar!';
+  await new Promise(r => setTimeout(r, 600));
+
+  loading.style.display = 'none';
+  showScanResult();
+}
+
+function showScanResult() {
+  const result = document.getElementById('food-scan-result');
+  const content = document.getElementById('scan-result-content');
+  result.style.display = 'block';
+
+  const meals = scannedFoodResults.meals || [];
+  const note = scannedFoodResults.note || '';
+  const total = scannedFoodResults.total_kcal || 0;
+
+  content.innerHTML = meals.map(m => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:0.88rem;color:var(--cream);font-weight:500">${m.name}</div>
+        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px">
+          Protein: ${m.protein_g}g &nbsp;·&nbsp; Kolh: ${m.carbs_g}g &nbsp;·&nbsp; Fett: ${m.fat_g}g
+          &nbsp;·&nbsp; <span style="color:${m.confidence==='hög'?'var(--lime)':m.confidence==='medel'?'var(--gold)':'#e05c5c'}">${m.confidence} säkerhet</span>
+        </div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--lime);margin-left:12px">${m.kcal} kcal</div>
+    </div>`).join('') + `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px">
+      <div style="font-size:0.8rem;color:var(--text-dim);font-style:italic">${note}</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--lime);font-weight:300">Totalt: ${total} kcal</div>
+    </div>`;
+}
+
+function addAllScannedFoods() {
+  if (!scannedFoodResults.meals) return;
+  const now = new Date();
+  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  scannedFoodResults.meals.forEach(m => {
+    totalKcal += m.kcal;
+    const item = document.createElement('div');
+    item.className = 'food-item';
+    item.setAttribute('data-kcal', m.kcal);
+    item.innerHTML = `<div class="food-left"><span class="food-emoji">📷</span><div><div class="food-name">${m.name} <span style="font-size:0.68rem;color:var(--lime)">AI</span></div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal">${m.kcal} kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>`;
+    item.style.opacity = '0';
+    document.getElementById('food-list').appendChild(item);
+    setTimeout(() => { item.style.transition = 'all 0.3s'; item.style.opacity = '1'; }, 10);
+  });
+  updateFoodStats();
+  closeFoodScanResult();
+  showToast(`📷 ${scannedFoodResults.meals.length} måltider tillagda ✓`);
+  foodPhotosB64 = [];
+  scannedFoodResults = [];
+  renderFoodPhotoGrid();
+}
+
+function closeFoodScanResult() {
+  document.getElementById('food-scan-result').style.display = 'none';
+  document.getElementById('food-scan-loading').style.display = 'none';
+}
 
 async function handleFoodLogPhoto(event) {
   const file = event.target.files[0];

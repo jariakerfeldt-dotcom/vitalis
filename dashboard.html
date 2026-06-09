@@ -486,30 +486,44 @@ nav.sidebar-nav{
     <!-- OVERVIEW TAB -->
     <div class="tab-content active" id="tab-overview">
 
+      <!-- LOCK MODAL -->
+      <div id="lock-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(8,20,13,0.85);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px">
+        <div style="background:var(--mid-green);border:1px solid rgba(126,200,80,0.25);border-radius:28px;width:100%;max-width:420px;padding:40px;text-align:center;position:relative;animation:fadeUp 0.3s ease both">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);border-radius:28px 28px 0 0"></div>
+          <div style="font-size:2.5rem;margin-bottom:16px">🔒</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:var(--soft-white);margin-bottom:10px">Registrering krävs</div>
+          <div style="font-size:0.85rem;color:var(--text-dim);line-height:1.7;margin-bottom:28px">Skapa ett gratis konto för att se din fullständiga hälsodata, logga mat, följa sömn och få personliga AI-råd.</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a href="register.html" style="padding:14px;background:var(--lime);color:var(--deep-green);border-radius:12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700">Skapa gratis konto →</a>
+            <button onclick="closeLock()" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.88rem;cursor:pointer">Stäng – fortsätt titta</button>
+          </div>
+        </div>
+      </div>
+
       <div class="grid-4">
-        <div class="card metric-big" onclick="showTab('food')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
+        <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_kcal">Kalorier idag</div>
           <div class="val">1 840<span class="unit"> kcal</span></div>
           <div class="delta up">↑ +120 <span data-i18n="vs_goal">vs mål</span></div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Matlogg</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
         </div>
-        <div class="card metric-big" onclick="showTab('sleep')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
+        <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_sleep">Sömn igår</div>
           <div class="val">7.4<span class="unit"> h</span></div>
           <div class="delta up">↑ +0.4h <span data-i18n="vs_avg">vs snitt</span></div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Sömn</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
         </div>
-        <div class="card metric-big" onclick="showTab('activity')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
+        <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_steps">Steg idag</div>
           <div class="val">8 230</div>
           <div class="delta down">↓ -1 770 <span data-i18n="vs_goal">vs mål</span></div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Aktivitet</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
         </div>
-        <div class="card metric-big" onclick="showTab('profile')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
+        <div class="card metric-big" onclick="openLock()" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_weight">Vikt</div>
           <div class="val">68.2<span class="unit"> kg</span></div>
           <div class="delta up">↓ −0.8kg <span data-i18n="this_month">denna månad</span></div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Profil</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">🔒 Logga in för detaljer</div>
         </div>
       </div>
 
@@ -1571,6 +1585,22 @@ function addAIFood() {
   aiResult = null;
   showToast('Måltid tillagd via AI ✓');
 }
+
+function openLock() {
+  const m = document.getElementById('lock-modal');
+  m.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeLock() {
+  const m = document.getElementById('lock-modal');
+  m.style.display = 'none';
+  document.body.style.overflow = '';
+}
+// Close on backdrop click
+document.addEventListener('click', function(e) {
+  const m = document.getElementById('lock-modal');
+  if (e.target === m) closeLock();
+});
 
 function showToast(msg){
   const t=document.getElementById('toast');

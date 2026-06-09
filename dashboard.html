@@ -358,10 +358,23 @@ nav.sidebar-nav{
   font-size:0.72rem;color:var(--text-dim);
   letter-spacing:0.08em;text-transform:uppercase;
 }
-.profile-field .val{
-  padding:12px 16px;background:rgba(255,255,255,0.04);
-  border:1px solid var(--border);border-radius:12px;
-  font-size:0.88rem;color:var(--cream);
+.profile-field input.profile-input,
+.profile-field select.profile-input {
+  width:100%;padding:11px 14px;
+  background:rgba(255,255,255,0.05);
+  border:1.5px solid var(--border);
+  border-radius:12px;color:var(--cream);
+  font-family:'DM Sans',sans-serif;font-size:0.88rem;
+  outline:none;transition:border-color 0.2s;
+  -webkit-appearance:none;
+}
+.profile-field input.profile-input:focus,
+.profile-field select.profile-input:focus {
+  border-color:rgba(126,200,80,0.5);
+  background:rgba(255,255,255,0.08);
+}
+.profile-field select.profile-input option {
+  background:var(--mid-green);color:var(--cream);
 }
 
 /* Upgrade banner */
@@ -1195,17 +1208,49 @@ nav.sidebar-nav{
       <div class="grid-2">
         <div class="card">
           <div class="card-title" data-i18n="pr_personal">Personliga uppgifter</div>
-          <div class="profile-field"><label data-i18n="label_fname">Förnamn</label><div class="val" id="pf-fname" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
-          <div class="profile-field"><label data-i18n="label_lname">Efternamn</label><div class="val" id="pf-lname" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
-          <div class="profile-field"><label data-i18n="label_email">E-post</label><div class="val" id="pf-email" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
-          <div class="profile-field"><label data-i18n="label_phone">Telefon</label><div class="val" id="pf-phone" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
+          <div class="profile-field">
+            <label data-i18n="label_fname">Förnamn</label>
+            <input type="text" id="pf-fname" class="profile-input" placeholder="Ditt förnamn" oninput="saveProfile()">
+          </div>
+          <div class="profile-field">
+            <label data-i18n="label_lname">Efternamn</label>
+            <input type="text" id="pf-lname" class="profile-input" placeholder="Ditt efternamn" oninput="saveProfile()">
+          </div>
+          <div class="profile-field">
+            <label data-i18n="label_email">E-post</label>
+            <input type="email" id="pf-email" class="profile-input" placeholder="din@email.se" oninput="saveProfile()">
+          </div>
+          <div class="profile-field">
+            <label data-i18n="label_phone">Telefon</label>
+            <input type="tel" id="pf-phone" class="profile-input" placeholder="+46 70 000 00 00" oninput="saveProfile()">
+          </div>
         </div>
         <div class="card">
           <div class="card-title" data-i18n="pr_health">Hälsoprofil</div>
-          <div class="profile-field"><label data-i18n="pr_weight">Vikt</label><div class="val" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
-          <div class="profile-field"><label data-i18n="pr_height">Längd</label><div class="val" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
-          <div class="profile-field"><label data-i18n="pr_bmi">BMI</label><div class="val" style="color:var(--text-dim);font-style:italic">Beräknas när vikt & längd anges</div></div>
-          <div class="profile-field"><label data-i18n="pr_goal">Mål</label><div class="val" style="color:var(--text-dim);font-style:italic">Inte angivet</div></div>
+          <div class="profile-field">
+            <label data-i18n="pr_weight">Vikt (kg)</label>
+            <input type="number" id="pf-weight" class="profile-input" placeholder="t.ex. 70" min="30" max="300" step="0.1" oninput="saveProfile();calcBMI()">
+          </div>
+          <div class="profile-field">
+            <label data-i18n="pr_height">Längd (cm)</label>
+            <input type="number" id="pf-height" class="profile-input" placeholder="t.ex. 170" min="100" max="250" oninput="saveProfile();calcBMI()">
+          </div>
+          <div class="profile-field">
+            <label data-i18n="pr_bmi">BMI</label>
+            <div class="val" id="pf-bmi" style="color:var(--text-dim);font-style:italic">Anges automatiskt</div>
+          </div>
+          <div class="profile-field">
+            <label data-i18n="pr_goal">Mål</label>
+            <select id="pf-goal" class="profile-input" onchange="saveProfile()">
+              <option value="" disabled selected>Välj ditt mål</option>
+              <option value="lose">Gå ner i vikt</option>
+              <option value="maintain">Hålla vikten</option>
+              <option value="gain">Gå upp i vikt / bygga muskler</option>
+              <option value="sleep">Förbättra sömnen</option>
+              <option value="energy">Mer energi i vardagen</option>
+              <option value="health">Allmänt hälsosammare liv</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -1217,7 +1262,7 @@ nav.sidebar-nav{
             <div style="font-size:0.72rem;color:var(--text-dim)" data-i18n="stat_days">Aktiva dagar</div>
           </div>
           <div style="text-align:center">
-            <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--lime)">0</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--lime)" id="stat-meals-count">0</div>
             <div style="font-size:0.72rem;color:var(--text-dim)" data-i18n="stat_meals">Måltider loggade</div>
           </div>
           <div style="text-align:center">
@@ -1454,7 +1499,83 @@ function setLang(lang){
   });
 }
 
-// ── WEIGHT CHART ──
+// ── PROFILE SAVE/LOAD ──
+function saveProfile() {
+  const profile = {
+    fname: document.getElementById('pf-fname')?.value || '',
+    lname: document.getElementById('pf-lname')?.value || '',
+    email: document.getElementById('pf-email')?.value || '',
+    phone: document.getElementById('pf-phone')?.value || '',
+    weight: document.getElementById('pf-weight')?.value || '',
+    height: document.getElementById('pf-height')?.value || '',
+    goal: document.getElementById('pf-goal')?.value || ''
+  };
+  try { localStorage.setItem('vitalis_profile', JSON.stringify(profile)); } catch(e){}
+  updateProfileUI(profile);
+}
+
+function loadProfile() {
+  try {
+    const saved = localStorage.getItem('vitalis_profile');
+    if (!saved) return;
+    const p = JSON.parse(saved);
+    if (document.getElementById('pf-fname')) document.getElementById('pf-fname').value = p.fname||'';
+    if (document.getElementById('pf-lname')) document.getElementById('pf-lname').value = p.lname||'';
+    if (document.getElementById('pf-email')) document.getElementById('pf-email').value = p.email||'';
+    if (document.getElementById('pf-phone')) document.getElementById('pf-phone').value = p.phone||'';
+    if (document.getElementById('pf-weight')) document.getElementById('pf-weight').value = p.weight||'';
+    if (document.getElementById('pf-height')) document.getElementById('pf-height').value = p.height||'';
+    if (document.getElementById('pf-goal')) document.getElementById('pf-goal').value = p.goal||'';
+    updateProfileUI(p);
+    calcBMI();
+  } catch(e){}
+}
+
+function updateProfileUI(p) {
+  const fullName = [p.fname, p.lname].filter(Boolean).join(' ');
+  // Update sidebar name
+  const navName = document.getElementById('nav-name');
+  if (navName) {
+    navName.textContent = fullName || 'Inte inloggad';
+    navName.style.fontStyle = fullName ? 'normal' : 'italic';
+    navName.style.color = fullName ? 'var(--cream)' : 'var(--text-dim)';
+  }
+  // Update avatar initials
+  const initials = [(p.fname||'').charAt(0), (p.lname||'').charAt(0)].filter(Boolean).join('').toUpperCase() || '?';
+  const navAv = document.getElementById('nav-avatar');
+  if (navAv) navAv.textContent = initials;
+  // Update greeting
+  const greet = document.getElementById('greeting-name');
+  if (greet) greet.textContent = p.fname || 'du';
+  // Update profile header
+  const profileName = document.getElementById('profile-fullname');
+  if (profileName) {
+    profileName.textContent = fullName || 'Ditt namn visas här';
+    profileName.style.fontStyle = fullName ? 'normal' : 'italic';
+    profileName.style.color = fullName ? 'var(--soft-white)' : 'var(--text-dim)';
+  }
+  const profileAv = document.getElementById('profile-avatar-big');
+  if (profileAv) profileAv.textContent = initials;
+}
+
+function calcBMI() {
+  const w = parseFloat(document.getElementById('pf-weight')?.value);
+  const h = parseFloat(document.getElementById('pf-height')?.value);
+  const bmiEl = document.getElementById('pf-bmi');
+  if (!bmiEl) return;
+  if (!w || !h) { bmiEl.textContent = 'Anges automatiskt'; bmiEl.style.color = 'var(--text-dim)'; return; }
+  const bmi = (w / Math.pow(h/100, 2)).toFixed(1);
+  let label, color;
+  if (bmi < 18.5) { label = 'Undervikt'; color = '#c9a84c'; }
+  else if (bmi < 25) { label = 'Normalvikt ✓'; color = 'var(--lime)'; }
+  else if (bmi < 30) { label = 'Övervikt'; color = '#c9a84c'; }
+  else { label = 'Fetma'; color = '#e05c5c'; }
+  bmiEl.textContent = `${bmi} – ${label}`;
+  bmiEl.style.color = color;
+  bmiEl.style.fontStyle = 'normal';
+}
+
+loadProfile();
 // Simulated weight data – in a real app this comes from user's logged entries
 // Direction: down = losing weight (goal), up = gaining (e.g. muscle)
 const weightGoal = 'down'; // 'down' or 'up'

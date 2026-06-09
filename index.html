@@ -801,6 +801,8 @@
   /* Mobile */
   @media (max-width: 640px) {
     nav { padding: 16px 20px; }
+    .nav-right { gap: 8px; }
+    .nav-right a[data-i18n-login] { display: none; }
     .hero { padding: 100px 20px 60px; }
     .section, .dashboard-section, .ai-section { padding: 60px 20px; }
     .stats-strip { gap: 32px; padding: 20px; }
@@ -989,7 +991,8 @@
       <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
       <button class="lang-btn" onclick="setLang('ar')" id="lang-ar">AR</button>
     </div>
-    <button class="nav-cta" data-i18n="nav_cta">Kom igång</button>
+    <a href="dashboard.html" style="padding:10px 20px;background:transparent;border:1px solid rgba(245,240,232,0.2);border-radius:100px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:400;text-decoration:none;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='rgba(245,240,232,0.2)';this.style.color='var(--cream)'" data-i18n-login="Logga in">Logga in</a>
+    <a href="register.html" class="nav-cta" style="text-decoration:none" data-i18n="nav_cta">Kom igång</a>
   </div>
 </nav>
 

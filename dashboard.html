@@ -550,45 +550,83 @@ select option:checked {
 
     <!-- STREAK DETAILS MODAL -->
     <div id="streak-modal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(8,20,13,0.88);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px">
-      <div style="background:var(--mid-green);border:1px solid rgba(126,200,80,0.2);border-radius:28px;width:100%;max-width:400px;padding:36px;text-align:center;position:relative">
+      <div style="background:var(--mid-green);border:1px solid rgba(126,200,80,0.2);border-radius:28px;width:100%;max-width:420px;padding:36px;text-align:center;position:relative;max-height:90vh;overflow-y:auto">
         <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);border-radius:28px 28px 0 0"></div>
-        <div style="font-size:2.5rem;margin-bottom:12px">🔥</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--soft-white);margin-bottom:6px"><span id="modal-streak-num">0</span> dagars streak</div>
-        <div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:24px">Logga in och uppdatera din logg varje dag för att nå belöningarna</div>
+        <div style="font-size:2.5rem;margin-bottom:8px">🔥</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--soft-white);margin-bottom:4px"><span id="modal-streak-num">0</span> dagars streak</div>
+        <div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:20px;line-height:1.6">Logga in och uppdatera din logg varje dag för att låsa upp belöningar</div>
 
-        <!-- Milestone 1: 35 days -->
-        <div id="milestone-35" style="padding:14px;border-radius:14px;margin-bottom:10px;border:1px solid rgba(126,200,80,0.15);background:rgba(255,255,255,0.02)">
+        <!-- Milestone 1: 7 days -->
+        <div id="milestone-7" style="padding:14px;border-radius:14px;margin-bottom:10px;border:1px solid rgba(126,200,80,0.15);background:rgba(255,255,255,0.02);text-align:left">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div style="font-size:0.86rem;color:var(--cream);font-weight:600">🎯 35 dagar</div>
-            <div style="font-size:0.78rem;color:var(--lime);font-weight:700" id="reward-35-label">7 dagar gratis</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:1.1rem">🌱</span>
+              <span style="font-size:0.86rem;color:var(--cream);font-weight:600">7 dagar – Aktiv användare</span>
+            </div>
+            <span id="badge-7" style="font-size:0.7rem;padding:2px 8px;border-radius:100px;background:rgba(126,200,80,0.1);color:var(--lime);border:1px solid rgba(126,200,80,0.2)">Grön badge</span>
           </div>
-          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:6px">
-            <div id="bar-35" style="height:100%;width:0%;background:linear-gradient(90deg,var(--lime),#a8e063);border-radius:100px;transition:width 1s ease"></div>
+          <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:5px">
+            <div id="bar-7" style="height:100%;width:0%;background:linear-gradient(90deg,#4CAF50,var(--lime));border-radius:100px;transition:width 1s ease"></div>
           </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-dim)">
-            <span>0 dagar</span>
-            <span id="days-left-35">35 dagar kvar</span>
-            <span>35 dagar</span>
-          </div>
+          <div style="font-size:0.68rem;color:var(--text-dim);text-align:right" id="days-left-7">7 dagar kvar</div>
         </div>
 
-        <!-- Milestone 2: 65 days -->
-        <div id="milestone-65" style="padding:14px;border-radius:14px;margin-bottom:20px;border:1px solid rgba(201,168,76,0.15);background:rgba(255,255,255,0.02)">
+        <!-- Milestone 2: 30 days -->
+        <div id="milestone-30" style="padding:14px;border-radius:14px;margin-bottom:10px;border:1px solid rgba(126,200,80,0.15);background:rgba(255,255,255,0.02);text-align:left">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div style="font-size:0.86rem;color:var(--cream);font-weight:600">🏆 65 dagar</div>
-            <div style="font-size:0.78rem;color:var(--gold);font-weight:700">30 dagar gratis</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:1.1rem">⭐</span>
+              <span style="font-size:0.86rem;color:var(--cream);font-weight:600">30 dagar – Guld badge</span>
+            </div>
+            <span style="font-size:0.7rem;padding:2px 8px;border-radius:100px;background:rgba(201,168,76,0.1);color:var(--gold);border:1px solid rgba(201,168,76,0.2)">7 dagar gratis</span>
           </div>
-          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:6px">
-            <div id="bar-65" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gold),#e8c870);border-radius:100px;transition:width 1s ease"></div>
+          <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:5px">
+            <div id="bar-30" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gold),#e8c870);border-radius:100px;transition:width 1s ease"></div>
           </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-dim)">
-            <span>0 dagar</span>
-            <span id="days-left-65">65 dagar kvar</span>
-            <span>65 dagar</span>
+          <div style="font-size:0.68rem;color:var(--text-dim);text-align:right" id="days-left-30">30 dagar kvar</div>
+        </div>
+
+        <!-- Milestone 3: 60 days -->
+        <div id="milestone-60" style="padding:14px;border-radius:14px;margin-bottom:20px;border:1px solid rgba(201,168,76,0.15);background:rgba(255,255,255,0.02);text-align:left">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:1.1rem">🏆</span>
+              <span style="font-size:0.86rem;color:var(--cream);font-weight:600">60 dagar – Platina badge</span>
+            </div>
+            <span style="font-size:0.7rem;padding:2px 8px;border-radius:100px;background:rgba(201,168,76,0.1);color:var(--gold);border:1px solid rgba(201,168,76,0.2)">30 dagar gratis</span>
           </div>
+          <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:5px">
+            <div id="bar-60" style="height:100%;width:0%;background:linear-gradient(90deg,#b8860b,var(--gold),#fff7cc);border-radius:100px;transition:width 1s ease"></div>
+          </div>
+          <div style="font-size:0.68rem;color:var(--text-dim);text-align:right" id="days-left-60">60 dagar kvar</div>
+        </div>
+
+        <div id="streak-reward-claim" style="display:none;margin-bottom:16px;padding:14px;background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.25);border-radius:14px">
+          <div style="font-size:0.78rem;color:var(--lime);font-weight:600;margin-bottom:8px" id="reward-claim-title">🎉 Belöning upplåst!</div>
+          <div style="font-size:0.74rem;color:var(--text-dim);margin-bottom:10px">Din unika kod:</div>
+          <div id="reward-code" style="font-family:monospace;font-size:1.1rem;color:var(--cream);background:rgba(255,255,255,0.06);padding:10px;border-radius:8px;letter-spacing:0.15em;margin-bottom:10px">–</div>
+          <button onclick="copyRewardCode()" style="width:100%;padding:9px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer">📋 Kopiera kod</button>
+          <div style="font-size:0.7rem;color:var(--text-dim);margin-top:8px">Skicka koden till <a href="mailto:support@vitalis.se" style="color:var(--lime)">support@vitalis.se</a> för att aktivera</div>
         </div>
 
         <button onclick="document.getElementById('streak-modal').style.display='none';document.body.style.overflow=''" style="width:100%;padding:12px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer">Stäng</button>
+      </div>
+    </div>
+
+    <!-- REWARD CELEBRATION MODAL -->
+    <div id="reward-modal" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(8,20,13,0.92);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px">
+      <div style="background:var(--mid-green);border:1px solid rgba(201,168,76,0.3);border-radius:28px;width:100%;max-width:420px;padding:44px 36px;text-align:center;position:relative;animation:fadeUp 0.4s ease both">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:28px 28px 0 0"></div>
+        <div style="font-size:3.5rem;margin-bottom:16px" id="reward-icon">🏆</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--soft-white);margin-bottom:8px" id="reward-title">Grattis!</div>
+        <div style="font-size:0.85rem;color:var(--text-dim);line-height:1.7;margin-bottom:20px" id="reward-desc">Du har uppnått en milstolpe!</div>
+        <div style="padding:16px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:14px;margin-bottom:20px">
+          <div style="font-size:0.72rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">Din unika belöningskod</div>
+          <div id="reward-modal-code" style="font-family:monospace;font-size:1.3rem;color:var(--cream);letter-spacing:0.2em;margin-bottom:10px">–</div>
+          <button onclick="copyRewardCode(true)" style="width:100%;padding:10px;background:var(--gold);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:700;cursor:pointer">📋 Kopiera kod</button>
+        </div>
+        <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:20px">Skicka koden till <a href="mailto:support@vitalis.se" style="color:var(--lime)">support@vitalis.se</a> för att aktivera din gratis period</div>
+        <button onclick="document.getElementById('reward-modal').style.display='none';document.body.style.overflow=''" style="width:100%;padding:12px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer">Toppen – stäng</button>
       </div>
     </div>
   </div>
@@ -1518,75 +1556,149 @@ select option:checked {
   } catch(e){}
 })();
 
-function updateStreakUI(streak) {
-  // Update pill number
-  const numEl = document.getElementById('streak-num');
-  if (numEl) numEl.textContent = streak;
+// ── DATE & GREETING ──
+(function(){
+  const d = new Date();
+  const sv = d.toLocaleDateString('sv-SE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('top-date').textContent = sv.charAt(0).toUpperCase()+sv.slice(1);
 
-  // Determine next milestone
-  const m1 = 35, m2 = 65;
-  let nextMilestone, nextLabel, pct;
-  if (streak < m1) {
-    nextMilestone = m1;
-    nextLabel = `Nästa: ${m1} dagar → 7 dagar gratis`;
-    pct = Math.round((streak / m1) * 100);
-  } else if (streak < m2) {
-    nextMilestone = m2;
-    nextLabel = `Nästa: ${m2} dagar → 30 dagar gratis 🏆`;
-    pct = Math.round(((streak - m1) / (m2 - m1)) * 100);
-  } else {
-    nextLabel = '🏆 Alla belöningar upplåsta!';
-    pct = 100;
+  // Dynamic greeting
+  const h = d.getHours();
+  let greeting;
+  if (h >= 5 && h < 11) greeting = 'God morgon';
+  else if (h >= 11 && h < 14) greeting = 'God förmiddag';
+  else if (h >= 14 && h < 18) greeting = 'God eftermiddag';
+  else if (h >= 18 && h < 22) greeting = 'God kväll';
+  else greeting = 'God natt';
+  const greetEl = document.getElementById('greeting-time');
+  if (greetEl) greetEl.textContent = greeting;
+
+  // Streak
+  try {
+    const today = d.toDateString();
+    const last = localStorage.getItem('vitalis_streak_last');
+    let streak = parseInt(localStorage.getItem('vitalis_streak') || '0');
+    if (last !== today) {
+      const yesterday = new Date(d); yesterday.setDate(d.getDate()-1);
+      streak = (last === yesterday.toDateString()) ? streak + 1 : 1;
+      localStorage.setItem('vitalis_streak', streak);
+      localStorage.setItem('vitalis_streak_last', today);
+      // Check if milestone just reached
+      checkStreakMilestone(streak);
+    }
+    updateStreakUI(streak);
+  } catch(e){}
+})();
+
+const MILESTONES = [
+  { days: 7,  label: '🌱 Aktiv användare',  badge: '🌱 Grön',   color: 'var(--lime)',  reward: null,          icon: '🌱' },
+  { days: 30, label: '⭐ Guld-användare',    badge: '⭐ Guld',   color: 'var(--gold)',  reward: '7 DAGAR GRATIS',  freedays: 7,  icon: '⭐' },
+  { days: 60, label: '🏆 Platina-användare', badge: '🏆 Platina',color: 'var(--gold)',  reward: '30 DAGAR GRATIS', freedays: 30, icon: '🏆' }
+];
+
+function generateRewardCode(days, name) {
+  const base = (name || 'VITALIS').toUpperCase().replace(/[^A-Z]/g,'').slice(0,4) || 'VITA';
+  const num = Math.floor(Math.random()*9000)+1000;
+  return `${base}-${days}D-${num}`;
+}
+
+function checkStreakMilestone(streak) {
+  MILESTONES.forEach(m => {
+    if (streak === m.days) {
+      const claimed = localStorage.getItem('vitalis_reward_' + m.days);
+      if (!claimed && m.reward) {
+        setTimeout(() => showRewardCelebration(m, streak), 800);
+      } else if (!claimed) {
+        showToast(`${m.icon} ${m.badge} badge upplåst! ${streak} dagars streak!`);
+      }
+    }
+  });
+}
+
+function showRewardCelebration(milestone, streak) {
+  const profile = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
+  const code = generateRewardCode(milestone.days, profile.fname);
+  localStorage.setItem('vitalis_reward_code_' + milestone.days, code);
+
+  document.getElementById('reward-icon').textContent = milestone.icon;
+  document.getElementById('reward-title').textContent = `${milestone.days} dagars streak!`;
+  document.getElementById('reward-desc').textContent =
+    `Grattis ${profile.fname||''}! Du har loggat ${streak} dagar i rad och tjänat ${milestone.reward} på Vitalis!`;
+  document.getElementById('reward-modal-code').textContent = code;
+  window._currentRewardCode = code;
+  document.getElementById('reward-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  localStorage.setItem('vitalis_reward_' + milestone.days, '1');
+}
+
+function copyRewardCode(fromModal) {
+  const code = fromModal
+    ? document.getElementById('reward-modal-code').textContent
+    : document.getElementById('reward-code').textContent;
+  navigator.clipboard.writeText(code).then(() => showToast('Kod kopierad! ✓')).catch(() => showToast('Koden: ' + code));
+}
+
+function updateStreakUI(streak) {
+  document.getElementById('streak-num').textContent = streak;
+
+  // Find current milestone level for badge
+  let activeMilestone = null;
+  MILESTONES.forEach(m => { if (streak >= m.days) activeMilestone = m; });
+
+  // Badge in pill
+  const badge = document.getElementById('streak-badge');
+  if (badge && activeMilestone) {
+    badge.style.display = 'inline';
+    badge.textContent = activeMilestone.badge;
+    badge.style.background = activeMilestone.days === 7 ? 'rgba(126,200,80,0.15)' : 'rgba(201,168,76,0.15)';
+    badge.style.color = activeMilestone.color;
+    badge.style.border = `1px solid ${activeMilestone.days === 7 ? 'rgba(126,200,80,0.3)' : 'rgba(201,168,76,0.3)'}`;
   }
 
-  // Update progress bar in pill
+  // Progress bar toward next milestone
+  const next = MILESTONES.find(m => streak < m.days);
+  let pct = 100, label = '🏆 Alla milstolpar uppnådda!';
+  if (next) {
+    const prev = MILESTONES.filter(m => m.days < next.days).pop();
+    const from = prev ? prev.days : 0;
+    pct = Math.round(((streak - from) / (next.days - from)) * 100);
+    label = `Nästa: ${next.days} dagar${next.reward ? ' → ' + next.reward : ' → badge'}`;
+  }
   const labelEl = document.getElementById('streak-progress-label');
   const pctEl = document.getElementById('streak-progress-pct');
   const barEl = document.getElementById('streak-progress-bar');
-  if (labelEl) labelEl.textContent = nextLabel;
+  if (labelEl) labelEl.textContent = label;
   if (pctEl) pctEl.textContent = pct + '%';
   setTimeout(() => { if (barEl) barEl.style.width = pct + '%'; }, 300);
-
-  // Badge
-  const badge = document.getElementById('streak-badge');
-  if (badge) {
-    if (streak >= m2) {
-      badge.style.display = 'inline';
-      badge.textContent = '🏆 Platina';
-      badge.style.background = 'rgba(201,168,76,0.2)';
-      badge.style.color = 'var(--gold)';
-    } else if (streak >= m1) {
-      badge.style.display = 'inline';
-      badge.textContent = '🎯 Grön';
-      badge.style.background = 'rgba(126,200,80,0.15)';
-      badge.style.color = 'var(--lime)';
-    }
-  }
 }
 
 function showStreakDetails() {
   const streak = parseInt(localStorage.getItem('vitalis_streak') || '0');
-  const m1 = 35, m2 = 65;
   document.getElementById('modal-streak-num').textContent = streak;
 
-  // Bar 35
-  const pct35 = Math.min(100, Math.round((streak / m1) * 100));
-  setTimeout(() => { document.getElementById('bar-35').style.width = pct35 + '%'; }, 100);
-  const left35 = Math.max(0, m1 - streak);
-  document.getElementById('days-left-35').textContent = left35 > 0 ? left35 + ' dagar kvar' : '✅ Uppnådd!';
-  document.getElementById('bar-35').style.background = left35 === 0
-    ? 'linear-gradient(90deg,var(--lime),#a8e063)'
-    : 'linear-gradient(90deg,var(--lime),#a8e063)';
-  const label35 = document.getElementById('reward-35-label');
-  if (label35) label35.textContent = left35 === 0 ? '✅ 7 dagar gratis upplåst!' : '7 dagar gratis';
-  if (left35 === 0) { label35.style.color = 'var(--lime)'; document.getElementById('milestone-35').style.borderColor = 'rgba(126,200,80,0.4)'; }
+  // Update each milestone bar
+  [7, 30, 60].forEach(days => {
+    const pct = Math.min(100, Math.round((streak / days) * 100));
+    const bar = document.getElementById('bar-' + days);
+    const left = document.getElementById('days-left-' + days);
+    const box = document.getElementById('milestone-' + days);
+    setTimeout(() => { if (bar) bar.style.width = pct + '%'; }, 100);
+    if (left) left.textContent = streak >= days ? '✅ Uppnådd!' : (days - streak) + ' dagar kvar';
+    if (box && streak >= days) box.style.borderColor = days === 7 ? 'rgba(126,200,80,0.4)' : 'rgba(201,168,76,0.4)';
+  });
 
-  // Bar 65
-  const pct65 = Math.min(100, Math.round((streak / m2) * 100));
-  setTimeout(() => { document.getElementById('bar-65').style.width = pct65 + '%'; }, 150);
-  const left65 = Math.max(0, m2 - streak);
-  document.getElementById('days-left-65').textContent = left65 > 0 ? left65 + ' dagar kvar' : '✅ Uppnådd!';
-  if (left65 === 0) { document.getElementById('milestone-65').style.borderColor = 'rgba(201,168,76,0.4)'; }
+  // Show claim section if reward earned but code not shown yet
+  const rewardDays = [30, 60].find(d => streak >= d && localStorage.getItem('vitalis_reward_code_' + d));
+  const claimEl = document.getElementById('streak-reward-claim');
+  if (rewardDays && claimEl) {
+    const code = localStorage.getItem('vitalis_reward_code_' + rewardDays);
+    const m = MILESTONES.find(m => m.days === rewardDays);
+    document.getElementById('reward-claim-title').textContent = `🎉 ${m?.reward} upplåst!`;
+    document.getElementById('reward-code').textContent = code;
+    claimEl.style.display = 'block';
+  } else if (claimEl) {
+    claimEl.style.display = 'none';
+  }
 
   document.getElementById('streak-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';

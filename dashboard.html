@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vitalis – Dashboard</title>
+<title>Vitalis Flow – Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -467,7 +467,7 @@ select option:checked {
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <a href="index.html" class="sidebar-logo">Vita<span>lis</span></a>
+  <a href="index.html" class="sidebar-logo">Vita<span>lis Flow</span></a>
 
   <div class="sidebar-user">
     <div class="user-avatar" id="nav-avatar">?</div>
@@ -610,7 +610,7 @@ select option:checked {
           <div style="font-size:0.74rem;color:var(--text-dim);margin-bottom:10px">Din unika kod:</div>
           <div id="reward-code" style="font-family:monospace;font-size:1.1rem;color:var(--cream);background:rgba(255,255,255,0.06);padding:10px;border-radius:8px;letter-spacing:0.15em;margin-bottom:10px">–</div>
           <button onclick="copyRewardCode()" style="width:100%;padding:9px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer">📋 Kopiera kod</button>
-          <div style="font-size:0.7rem;color:var(--text-dim);margin-top:8px">Skicka koden till <a href="mailto:support@vitalis.se" style="color:var(--lime)">support@vitalis.se</a> för att aktivera</div>
+          <div style="font-size:0.7rem;color:var(--text-dim);margin-top:8px">Skicka koden till <a href="mailto:support@vitalisflow.se" style="color:var(--lime)">support@vitalisflow.se</a> för att aktivera</div>
         </div>
 
         <button onclick="document.getElementById('streak-modal').style.display='none';document.body.style.overflow=''" style="width:100%;padding:12px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer">Stäng</button>
@@ -674,7 +674,7 @@ select option:checked {
           <div id="reward-modal-code" style="font-family:monospace;font-size:1.3rem;color:var(--cream);letter-spacing:0.2em;margin-bottom:10px">–</div>
           <button onclick="copyRewardCode(true)" style="width:100%;padding:10px;background:var(--gold);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:700;cursor:pointer">📋 Kopiera kod</button>
         </div>
-        <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:20px">Skicka koden till <a href="mailto:support@vitalis.se" style="color:var(--lime)">support@vitalis.se</a> för att aktivera din gratis period</div>
+        <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:20px">Skicka koden till <a href="mailto:support@vitalisflow.se" style="color:var(--lime)">support@vitalisflow.se</a> för att aktivera din gratis period</div>
         <button onclick="document.getElementById('reward-modal').style.display='none';document.body.style.overflow=''" style="width:100%;padding:12px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer">Toppen – stäng</button>
       </div>
     </div>
@@ -1341,13 +1341,13 @@ select option:checked {
         </div>
       </div>
 
-      <!-- Vitalis Band shop -->
+      <!-- Vitalis Flow Band shop -->
       <div style="background:linear-gradient(135deg,rgba(26,58,42,0.9),rgba(15,35,24,0.9));border:1px solid rgba(201,168,76,0.3);border-radius:20px;padding:28px;position:relative;overflow:hidden">
         <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
         <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap">
           <div style="width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,var(--leaf-green),var(--mid-green));border:1px solid rgba(201,168,76,0.25);display:flex;align-items:center;justify-content:center;font-size:2.4rem;flex-shrink:0">⌚</div>
           <div style="flex:1;min-width:200px">
-            <div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--soft-white)">Vitalis Band</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--soft-white)">Vitalis Flow Band</div>
             <div style="font-size:0.78rem;color:var(--text-dim);margin-top:4px;margin-bottom:12px">Officiellt hälsoarmband – designat för Vitalis</div>
             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
               <span style="padding:4px 10px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:100px;font-size:0.7rem;color:var(--gold)">❤️ Kontinuerlig puls</span>
@@ -1666,7 +1666,7 @@ function showRewardCelebration(milestone, streak) {
   document.getElementById('reward-icon').textContent = milestone.icon;
   document.getElementById('reward-title').textContent = `${milestone.days} dagars streak!`;
   document.getElementById('reward-desc').textContent =
-    `Grattis ${profile.fname||''}! Du har loggat ${streak} dagar i rad och tjänat ${milestone.reward} på Vitalis!`;
+    `Grattis ${profile.fname||''}! Du har loggat ${streak} dagar i rad och tjänat ${milestone.reward} på Vitalis Flow Flow!`;
   document.getElementById('reward-modal-code').textContent = code;
   window._currentRewardCode = code;
   document.getElementById('reward-modal').style.display = 'flex';
@@ -2228,8 +2228,8 @@ document.getElementById('food-input').addEventListener('keydown',e=>{if(e.key===
 
 // ── SHARE SYSTEM ──
 let shareType = 'streak';
-const SITE_URL = 'matochsov.netlify.app';
-const SITE_HANDLE = '@vitalis_health';
+const SITE_URL = 'vitalisflow.netlify.app';
+const SITE_HANDLE = '@vitalisflow';
 
 function openShareModal(type) {
   shareType = type || 'streak';
@@ -2360,7 +2360,7 @@ function renderShareCard() {
     ctx.fillStyle = 'rgba(126,200,80,0.6)';
     ctx.fillText('🌿 ' + SITE_URL, 28, H - 16);
     ctx.fillStyle = 'rgba(138,171,150,0.5)';
-    ctx.fillText('Börja din hälsoresa på Vitalis', W/2 - 90, H - 16);
+    ctx.fillText('Börja din hälsoresa på Vitalis Flow', W/2 - 90, H - 16);
   }
 }
 
@@ -2383,9 +2383,9 @@ function getShareText() {
   const showStats = document.getElementById('share-show-stats')?.checked;
   const statsText = showStats ? ` Idag: ${totalKcal} kcal loggade.` : '';
   const texts = {
-    streak: `🔥 ${streak} dagars streak på Vitalis!${statsText} Följ din hälsoresa på ${SITE_URL}`,
-    food:   `🥗 Jag loggade ${totalKcal} kcal idag på Vitalis!${statsText} Testa du också: ${SITE_URL}`,
-    stats:  `📊 Kolla min hälsostatistik på Vitalis!${statsText} ${SITE_URL}`
+    streak: `🔥 ${streak} dagars streak på Vitalis Flow Flow!${statsText} Följ din hälsoresa på ${SITE_URL}`,
+    food:   `🥗 Jag loggade ${totalKcal} kcal idag på Vitalis Flow Flow!${statsText} Testa du också: ${SITE_URL}`,
+    stats:  `📊 Kolla min hälsostatistik på Vitalis Flow Flow!${statsText} ${SITE_URL}`
   };
   return encodeURIComponent(texts[shareType] || texts.streak);
 }
@@ -2625,7 +2625,7 @@ async function sendChat(){
   typing.innerHTML='<div class="msg-av">🤖</div><div class="msg-bubble" style="opacity:0.5">•••</div>';
   box.appendChild(typing); box.scrollTop=box.scrollHeight;
   const medCtx = getMedicineContext();
-  const system = `Du är en vänlig professionell AI-hälsocoach för Vitalis. Svara kort och konkret på svenska (max 4 meningar). ${medCtx ? 'Användarens mediciner: ' + medCtx + ' Ta hänsyn till detta i dina råd.' : ''} Håll en varm men seriös ton.`;
+  const system = `Du är en vänlig professionell AI-hälsocoach för Vitalis Flow. Svara kort och konkret på svenska (max 4 meningar). ${medCtx ? 'Användarens mediciner: ' + medCtx + ' Ta hänsyn till detta i dina råd.' : ''} Håll en varm men seriös ton.`;
   try {
     const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,system,messages:[{role:'user',content:val}]})});
     const data = await resp.json();
@@ -3544,7 +3544,7 @@ function quickSuggest(prompt) {
   typing.innerHTML='<div class="msg-av">🍽️</div><div class="msg-bubble">...</div>';
   chat.appendChild(typing);
   chat.scrollTop=chat.scrollHeight;
-  fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:'Du är en vänlig matcoach för hälsoappen Vitalis. Ge konkreta enkla matförslag med ingredienser och enkel tillagning. Håll svaren korta och inspirerande. Svara på svenska.',messages:[{role:'user',content:prompt}]})})
+  fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:'Du är en vänlig matcoach för hälsoappen Vitalis Flow. Ge konkreta enkla matförslag med ingredienser och enkel tillagning. Håll svaren korta och inspirerande. Svara på svenska.',messages:[{role:'user',content:prompt}]})})
   .then(r=>r.json()).then(data=>{
     typing.remove();
     const aiMsg=document.createElement('div');

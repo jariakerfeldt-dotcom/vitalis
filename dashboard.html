@@ -1126,71 +1126,52 @@ select option:checked {
         <button class="meal-subtab" id="st-suggest" onclick="showMealSubtab('suggest',this)" style="flex:1;padding:9px 14px;border-radius:10px;background:none;border:none;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;transition:all 0.2s;white-space:nowrap">💬 Matförslag</button>
       </div>
 
-      <!-- ══ FRIDGE SCANNER ══ -->
+      <!-- FRIDGE SCANNER -->
       <div id="subtab-fridge">
         <div class="card" style="margin-bottom:20px">
-          <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--soft-white);margin-bottom:4px">📸 Skanna kylskåp & skafferi</div>
-          <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:18px">Fotografera eller filma kylskåpet, frysen och skafferiet – AI hittar ingredienser och ger dig recept</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--soft-white);margin-bottom:4px">📸 Skanna kylskåp, frys &amp; skafferi</div>
+          <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:18px">Ladda upp flera bilder per kategori – AI identifierar alla ingredienser och föreslår recept</div>
 
-          <!-- Upload type toggle -->
-          <div style="display:flex;gap:6px;margin-bottom:16px">
-            <button id="fridge-mode-photo" onclick="setFridgeMode('photo')" style="flex:1;padding:8px;border-radius:10px;background:var(--lime);border:none;color:var(--deep-green);font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.2s">📷 Foto</button>
-            <button id="fridge-mode-video" onclick="setFridgeMode('video')" style="flex:1;padding:8px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;transition:all 0.2s">🎥 Video</button>
-          </div>
-
-          <!-- PHOTO MODE -->
-          <div id="fridge-photo-mode">
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-              <div onclick="document.getElementById('fridge-img1').click()" style="aspect-ratio:1;border:2px dashed rgba(126,200,80,0.2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.2)'">
-                <span id="fridge-label1" style="font-size:1.4rem">🧊</span>
-                <span style="font-size:0.65rem;color:var(--text-dim);margin-top:4px;text-align:center">Kylskåp<br><span style="color:rgba(126,200,80,0.5)">+ Lägg till</span></span>
-                <img id="fridge-thumb1" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px">
-                <div id="fridge-check1" style="display:none;position:absolute;top:6px;right:6px;width:18px;height:18px;background:var(--lime);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:var(--deep-green)">✓</div>
-              </div>
-              <div onclick="document.getElementById('fridge-img2').click()" style="aspect-ratio:1;border:2px dashed rgba(126,200,80,0.2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.2)'">
-                <span id="fridge-label2" style="font-size:1.4rem">❄️</span>
-                <span style="font-size:0.65rem;color:var(--text-dim);margin-top:4px;text-align:center">Frys<br><span style="color:rgba(126,200,80,0.5)">+ Lägg till</span></span>
-                <img id="fridge-thumb2" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px">
-              </div>
-              <div onclick="document.getElementById('fridge-img3').click()" style="aspect-ratio:1;border:2px dashed rgba(126,200,80,0.2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.2)'">
-                <span id="fridge-label3" style="font-size:1.4rem">🗄️</span>
-                <span style="font-size:0.65rem;color:var(--text-dim);margin-top:4px;text-align:center">Skafferi<br><span style="color:rgba(126,200,80,0.5)">+ Lägg till</span></span>
-                <img id="fridge-thumb3" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px">
-              </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+            <!-- KYLSKÅP -->
+            <div>
+              <div style="font-size:0.68rem;color:var(--lime);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">🧊 Kylskåp <span id="fridge-count-1" style="color:var(--text-dim);font-style:italic"></span></div>
+              <div id="fridge-grid-1" style="display:grid;grid-template-columns:1fr 1fr;gap:5px"></div>
+              <button onclick="document.getElementById('fridge-input-1').click()" style="width:100%;margin-top:5px;padding:6px;background:rgba(126,200,80,0.06);border:1.5px dashed rgba(126,200,80,0.22);border-radius:8px;color:var(--text-dim);font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.22)'">📷 + Bilder</button>
+              <input type="file" id="fridge-input-1" accept="image/*" multiple style="display:none" onchange="loadCategoryPhotos(event,'fridge',1)">
             </div>
-            <input type="file" id="fridge-img1" accept="image/*" multiple style="display:none" onchange="loadFridgeThumb(this,1)">
-            <input type="file" id="fridge-img2" accept="image/*" multiple style="display:none" onchange="loadFridgeThumb(this,2)">
-            <input type="file" id="fridge-img3" accept="image/*" multiple style="display:none" onchange="loadFridgeThumb(this,3)">
-          </div>
-
-          <!-- VIDEO MODE -->
-          <div id="fridge-video-mode" style="display:none">
-            <div id="fridge-video-drop" onclick="document.getElementById('fridge-video-input').click()" style="border:2px dashed rgba(201,168,76,0.25);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:12px" onmouseover="this.style.borderColor='rgba(201,168,76,0.5)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.25)'">
-              <div id="fridge-video-placeholder">
-                <div style="font-size:2.2rem;margin-bottom:8px">🎥</div>
-                <div style="font-size:0.85rem;color:var(--cream);font-weight:500">Ladda upp video av kylskåp/skafferi</div>
-                <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">MP4, MOV – max 50MB · AI extraherar nyckelbilder automatiskt</div>
-              </div>
-              <video id="fridge-video-preview" style="display:none;max-width:100%;max-height:160px;border-radius:10px" controls></video>
+            <!-- FRYS -->
+            <div>
+              <div style="font-size:0.68rem;color:rgba(120,190,255,0.8);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">❄️ Frys <span id="fridge-count-2" style="color:var(--text-dim);font-style:italic"></span></div>
+              <div id="fridge-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:5px"></div>
+              <button onclick="document.getElementById('fridge-input-2').click()" style="width:100%;margin-top:5px;padding:6px;background:rgba(120,190,255,0.06);border:1.5px dashed rgba(120,190,255,0.22);border-radius:8px;color:var(--text-dim);font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(120,190,255,0.5)'" onmouseout="this.style.borderColor='rgba(120,190,255,0.22)'">📷 + Bilder</button>
+              <input type="file" id="fridge-input-2" accept="image/*" multiple style="display:none" onchange="loadCategoryPhotos(event,'fridge',2)">
             </div>
-            <input type="file" id="fridge-video-input" accept="video/*" style="display:none" onchange="loadFridgeVideo(this)">
-            <div id="fridge-video-info" style="display:none;padding:10px 14px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:10px;font-size:0.78rem;color:var(--gold);margin-bottom:12px">
-              ⚠️ Video-analys extraherar stillbilder var 3:e sekund och analyserar dessa. AI ser alla ingredienser som syns i videon.
+            <!-- SKAFFERI -->
+            <div>
+              <div style="font-size:0.68rem;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">🗄️ Skafferi <span id="fridge-count-3" style="color:var(--text-dim);font-style:italic"></span></div>
+              <div id="fridge-grid-3" style="display:grid;grid-template-columns:1fr 1fr;gap:5px"></div>
+              <button onclick="document.getElementById('fridge-input-3').click()" style="width:100%;margin-top:5px;padding:6px;background:rgba(201,168,76,0.06);border:1.5px dashed rgba(201,168,76,0.22);border-radius:8px;color:var(--text-dim);font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(201,168,76,0.5)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.22)'">📷 + Bilder</button>
+              <input type="file" id="fridge-input-3" accept="image/*" multiple style="display:none" onchange="loadCategoryPhotos(event,'fridge',3)">
             </div>
           </div>
+
+          <!-- Video option -->
+          <div onclick="document.getElementById('fridge-video-input').click()" style="padding:10px 14px;border:1.5px dashed rgba(201,168,76,0.2);border-radius:10px;cursor:pointer;font-size:0.76rem;color:var(--text-dim);display:flex;align-items:center;gap:8px;margin-bottom:14px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(201,168,76,0.5)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.2)'">
+            🎥 <span id="fridge-video-label">Eller ladda upp video av kylskåp/frys/skafferi</span>
+          </div>
+          <input type="file" id="fridge-video-input" accept="video/*" style="display:none" onchange="loadFridgeVideo(this)">
 
           <!-- Preferences -->
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
             <div style="font-size:0.7rem;color:var(--text-dim);width:100%;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Kostpreferenser</div>
-            <button class="pref-btn active" onclick="togglePref(this,'allt')" style="padding:6px 14px;border-radius:100px;font-size:0.76rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;background:var(--lime);border:1px solid var(--lime);color:var(--deep-green);font-weight:600">Allt</button>
-            <button class="pref-btn" onclick="togglePref(this,'vegetariskt')" style="padding:6px 14px;border-radius:100px;font-size:0.76rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;background:transparent;border:1px solid var(--border);color:var(--text-dim)">🥦 Vegetariskt</button>
-            <button class="pref-btn" onclick="togglePref(this,'veganskt')" style="padding:6px 14px;border-radius:100px;font-size:0.76rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;background:transparent;border:1px solid var(--border);color:var(--text-dim)">🌱 Veganskt</button>
-            <button class="pref-btn" onclick="togglePref(this,'glutenfritt')" style="padding:6px 14px;border-radius:100px;font-size:0.76rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;background:transparent;border:1px solid var(--border);color:var(--text-dim)">🌾 Glutenfritt</button>
-            <button class="pref-btn" onclick="togglePref(this,'laktosfritt')" style="padding:6px 14px;border-radius:100px;font-size:0.76rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;background:transparent;border:1px solid var(--border);color:var(--text-dim)">🥛 Laktosfritt</button>
+            <button onclick="togglePref(this,'vegetarisk')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🥦 Vegetarisk</button>
+            <button onclick="togglePref(this,'vegansk')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🌱 Vegansk</button>
+            <button onclick="togglePref(this,'glutenfri')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🌾 Glutenfri</button>
+            <button onclick="togglePref(this,'laktosfri')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🥛 Laktosfri</button>
+            <button onclick="togglePref(this,'high protein')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">💪 High protein</button>
           </div>
-
-          <button onclick="analyzeFridge()" style="width:100%;padding:13px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-bottom:6px" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">🍳 Analysera & generera recept</button>
-          <div style="text-align:center;font-size:0.72rem;color:var(--text-dim)">Ladda upp bilder/video eller tryck direkt för AI-demo med exempeldata</div>
+          <button onclick="scanFridge()" style="width:100%;padding:13px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">🔍 Skanna och hitta recept</button>
         </div>
         <div id="fridge-loading" style="display:none;text-align:center;padding:32px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;margin-bottom:20px">
           <div style="display:flex;justify-content:center;gap:6px;margin-bottom:12px">
@@ -1198,59 +1179,55 @@ select option:checked {
             <span style="width:9px;height:9px;border-radius:50%;background:var(--lime);display:inline-block;animation:pulseDot 1.2s 0.2s infinite ease"></span>
             <span style="width:9px;height:9px;border-radius:50%;background:var(--lime);display:inline-block;animation:pulseDot 1.2s 0.4s infinite ease"></span>
           </div>
-          <div style="font-size:0.85rem;color:var(--text-dim)" id="fridge-loading-text">AI scannar dina bilder och hittar ingredienser…</div>
+          <div id="fridge-scan-status" style="font-size:0.85rem;color:var(--text-dim)">🔍 AI skannar ditt kylskåp…</div>
         </div>
         <div id="fridge-results" style="display:none"></div>
       </div>
 
-      <!-- ══ WEEK MENU ══ -->
+      <!-- VECKOMENY -->
       <div id="subtab-week" style="display:none">
         <div class="card" style="margin-bottom:20px">
           <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--soft-white);margin-bottom:4px">📅 Personlig veckomeny</div>
-          <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:20px">AI genererar en veckas mat anpassad efter dina mål, BMI och preferenser</div>
+          <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:16px">AI genererar en veckas mat anpassad efter dina mål, BMI och preferenser</div>
 
-          <!-- Optional photo of pantry for week menu -->
-          <div style="padding:14px;background:rgba(126,200,80,0.05);border:1px solid rgba(126,200,80,0.15);border-radius:12px;margin-bottom:16px">
-            <div style="font-size:0.72rem;color:var(--lime);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">📸 Valfritt – ladda upp vad du har hemma</div>
-            <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:10px">Lägg till bilder/video så anpassar AI menyn efter dina faktiska matvaror</div>
+          <div style="margin-bottom:14px">
+            <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">📷 Valfritt – ladda upp vad du har hemma (flera bilder)</div>
+            <div id="week-photo-grid" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px;min-height:52px"></div>
             <div style="display:flex;gap:8px">
-              <div onclick="document.getElementById('week-img').click()" style="flex:1;padding:12px;border:1.5px dashed rgba(126,200,80,0.25);border-radius:10px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.25)'">
-                <div id="week-img-placeholder" style="font-size:0.8rem;color:var(--text-dim)">📷 Foto</div>
-                <img id="week-img-thumb" style="display:none;max-height:60px;border-radius:6px;max-width:100%;object-fit:cover">
-              </div>
-              <div onclick="document.getElementById('week-vid').click()" style="flex:1;padding:12px;border:1.5px dashed rgba(201,168,76,0.2);border-radius:10px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='rgba(201,168,76,0.4)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.2)'">
-                <div id="week-vid-placeholder" style="font-size:0.8rem;color:var(--text-dim)">🎥 Video</div>
-                <div id="week-vid-name" style="display:none;font-size:0.72rem;color:var(--gold)"></div>
-              </div>
+              <button onclick="document.getElementById('week-img').click()" style="padding:8px 14px;background:rgba(126,200,80,0.06);border:1.5px dashed rgba(126,200,80,0.22);border-radius:8px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.22)'">📷 + Foto</button>
+              <button onclick="document.getElementById('week-vid').click()" style="padding:8px 14px;background:rgba(201,168,76,0.06);border:1.5px dashed rgba(201,168,76,0.2);border-radius:8px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(201,168,76,0.5)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.2)'">🎥 <span id="week-vid-label">Video</span></button>
             </div>
             <input type="file" id="week-img" accept="image/*" multiple style="display:none" onchange="loadWeekMedia(this,'img')">
             <input type="file" id="week-vid" accept="video/*" style="display:none" onchange="loadWeekMedia(this,'vid')">
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
             <div>
-              <div style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Kalorigräns/dag</div>
-              <select id="week-kcal" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none">
+              <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Kalorigräns/dag</div>
+              <select id="week-kcal" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none">
                 <option value="1500">1 500 kcal – viktnedgång</option>
                 <option value="1800">1 800 kcal – underhåll</option>
                 <option value="2000" selected>2 000 kcal – standard</option>
                 <option value="2500">2 500 kcal – muskeluppbyggnad</option>
+                <option value="3000">3 000 kcal – bulk</option>
               </select>
             </div>
             <div>
-              <div style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Kosttyp</div>
-              <select id="week-diet" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none">
-                <option value="blandad">Blandad – allt</option>
-                <option value="vegetarisk">Vegetarisk</option>
-                <option value="vegansk">Vegansk</option>
-                <option value="lchf">LCHF / Low carb</option>
-                <option value="medelhavs">Medelhavskost</option>
+              <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Kosttyp</div>
+              <select id="week-diet" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none">
+                <option value="Blandad – allt">Blandad – allt</option>
+                <option value="Vegetarisk">Vegetarisk</option>
+                <option value="Vegansk">Vegansk</option>
+                <option value="Glutenfri">Glutenfri</option>
+                <option value="High protein">High protein</option>
+                <option value="Keto">Keto</option>
+                <option value="Medelhavs">Medelhavs</option>
               </select>
             </div>
           </div>
-          <div style="margin-bottom:16px">
-            <div style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Allergier / uteslut</div>
-            <input type="text" id="week-exclude" placeholder="T.ex. nötter, skaldjur, gluten…" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none">
+          <div style="margin-bottom:14px">
+            <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Allergier/undvik</div>
+            <input type="text" id="week-exclude" placeholder="T.ex. nötter, skaldjur, gluten…" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none">
           </div>
           <button onclick="generateWeekMenu()" style="width:100%;padding:13px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">📅 Generera min veckomeny</button>
         </div>
@@ -1265,49 +1242,36 @@ select option:checked {
         <div id="week-results" style="display:none"></div>
       </div>
 
-      <!-- ══ MEAL SUGGESTIONS ══ -->
+      <!-- MATFÖRSLAG -->
       <div id="subtab-suggest" style="display:none">
         <div class="card" style="margin-bottom:20px">
           <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--soft-white);margin-bottom:4px">💬 AI-matförslag</div>
-          <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:16px">Fotografera/filma din mat eller berätta vad du är sugen på – AI föreslår rätt måltid</div>
+          <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:14px">Ladda upp flera bilder av mat eller ingredienser – AI föreslår perfekta recept</div>
 
-          <!-- Photo/video upload for suggestions -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-            <div onclick="document.getElementById('suggest-img').click()" id="suggest-img-box" style="padding:16px;border:2px dashed rgba(126,200,80,0.2);border-radius:12px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.2)'">
-              <div id="suggest-img-ph">
-                <div style="font-size:1.6rem;margin-bottom:6px">📷</div>
-                <div style="font-size:0.76rem;color:var(--text-dim)">Foto av mat<br><span style="font-size:0.68rem;color:rgba(126,200,80,0.5)">Kamera eller galleri</span></div>
-              </div>
-              <img id="suggest-img-thumb" style="display:none;max-height:80px;border-radius:8px;max-width:100%;object-fit:cover">
+          <div style="margin-bottom:14px">
+            <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">📷 Ladda upp bilder (valfritt)</div>
+            <div id="suggest-photo-grid" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px;min-height:52px"></div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button onclick="document.getElementById('suggest-img').click()" style="padding:8px 14px;background:rgba(126,200,80,0.06);border:1.5px dashed rgba(126,200,80,0.22);border-radius:8px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.22)'">📷 + Foto</button>
+              <button onclick="document.getElementById('suggest-vid').click()" style="padding:8px 14px;background:rgba(201,168,76,0.06);border:1.5px dashed rgba(201,168,76,0.2);border-radius:8px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(201,168,76,0.5)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.2)'">🎥 Video</button>
+              <button id="suggest-analyze-btn" onclick="analyzeSuggestMedia()" style="display:none;padding:8px 14px;background:var(--lime);border:none;border-radius:8px;color:var(--deep-green);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700">📸 Analysera</button>
             </div>
-            <div onclick="document.getElementById('suggest-vid').click()" id="suggest-vid-box" style="padding:16px;border:2px dashed rgba(201,168,76,0.2);border-radius:12px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='rgba(201,168,76,0.4)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.2)'">
-              <div id="suggest-vid-ph">
-                <div style="font-size:1.6rem;margin-bottom:6px">🎥</div>
-                <div style="font-size:0.76rem;color:var(--text-dim)">Video av mat<br><span style="font-size:0.68rem;color:rgba(201,168,76,0.5)">Filma din tallrik</span></div>
-              </div>
-              <div id="suggest-vid-name" style="display:none;font-size:0.72rem;color:var(--gold);padding:8px 0">🎥 Video uppladdad ✓</div>
-            </div>
+            <input type="file" id="suggest-img" accept="image/*" multiple style="display:none" onchange="loadSuggestMedia(this,'img')">
+            <input type="file" id="suggest-vid" accept="video/*" style="display:none" onchange="loadSuggestMedia(this,'vid')">
           </div>
-          <input type="file" id="suggest-img" accept="image/*" multiple style="display:none" onchange="loadSuggestMedia(this,'img')">
-          <input type="file" id="suggest-vid" accept="video/*" style="display:none" onchange="loadSuggestMedia(this,'vid')">
 
-          <!-- Quick buttons -->
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
             <div style="font-size:0.7rem;color:var(--text-dim);width:100%;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Snabbval</div>
-            <button onclick="quickSuggest('Vad ska jag äta till frukost?')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--cream)'">🌅 Frukost</button>
-            <button onclick="quickSuggest('Föreslå ett nyttigt mellanmål under 200 kcal')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--cream)'">🍎 Mellanmål</button>
-            <button onclick="quickSuggest('Vad är en snabb och nyttig lunch?')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--cream)'">🥗 Lunch</button>
-            <button onclick="quickSuggest('Föreslå en god och mättande middag')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--cream)'">🍽️ Middag</button>
-            <button onclick="quickSuggest('Jag behöver mer protein idag, vad ska jag äta?')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--cream)'">💪 Protein</button>
-            <button onclick="quickSuggest('Föreslå något gott att äta på under 30 minuter')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)';this.style.color='var(--lime)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--cream)'">⚡ Snabbt</button>
-            <button onclick="analyzeSuggestMedia()" id="suggest-analyze-btn" style="display:none;padding:7px 14px;background:var(--lime);border:none;border-radius:100px;color:var(--deep-green);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;transition:all 0.2s">📸 Analysera uppladdad media</button>
+            <button onclick="quickSuggest('Vad ska jag äta till frukost?')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🌅 Frukost</button>
+            <button onclick="quickSuggest('Föreslå ett nyttigt mellanmål under 200 kcal')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🍎 Mellanmål</button>
+            <button onclick="quickSuggest('Vad är en snabb och nyttig lunch?')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🥗 Lunch</button>
+            <button onclick="quickSuggest('Föreslå en god och mättande middag')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🍽️ Middag</button>
+            <button onclick="quickSuggest('Jag behöver mer protein idag, vad ska jag äta?')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">💪 Protein</button>
+            <button onclick="quickSuggest('Något gott att laga på under 30 minuter')" style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.76rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">⚡ Snabbt</button>
           </div>
 
           <div class="chat-box" id="suggest-chat" style="max-height:320px">
-            <div class="msg ai">
-              <div class="msg-av">🍽️</div>
-              <div class="msg-bubble">Hej! Fotografera din mat eller ditt kylskåp, ladda upp en video – eller välj ett snabbval! Jag hittar det perfekta receptet för dig. 🌿</div>
-            </div>
+            <div class="msg ai"><div class="msg-av">🍽️</div><div class="msg-bubble">Hej! Fotografera din mat eller ditt kylskåp – eller välj ett snabbval! Jag hittar det perfekta receptet för dig. 🌿</div></div>
           </div>
           <div class="add-row" style="margin-top:12px">
             <input type="text" id="suggest-input" placeholder="T.ex. 'Något gott med kyckling och pasta…'" onkeydown="if(event.key==='Enter')sendSuggest()">
@@ -1317,7 +1281,6 @@ select option:checked {
       </div>
 
     </div>
-
     <!-- DEVICES TAB -->
     <div class="tab-content" id="tab-devices">
 
@@ -3303,126 +3266,108 @@ function loadFridgeVideo(input) {
   showToast('Video uppladdad! ✓');
 }
 
-// Load week menu media
-function loadFridgeThumb(input, num) {
-  const files = Array.from(input.files); if (!files.length) return;
-  files.forEach((file, i) => {
-    const slot = num + i; if (slot > 3) return;
+// ── CATEGORY PHOTO LOADER ──
+const categoryPhotos = { fridge: { 1: [], 2: [], 3: [] } };
+
+function loadCategoryPhotos(event, section, cat) {
+  const files = Array.from(event.target.files); if (!files.length) return;
+  if (!categoryPhotos[section]) categoryPhotos[section] = {};
+  if (!categoryPhotos[section][cat]) categoryPhotos[section][cat] = [];
+  files.forEach(file => {
     const reader = new FileReader();
     reader.onload = e => {
-      fridgeImages[slot] = e.target.result.split(',')[1];
-      const thumb = document.getElementById('fridge-thumb'+slot);
-      const label = document.getElementById('fridge-label'+slot);
-      if(thumb) { thumb.src = e.target.result; thumb.style.display = 'block'; }
-      if(label) label.style.display = 'none';
+      categoryPhotos[section][cat].push(e.target.result.split(',')[1]);
+      renderCategoryGrid(section, cat);
     };
     reader.readAsDataURL(file);
   });
+  event.target.value = '';
   showToast(files.length + ' bild' + (files.length>1?'er':'') + ' uppladdad' + (files.length>1?'e':'') + '! ✓');
 }
 
+function renderCategoryGrid(section, cat) {
+  const grid = document.getElementById(section+'-grid-'+cat);
+  const countEl = document.getElementById(section+'-count-'+cat);
+  const photos = (categoryPhotos[section] && categoryPhotos[section][cat]) || [];
+  if (countEl) countEl.textContent = photos.length ? '('+photos.length+')' : '';
+  if (!grid) return;
+  grid.innerHTML = photos.map((b64, i) =>
+    '<div style="aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative">' +
+    '<img src="data:image/jpeg;base64,'+b64+'" style="width:100%;height:100%;object-fit:cover">' +
+    '<button onclick="removeCategoryPhoto(''+section+'','+cat+','+i+')" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:white;font-size:0.6rem;cursor:pointer">✕</button>' +
+    '</div>'
+  ).join('');
+}
+
+function removeCategoryPhoto(section, cat, index) {
+  categoryPhotos[section][cat].splice(index, 1);
+  renderCategoryGrid(section, cat);
+}
+
+function getAllFridgeImages() {
+  const all = [];
+  [1,2,3].forEach(cat => { (categoryPhotos.fridge[cat]||[]).forEach(b64 => all.push(b64)); });
+  return all;
+}
+
+// ── WEEK MENU PHOTO GRID ──
 let weekMediaB64 = [];
 function loadWeekMedia(input, type) {
   const files = Array.from(input.files); if (!files.length) return;
   if (type === 'img') {
-    weekMediaB64 = [];
-    let loaded = 0;
-    files.forEach((file, i) => {
+    files.forEach(file => {
       const reader = new FileReader();
-      reader.onload = e => {
-        weekMediaB64.push(e.target.result.split(',')[1]);
-        if (i === 0) {
-          document.getElementById('week-img-thumb').src = e.target.result;
-          document.getElementById('week-img-thumb').style.display = 'block';
-          document.getElementById('week-img-placeholder').style.display = 'none';
-        }
-        loaded++;
-        if (loaded === files.length) showToast(files.length + ' bild' + (files.length>1?'er':'') + ' uppladdad' + (files.length>1?'e':'') + '! ✓');
-      };
+      reader.onload = e => { weekMediaB64.push(e.target.result.split(',')[1]); renderWeekPhotoGrid(); };
       reader.readAsDataURL(file);
     });
+    showToast(files.length + ' bild' + (files.length>1?'er':'') + ' uppladdade! ✓');
   } else {
-    const file = input.files[0]; if (!file) return;
-    document.getElementById('week-vid-name').textContent = '🎥 ' + file.name;
-    document.getElementById('week-vid-name').style.display = 'block';
-    document.getElementById('week-vid-placeholder').style.display = 'none';
-    showToast('Video uppladdad! ✓');
+    const el = document.getElementById('week-vid-label');
+    if (el) el.textContent = '🎥 ' + input.files[0].name;
+    showToast('Video uppladdad ✓');
   }
+  input.value = '';
 }
 
-// Load suggest media
+function renderWeekPhotoGrid() {
+  const grid = document.getElementById('week-photo-grid');
+  if (!grid) return;
+  grid.innerHTML = weekMediaB64.map((b64, i) =>
+    '<div style="width:52px;height:52px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0">' +
+    '<img src="data:image/jpeg;base64,'+b64+'" style="width:100%;height:100%;object-fit:cover">' +
+    '<button onclick="weekMediaB64.splice('+i+',1);renderWeekPhotoGrid()" style="position:absolute;top:1px;right:1px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,0.7);border:none;color:white;font-size:0.55rem;cursor:pointer">✕</button>' +
+    '</div>'
+  ).join('');
+}
+
+// ── SUGGEST PHOTO GRID ──
 let suggestMediaB64 = [];
 function loadSuggestMedia(input, type) {
   const files = Array.from(input.files); if (!files.length) return;
   if (type === 'img') {
-    suggestMediaB64 = [];
-    let grid = document.getElementById('suggest-thumb-grid');
-    if (!grid) {
-      grid = document.createElement('div');
-      grid.id = 'suggest-thumb-grid';
-      grid.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;justify-content:center';
-      document.getElementById('suggest-img-box').appendChild(grid);
-    }
-    grid.innerHTML = '';
-    let loaded = 0;
-    files.forEach((file, i) => {
+    files.forEach(file => {
       const reader = new FileReader();
-      reader.onload = e => {
-        suggestMediaB64.push(e.target.result.split(',')[1]);
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.style.cssText = 'width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid rgba(126,200,80,0.2)';
-        grid.appendChild(img);
-        if (i === 0) document.getElementById('suggest-img-ph').style.display = 'none';
-        document.getElementById('suggest-analyze-btn').style.display = 'inline-block';
-        loaded++;
-        if (loaded === files.length) showToast(files.length + ' bild' + (files.length>1?'er':'') + ' uppladdad' + (files.length>1?'e':'') + '! ✓');
-      };
+      reader.onload = e => { suggestMediaB64.push(e.target.result.split(',')[1]); renderSuggestPhotoGrid(); };
       reader.readAsDataURL(file);
     });
+    showToast(files.length + ' bild' + (files.length>1?'er':'') + ' uppladdade! ✓');
   } else {
-    document.getElementById('suggest-vid-name').style.display = 'block';
-    document.getElementById('suggest-vid-ph').style.display = 'none';
-    document.getElementById('suggest-analyze-btn').style.display = 'inline-block';
-    showToast('Video uppladdad! ✓');
+    showToast('Video uppladdad ✓');
   }
+  input.value = '';
 }
 
-// Analyze uploaded photos in suggestions
-async function analyzeSuggestMedia() {
-  if (!suggestMediaB64.length) return;
-  const chat = document.getElementById('suggest-chat');
-  const userMsg = document.createElement('div');
-  userMsg.className = 'msg user';
-  userMsg.innerHTML = '<div class="msg-av">👤</div><div class="msg-bubble">📸 Jag har laddat upp en bild – vad kan jag laga?</div>';
-  chat.appendChild(userMsg);
-  const typing = document.createElement('div');
-  typing.className = 'msg ai typing';
-  typing.innerHTML = '<div class="msg-av">🍽️</div><div class="msg-bubble">...</div>';
-  chat.appendChild(typing);
-  chat.scrollTop = chat.scrollHeight;
-  try {
-    const imgContent = suggestMediaB64.map(b64 => ({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}}));
-    imgContent.push({type:'text',text:'Titta på bilderna. Om det är mat på en tallrik – identifiera rätten och ge ett liknande enkelt recept. Om det är ingredienser/matvaror – föreslå vad man kan laga. Svara på svenska, kort och inspirerande.'});
-    const resp = await fetch('/.netlify/functions/ai', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:700,
-        messages:[{role:'user',content:imgContent}]
-      })
-    });
-    const data = await resp.json();
-    typing.remove();
-    const aiMsg = document.createElement('div');
-    aiMsg.className = 'msg ai';
-    aiMsg.innerHTML = `<div class="msg-av">🍽️</div><div class="msg-bubble">${(data.content[0].text||'').replace(/\n/g,'<br>')}</div>`;
-    chat.appendChild(aiMsg); chat.scrollTop = chat.scrollHeight;
-  } catch(e) {
-    typing.remove();
-    const aiMsg = document.createElement('div');
-    aiMsg.className = 'msg ai';
-    aiMsg.innerHTML = '<div class="msg-av">🍽️</div><div class="msg-bubble">🌿 <strong>Kyckling-wok med grönsaker</strong><br>Baserat på bilden ser det ut som du har bra ingredienser! Stek i het panna med olivolja, soja och vitlök. Servera med ris. ~480 kcal på 15 min!</div>';
-    chat.appendChild(aiMsg); chat.scrollTop = chat.scrollHeight;
-  }
+function renderSuggestPhotoGrid() {
+  const grid = document.getElementById('suggest-photo-grid');
+  if (!grid) return;
+  grid.innerHTML = suggestMediaB64.map((b64, i) =>
+    '<div style="width:52px;height:52px;border-radius:8px;overflow:hidden;position:relative;flex-shrink:0">' +
+    '<img src="data:image/jpeg;base64,'+b64+'" style="width:100%;height:100%;object-fit:cover">' +
+    '<button onclick="suggestMediaB64.splice('+i+',1);renderSuggestPhotoGrid()" style="position:absolute;top:1px;right:1px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,0.7);border:none;color:white;font-size:0.55rem;cursor:pointer">✕</button>' +
+    '</div>'
+  ).join('');
+  const btn = document.getElementById('suggest-analyze-btn');
+  if (btn) btn.style.display = suggestMediaB64.length ? 'inline-block' : 'none';
 }
 function triggerFridgePhoto(inputId) { document.getElementById(inputId).click(); }
 function loadFridgeThumb(input, num) {
@@ -3453,9 +3398,10 @@ async function analyzeFridge() {
   document.getElementById('fridge-loading').style.display='block';
   document.getElementById('fridge-results').style.display='none';
   const prefs = Array.from(document.querySelectorAll('.pref-btn.active')).map(b=>b.textContent.trim()).join(', ')||'Allt';
-  const hasImages = Object.keys(fridgeImages).length>0;
+  const allFridgeImgs = getAllFridgeImages();
+  const hasImages = allFridgeImgs.length > 0;
   const contentArr = [];
-  if (hasImages) Object.values(fridgeImages).forEach(b64=>contentArr.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}}));
+  if (hasImages) allFridgeImgs.forEach(b64=>contentArr.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}}));
   contentArr.push({type:'text',text:`${hasImages?'Titta på bilderna av kylskåpet/fryseln/skafferiet och':'Anta att det finns vanliga svenska matvaror hemma och'} ge mig enkla recept för frukost, mellanmål, lunch och middag. Kostpreferens: ${prefs}. Svara ENBART med JSON utan markdown: {"ingredients":["lista"],"recipes":[{"meal":"Frukost","name":"namn","time_min":10,"kcal":300,"ingredients":["ing"],"steps":["steg"]},{"meal":"Mellanmål","name":"namn","time_min":5,"kcal":150,"ingredients":[],"steps":[]},{"meal":"Lunch","name":"namn","time_min":15,"kcal":450,"ingredients":[],"steps":[]},{"meal":"Middag","name":"namn","time_min":20,"kcal":550,"ingredients":[],"steps":[]}]}`});
   try {
     const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,messages:[{role:'user',content:contentArr}]})});

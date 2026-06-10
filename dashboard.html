@@ -774,89 +774,22 @@ select option:checked {
       <div class="card" style="margin-bottom:20px">
         <div class="card-title" data-i18n="f_log_today">Matlogg – idag</div>
 
-        <!-- AI PHOTO SCANNER -->
-        <div style="background:linear-gradient(135deg,rgba(45,90,61,0.4),rgba(15,35,24,0.6));border:1px solid rgba(126,200,80,0.2);border-radius:16px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden">
-          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-            <span style="font-size:1.2rem">📸</span>
-            <div>
-              <div style="font-size:0.85rem;color:var(--cream);font-weight:600">AI-matanalys</div>
-              <div style="font-size:0.72rem;color:var(--text-dim)">Fotografera din mat – AI räknar kalorier automatiskt</div>
-            </div>
-          </div>
-
-          <!-- Upload area -->
-          <div id="photo-drop" onclick="document.getElementById('photo-input').click()"
-            style="border:2px dashed rgba(126,200,80,0.25);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:12px"
-            onmouseover="this.style.borderColor='rgba(126,200,80,0.5)';this.style.background='rgba(126,200,80,0.04)'"
-            onmouseout="this.style.borderColor='rgba(126,200,80,0.25)';this.style.background='transparent'">
-            <div id="photo-placeholder">
-              <div style="font-size:2rem;margin-bottom:8px">🍽️</div>
-              <div style="font-size:0.83rem;color:var(--text-dim)">Klicka för att ladda upp foto<br><span style="font-size:0.72rem;opacity:0.7">JPG, PNG – max 10MB</span></div>
-            </div>
-            <img id="photo-preview" src="" alt="" style="display:none;max-width:100%;max-height:200px;border-radius:10px;object-fit:cover">
-          </div>
-          <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
-
-          <button id="analyze-btn" onclick="analyzeFood()" disabled
-            style="width:100%;padding:12px;background:rgba(126,200,80,0.15);border:1px solid rgba(126,200,80,0.25);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;cursor:not-allowed;transition:all 0.3s">
-            📸 Välj ett foto för att analysera
-          </button>
-
-          <!-- Result box -->
-          <div id="ai-result" style="display:none;margin-top:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:16px">
-            <div style="font-size:0.72rem;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">AI-analys</div>
-            <div id="ai-food-name" style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--soft-white);margin-bottom:4px"></div>
-            <div id="ai-confidence" style="font-size:0.72rem;color:var(--text-dim);margin-bottom:14px"></div>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
-              <div style="text-align:center;padding:10px 6px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px">
-                <div id="r-kcal" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--lime)">–</div>
-                <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px">kcal</div>
-              </div>
-              <div style="text-align:center;padding:10px 6px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px">
-                <div id="r-protein" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--lime)">–</div>
-                <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px">protein</div>
-              </div>
-              <div style="text-align:center;padding:10px 6px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px">
-                <div id="r-carbs" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--lime)">–</div>
-                <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px">kolh.</div>
-              </div>
-              <div style="text-align:center;padding:10px 6px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px">
-                <div id="r-fat" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--lime)">–</div>
-                <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px">fett</div>
-              </div>
-            </div>
-            <div id="ai-note" style="font-size:0.75rem;color:var(--text-dim);font-style:italic;margin-bottom:12px"></div>
-            <button onclick="addAIFood()" style="width:100%;padding:11px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">
-              + Lägg till i matlogg
-            </button>
-          </div>
-
-          <!-- Loading state -->
-          <div id="ai-loading" style="display:none;margin-top:14px;text-align:center;padding:24px">
-            <div style="display:flex;justify-content:center;gap:6px;margin-bottom:10px">
-              <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:typeBounce 1.2s infinite ease"></span>
-              <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:typeBounce 1.2s 0.2s infinite ease"></span>
-              <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:typeBounce 1.2s 0.4s infinite ease"></span>
-            </div>
-            <div style="font-size:0.82rem;color:var(--text-dim)">AI analyserar din mat…</div>
-          </div>
-        </div>
-
+        <!-- FOOD LIST -->
         <div id="food-list">
           <div id="food-empty-state" style="text-align:center;padding:24px 0;color:var(--text-dim)">
             <div style="font-size:2rem;margin-bottom:8px;opacity:0.3">🍽️</div>
             <div style="font-size:0.84rem">Inga måltider loggade idag</div>
-            <div style="font-size:0.75rem;opacity:0.7;margin-top:4px">Skriv eller fotografera din måltid nedan</div>
+            <div style="font-size:0.75rem;opacity:0.7;margin-top:4px">Använd snabbval, skriv manuellt eller fotografera</div>
           </div>
         </div>
 
-        <!-- ADD FOOD ROW -->
-        <div style="margin-top:14px">
-          <!-- Quick meal suggestions -->
-          <div style="margin-bottom:10px">
-            <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⚡ Snabbval</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+        <!-- ADD FOOD SECTION -->
+        <div style="margin-top:16px">
+
+          <!-- 1. Quick picks -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⚡ Snabbval</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
               <button onclick="quickAddFood('🥣 Havregrynsgröt med bär',320)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🥣 Havregrynsgröt</button>
               <button onclick="quickAddFood('🍳 Äggröra med rostat bröd',380)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🍳 Äggröra</button>
               <button onclick="quickAddFood('🥗 Kycklingsallad',450)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🥗 Kycklingsallad</button>
@@ -867,26 +800,37 @@ select option:checked {
               <button onclick="quickAddFood('🍕 Pizza (2 skivor)',580)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🍕 Pizza</button>
             </div>
           </div>
-          <div class="add-row" style="margin-bottom:10px">
+
+          <!-- 2. Manual text -->
+          <div class="add-row" style="margin-bottom:12px">
             <input type="text" id="food-input" placeholder="Skriv måltid manuellt..." data-i18n-ph="food_ph">
-            <button onclick="addFood()" data-i18n="food_add_btn">+ Lägg till</button>
+            <button onclick="addFood()">+ Lägg till</button>
           </div>
 
-          <!-- Multi-photo upload area -->
-          <div style="background:rgba(126,200,80,0.04);border:1.5px dashed rgba(126,200,80,0.2);border-radius:14px;padding:14px">
-            <div style="font-size:0.72rem;color:var(--lime);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px">📷 Fotografera din mat – AI analyserar</div>
+          <!-- 3. AI Photo – single unified area -->
+          <div style="background:linear-gradient(135deg,rgba(30,70,45,0.35),rgba(15,35,24,0.5));border:1.5px dashed rgba(126,200,80,0.22);border-radius:14px;padding:16px;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <span style="font-size:1.1rem">📸</span>
+              <div>
+                <div style="font-size:0.82rem;color:var(--cream);font-weight:600">Fotografera din mat</div>
+                <div style="font-size:0.7rem;color:var(--text-dim)">Lägg till 1–4 bilder – AI räknar kalorier & näring</div>
+              </div>
+            </div>
 
             <!-- Image grid -->
-            <div id="food-img-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
-              <!-- Add button always first -->
-              <div id="food-add-img-btn" onclick="document.getElementById('food-multi-photo').click()" style="aspect-ratio:1;border:2px dashed rgba(126,200,80,0.25);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.02)" onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.25)'">
-                <span style="font-size:1.4rem">📷</span>
-                <span style="font-size:0.65rem;color:var(--text-dim);margin-top:4px">Lägg till</span>
+            <div id="food-img-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+              <div id="food-add-img-btn" onclick="document.getElementById('food-multi-photo').click()"
+                style="aspect-ratio:1;border:2px dashed rgba(126,200,80,0.25);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s"
+                onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.25)'">
+                <span style="font-size:1.3rem">📷</span>
+                <span style="font-size:0.62rem;color:var(--text-dim);margin-top:3px">Lägg till</span>
               </div>
             </div>
             <input type="file" id="food-multi-photo" accept="image/*" multiple style="display:none" onchange="addFoodPhotos(event)">
 
-            <button id="food-analyze-multi-btn" onclick="analyzeFoodPhotos()" disabled style="width:100%;padding:11px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:not-allowed;transition:all 0.3s">
+            <button id="food-analyze-multi-btn" onclick="analyzeFoodPhotos()" disabled
+              style="width:100%;padding:11px;background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.15);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:not-allowed;transition:all 0.3s">
               Lägg till bilder för att analysera
             </button>
           </div>
@@ -895,12 +839,10 @@ select option:checked {
         <!-- AI SCANNING ANIMATION -->
         <div id="food-scan-loading" style="display:none;margin-top:14px;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;overflow:hidden;position:relative">
           <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);animation:scanLine 1.5s infinite linear"></div>
-          <div style="position:relative;margin-bottom:16px">
-            <div id="scan-preview-imgs" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px"></div>
-            <div style="display:inline-flex;align-items:center;gap:10px;padding:10px 20px;background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.2);border-radius:100px">
-              <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1s infinite"></span>
-              <span id="scan-status-text" style="font-size:0.82rem;color:var(--lime)">AI skannar dina bilder…</span>
-            </div>
+          <div id="scan-preview-imgs" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px"></div>
+          <div style="display:inline-flex;align-items:center;gap:10px;padding:10px 20px;background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.2);border-radius:100px;margin-bottom:12px">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1s infinite"></span>
+            <span id="scan-status-text" style="font-size:0.82rem;color:var(--lime)">📷 Laddar upp bilder…</span>
           </div>
           <div style="display:flex;justify-content:center;gap:5px">
             <span style="width:7px;height:7px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0s infinite ease"></span>
@@ -909,7 +851,7 @@ select option:checked {
           </div>
         </div>
 
-        <!-- AI RESULT -->
+        <!-- AI SCAN RESULT -->
         <div id="food-scan-result" style="display:none;margin-top:14px;background:var(--card-bg);border:1px solid rgba(126,200,80,0.25);border-radius:14px;padding:16px;position:relative;overflow:hidden">
           <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
           <div style="font-size:0.7rem;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">✓ AI-analys klar</div>
@@ -3417,3 +3359,5 @@ function dashOrderBand() {
 </script>
 </body>
 </html>
+
+        

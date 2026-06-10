@@ -968,30 +968,33 @@ select option:checked {
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="ac_kcal">Förbrända kcal</div>
-          <div class="val" style="color:var(--text-dim)">–<span class="unit"> kcal</span></div>
-          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
+          <div class="val" id="activity-kcal-total" style="color:var(--text-dim)">–<span class="unit"> kcal</span></div>
+          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Logga aktivitet</div>
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="ac_hr">Vilopuls</div>
           <div class="val" style="color:var(--text-dim)">–<span class="unit"> bpm</span></div>
           <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Koppla enhet</div>
         </div>
-        <div class="card metric-big">
+        <div class="card metric-big" style="position:relative">
           <div class="card-title" data-i18n="ac_active">Aktiva min</div>
-          <div class="val" style="color:var(--text-dim)">–<span class="unit"> min</span></div>
-          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
+          <div class="val" id="activity-min-total" style="color:var(--text-dim)">–<span class="unit"> min</span></div>
+          <button onclick="openShareModal('activity')" style="position:absolute;top:12px;right:12px;padding:4px 10px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:100px;color:var(--lime);font-size:0.68rem;cursor:pointer;font-family:'DM Sans',sans-serif">↗ Dela</button>
         </div>
       </div>
-      <div class="card">
-        <div class="card-title" data-i18n="ac_log">Aktivitetslogg</div>
+
+      <!-- ACTIVITY LOG + ADD -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Aktivitetslogg</div>
         <div id="activity-list" style="text-align:center;padding:20px 0;color:var(--text-dim)">
           <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">🏃</div>
           <div style="font-size:0.84rem">Inga aktiviteter loggade ännu</div>
         </div>
-        <!-- Quick activity options -->
-        <div style="margin-top:14px">
-          <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⚡ Snabbval</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+
+        <!-- Quick picks -->
+        <div style="margin-top:14px;margin-bottom:12px">
+          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⚡ Snabbval</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
             <button onclick="quickAddActivity('🚶 Promenad',30,150)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🚶 Promenad</button>
             <button onclick="quickAddActivity('🏃 Löpning',45,400)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏃 Löpning</button>
             <button onclick="quickAddActivity('🚴 Cykling',60,350)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🚴 Cykling</button>
@@ -1000,9 +1003,90 @@ select option:checked {
             <button onclick="quickAddActivity('🏊 Simning',45,380)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏊 Simning</button>
             <button onclick="quickAddActivity('⛹️ Lagsport',60,420)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">⛹️ Lagsport</button>
           </div>
-          <div class="add-row">
-            <input type="text" id="activity-input" placeholder="Annan aktivitet (t.ex. tennis 45 min)..." data-i18n-ph="ac_ph" onkeydown="if(event.key==='Enter')addActivity()">
-            <button onclick="addActivity()" data-i18n="ac_add_btn">+ Logga</button>
+        </div>
+        <div class="add-row">
+          <input type="text" id="activity-input" placeholder="Annan aktivitet (t.ex. tennis 45 min)..." onkeydown="if(event.key==='Enter')addActivity()">
+          <button onclick="addActivity()">+ Logga</button>
+        </div>
+      </div>
+
+      <!-- PHOTO / VIDEO + AI COACH -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--soft-white)">📸 Träningsfoto & AI-coaching</div>
+          <span style="font-size:0.68rem;padding:2px 8px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:100px;color:var(--lime)">Unik funktion</span>
+        </div>
+        <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:14px;line-height:1.6">Ladda upp foto eller film på din träning – AI analyserar din teknik, ger förbättringsförslag och personliga råd.</div>
+
+        <!-- Upload area -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <!-- Photo upload -->
+          <div onclick="document.getElementById('activity-photo-input').click()"
+            style="border:2px dashed rgba(126,200,80,0.22);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden"
+            onmouseover="this.style.borderColor='rgba(126,200,80,0.5)';this.style.background='rgba(126,200,80,0.04)'"
+            onmouseout="this.style.borderColor='rgba(126,200,80,0.22)';this.style.background='transparent'">
+            <div id="act-photo-placeholder">
+              <div style="font-size:1.6rem;margin-bottom:4px">📷</div>
+              <div style="font-size:0.76rem;color:var(--cream)">Foto</div>
+              <div style="font-size:0.68rem;color:var(--text-dim)">Upp till 4 bilder</div>
+            </div>
+            <img id="act-photo-preview" src="" style="display:none;width:100%;height:80px;object-fit:cover;border-radius:8px">
+          </div>
+          <input type="file" id="activity-photo-input" accept="image/*" multiple style="display:none" onchange="loadActivityMedia(event,'photo')">
+
+          <!-- Video upload -->
+          <div onclick="document.getElementById('activity-video-input').click()"
+            style="border:2px dashed rgba(201,168,76,0.22);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s"
+            onmouseover="this.style.borderColor='rgba(201,168,76,0.5)';this.style.background='rgba(201,168,76,0.04)'"
+            onmouseout="this.style.borderColor='rgba(201,168,76,0.22)';this.style.background='transparent'">
+            <div id="act-video-placeholder">
+              <div style="font-size:1.6rem;margin-bottom:4px">🎥</div>
+              <div style="font-size:0.76rem;color:var(--cream)">Film</div>
+              <div style="font-size:0.68rem;color:var(--text-dim)">AI analyserar teknik</div>
+            </div>
+            <div id="act-video-name" style="display:none;font-size:0.76rem;color:var(--gold);padding:8px">🎥 Video uppladdad</div>
+          </div>
+          <input type="file" id="activity-video-input" accept="video/*" style="display:none" onchange="loadActivityMedia(event,'video')">
+        </div>
+
+        <!-- Workout type selector -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Typ av träning (hjälper AI)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <button onclick="setWorkoutType(this,'Styrketräning')" class="workout-type-btn" style="padding:5px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🏋️ Styrketräning</button>
+            <button onclick="setWorkoutType(this,'Löpning')" class="workout-type-btn" style="padding:5px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🏃 Löpning</button>
+            <button onclick="setWorkoutType(this,'Yoga')" class="workout-type-btn" style="padding:5px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🧘 Yoga</button>
+            <button onclick="setWorkoutType(this,'Crossfit')" class="workout-type-btn" style="padding:5px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">💪 Crossfit</button>
+            <button onclick="setWorkoutType(this,'Cykling')" class="workout-type-btn" style="padding:5px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🚴 Cykling</button>
+            <button onclick="setWorkoutType(this,'Annan')" class="workout-type-btn" style="padding:5px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">⚡ Annan</button>
+          </div>
+        </div>
+
+        <!-- Analyze button -->
+        <button id="activity-analyze-btn" onclick="analyzeActivityMedia()" disabled
+          style="width:100%;padding:12px;background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.15);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;cursor:not-allowed;transition:all 0.3s;margin-bottom:0">
+          Ladda upp foto eller film för att få AI-coaching
+        </button>
+
+        <!-- Loading -->
+        <div id="activity-ai-loading" style="display:none;margin-top:14px;text-align:center;padding:20px;background:rgba(126,200,80,0.04);border:1px solid rgba(126,200,80,0.15);border-radius:12px">
+          <div style="display:flex;justify-content:center;gap:6px;margin-bottom:10px">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0s infinite ease"></span>
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.2s infinite ease"></span>
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.4s infinite ease"></span>
+          </div>
+          <div id="activity-ai-status" style="font-size:0.82rem;color:var(--lime)">🔍 AI analyserar din träning…</div>
+        </div>
+
+        <!-- AI Result -->
+        <div id="activity-ai-result" style="display:none;margin-top:14px;background:rgba(126,200,80,0.04);border:1px solid rgba(126,200,80,0.2);border-radius:14px;padding:16px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+          <div style="font-size:0.7rem;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px">🤖 AI-träningscoach</div>
+          <div id="activity-ai-content" style="font-size:0.84rem;color:var(--cream);line-height:1.8"></div>
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button onclick="logActivityFromAI()" style="flex:1;padding:10px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer">+ Logga träning</button>
+            <button onclick="openShareModal('activity')" style="flex:1;padding:10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;cursor:pointer">↗ Dela</button>
+            <button onclick="document.getElementById('activity-ai-result').style.display='none'" style="padding:10px 14px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);cursor:pointer">✕</button>
           </div>
         </div>
       </div>
@@ -2326,7 +2410,166 @@ function downloadShareCard() {
   showToast('Bild sparad! ✓');
 }
 
-// ── ACTIVITY LOG ──
+// ── ACTIVITY MEDIA & AI COACHING ──
+let activityPhotosB64 = [];
+let activityVideoFile = null;
+let currentWorkoutType = '';
+let activityAIText = '';
+
+function setWorkoutType(btn, type) {
+  currentWorkoutType = type;
+  document.querySelectorAll('.workout-type-btn').forEach(b => {
+    b.style.background = 'rgba(255,255,255,0.04)';
+    b.style.borderColor = 'var(--border)';
+    b.style.color = 'var(--text-dim)';
+  });
+  btn.style.background = 'rgba(126,200,80,0.12)';
+  btn.style.borderColor = 'rgba(126,200,80,0.4)';
+  btn.style.color = 'var(--lime)';
+  updateActivityAnalyzeBtn();
+}
+
+function loadActivityMedia(event, type) {
+  const files = Array.from(event.target.files); if (!files.length) return;
+  if (type === 'photo') {
+    activityPhotosB64 = [];
+    files.slice(0,4).forEach((file, i) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        activityPhotosB64.push(e.target.result.split(',')[1]);
+        if (i === 0) {
+          document.getElementById('act-photo-preview').src = e.target.result;
+          document.getElementById('act-photo-preview').style.display = 'block';
+          document.getElementById('act-photo-placeholder').style.display = 'none';
+        }
+        updateActivityAnalyzeBtn();
+      };
+      reader.readAsDataURL(file);
+    });
+    showToast(`${Math.min(files.length,4)} foto uppladdade ✓`);
+  } else {
+    activityVideoFile = files[0];
+    document.getElementById('act-video-name').style.display = 'block';
+    document.getElementById('act-video-placeholder').style.display = 'none';
+    showToast('Video uppladdad ✓');
+    updateActivityAnalyzeBtn();
+  }
+}
+
+function updateActivityAnalyzeBtn() {
+  const hasMedia = activityPhotosB64.length > 0 || activityVideoFile;
+  const btn = document.getElementById('activity-analyze-btn');
+  if (hasMedia) {
+    btn.disabled = false;
+    btn.style.background = 'rgba(126,200,80,0.15)';
+    btn.style.borderColor = 'rgba(126,200,80,0.35)';
+    btn.style.color = 'var(--lime)';
+    btn.style.cursor = 'pointer';
+    btn.textContent = `🤖 Analysera med AI${currentWorkoutType ? ' – ' + currentWorkoutType : ''}`;
+  } else {
+    btn.disabled = true;
+    btn.style.background = 'rgba(126,200,80,0.08)';
+    btn.style.color = 'var(--text-dim)';
+    btn.style.cursor = 'not-allowed';
+    btn.textContent = 'Ladda upp foto eller film för att få AI-coaching';
+  }
+}
+
+const activityAnalysisSteps = [
+  '🔍 Analyserar träningsform…',
+  '💪 Bedömer teknik och utförande…',
+  '📊 Sätter ihop förbättringsförslag…',
+  '✅ Coaching klar!'
+];
+
+async function analyzeActivityMedia() {
+  if (!activityPhotosB64.length && !activityVideoFile) return;
+
+  document.getElementById('activity-ai-loading').style.display = 'block';
+  document.getElementById('activity-ai-result').style.display = 'none';
+  document.getElementById('activity-analyze-btn').disabled = true;
+
+  // Step animation
+  let step = 0;
+  const statusEl = document.getElementById('activity-ai-status');
+  const stepInterval = setInterval(() => {
+    if (step < activityAnalysisSteps.length - 1) {
+      step++;
+      statusEl.textContent = activityAnalysisSteps[step];
+    }
+  }, 1200);
+
+  const workoutCtx = currentWorkoutType ? `Träningstyp: ${currentWorkoutType}. ` : '';
+  const profile = JSON.parse(localStorage.getItem('vitalis_profile') || '{}');
+  const userCtx = profile.fname ? `Användarens namn: ${profile.fname}. ` : '';
+
+  try {
+    // Build content – use photos if available (video = describe from filename)
+    const contentArr = activityPhotosB64.map(b64 => ({
+      type: 'image',
+      source: { type: 'base64', media_type: 'image/jpeg', data: b64 }
+    }));
+
+    const prompt = activityVideoFile
+      ? `${userCtx}${workoutCtx}Användaren har laddat upp en träningsvideo (${activityVideoFile.name}). Ge en personlig AI-träningscoaching med: 1) Vad du ser för träning, 2) Specifika förbättringsförslag på teknik, 3) Tips för nästa träningspass, 4) Motiverande avslutning. Svara på svenska, konkret och uppmuntrande. Max 200 ord.`
+      : `${userCtx}${workoutCtx}Analysera träningen på bilden/bilderna. Ge: 1) Vad du ser för övning/träning, 2) Tekniktips och förbättringsförslag, 3) Råd för nästa pass, 4) Motiverande avslutning. Svara på svenska, konkret och uppmuntrande. Max 200 ord.`;
+
+    contentArr.push({ type: 'text', text: prompt });
+
+    const resp = await fetch('/.netlify/functions/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 600,
+        messages: [{ role: 'user', content: contentArr.length > 1 ? contentArr : [{ type: 'text', text: prompt }] }]
+      })
+    });
+    const data = await resp.json();
+    activityAIText = data.content?.[0]?.text || '';
+
+    clearInterval(stepInterval);
+    statusEl.textContent = '✅ Coaching klar!';
+    await new Promise(r => setTimeout(r, 500));
+
+    // Format response with sections
+    const formatted = activityAIText
+      .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--lime)">$1</strong>')
+      .replace(/\n\n/g, '</p><p style="margin-top:10px">')
+      .replace(/\n/g, '<br>');
+
+    document.getElementById('activity-ai-content').innerHTML = `<p>${formatted}</p>`;
+    document.getElementById('activity-ai-result').style.display = 'block';
+
+  } catch(e) {
+    activityAIText = 'Bra jobbat med träningen! Kom ihåg att fokusera på teknik före tyngd, håll ryggen rak och andas kontrollerat. Vila 48h innan nästa pass för samma muskelgrupp. 💪';
+    document.getElementById('activity-ai-content').innerHTML = `<p style="color:var(--cream)">${activityAIText}</p>`;
+    document.getElementById('activity-ai-result').style.display = 'block';
+  }
+
+  document.getElementById('activity-ai-loading').style.display = 'none';
+  document.getElementById('activity-analyze-btn').disabled = false;
+}
+
+function logActivityFromAI() {
+  const type = currentWorkoutType || 'Träning';
+  const list = document.getElementById('activity-list');
+  if (list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
+  const now = new Date();
+  const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  const item = document.createElement('div');
+  item.className = 'activity-item';
+  const hasPhoto = activityPhotosB64.length > 0;
+  const hasVideo = !!activityVideoFile;
+  item.innerHTML = `<div class="activity-icon">${hasVideo ? '🎥' : hasPhoto ? '📷' : '🏋️'}</div><div class="activity-text"><div class="title">${type} <span style="font-size:0.68rem;color:var(--lime)">AI-coaching</span></div><div class="time">${time}${hasVideo ? ' · Video analyserad' : hasPhoto ? ' · Foto analyserat' : ''}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="activity-val" style="color:var(--lime)">Loggad</div><button onclick="deleteEntry(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:2px 6px" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button></div>`;
+  item.style.opacity = '0';
+  list.appendChild(item);
+  setTimeout(() => { item.style.transition = 'opacity 0.3s'; item.style.opacity = '1'; }, 10);
+  showToast(`💪 ${type} loggad ✓`);
+  document.getElementById('activity-ai-result').style.display = 'none';
+  activityPhotosB64 = [];
+  activityVideoFile = null;
+}
 function addActivity(){
   const input = document.getElementById('activity-input');
   const val = input.value.trim(); if(!val) return;
@@ -3359,5 +3602,3 @@ function dashOrderBand() {
 </script>
 </body>
 </html>
-
-        

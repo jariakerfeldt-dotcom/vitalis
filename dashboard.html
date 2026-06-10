@@ -699,23 +699,27 @@ select option:checked {
       <div class="grid-4">
         <div class="card metric-big" onclick="showTab('food')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_kcal">Kalorier idag</div>
-          <div class="val" style="color:var(--text-dim)">–<span class="unit"> kcal</span></div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Matlogg</div>
+          <div class="val" id="overview-kcal" style="color:var(--text-dim)">–<span class="unit"> kcal</span></div>
+          <div id="overview-kcal-sub" style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;font-style:italic">Ingen data – logga mat</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:4px">→ Matlogg</div>
         </div>
         <div class="card metric-big" onclick="showTab('sleep')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_sleep">Sömn igår</div>
-          <div class="val" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Sömn</div>
+          <div class="val" id="overview-sleep" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
+          <div id="overview-sleep-sub" style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;font-style:italic">Ingen data – logga sömn</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:4px">→ Sömn</div>
         </div>
         <div class="card metric-big" onclick="showTab('activity')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_steps">Steg idag</div>
           <div class="val" style="color:var(--text-dim)">–</div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Aktivitet</div>
+          <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;font-style:italic">Koppla enhet</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:4px">→ Aktivitet</div>
         </div>
         <div class="card metric-big" onclick="showTab('profile')" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.15)';this.style.transform='none'">
           <div class="card-title" data-i18n="m_weight">Vikt</div>
-          <div class="val" style="color:var(--text-dim)">–<span class="unit"> kg</span></div>
-          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:6px">→ Profil</div>
+          <div class="val" id="overview-weight" style="color:var(--text-dim)">–<span class="unit"> kg</span></div>
+          <div id="overview-weight-sub" style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;font-style:italic">Ange i Profil</div>
+          <div style="font-size:0.68rem;color:rgba(126,200,80,0.5);margin-top:4px">→ Profil</div>
         </div>
       </div>
 
@@ -1820,6 +1824,11 @@ function addSleepEntry(hours, label) {
   list.appendChild(item);
   setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
   showToast(`${hours}h sömn loggad ✓`);
+  // Update overview sleep card
+  const slEl = document.getElementById('overview-sleep');
+  const slSub = document.getElementById('overview-sleep-sub');
+  if (slEl) { slEl.innerHTML = hours + '<span class="unit"> h</span>'; slEl.style.color = hours >= 7 ? 'var(--lime)' : hours >= 6 ? 'var(--gold)' : '#e05c5c'; }
+  if (slSub) { slSub.textContent = label; slSub.style.fontStyle = 'normal'; slSub.style.color = hours >= 7 ? 'var(--lime)' : 'var(--text-dim)'; }
 }
 
 // ── QUICK ADD ACTIVITY ──
@@ -2166,12 +2175,47 @@ function deleteFood(btn){
   }, 300);
   updateFoodStats();
 }
+function updateOverview() {
+  // Kalorier – från matlogg
+  const kcalEl = document.getElementById('overview-kcal');
+  const kcalSub = document.getElementById('overview-kcal-sub');
+  if (kcalEl) {
+    if (totalKcal > 0) {
+      kcalEl.innerHTML = totalKcal.toLocaleString('sv') + '<span class="unit"> kcal</span>';
+      kcalEl.style.color = 'var(--lime)';
+      if (kcalSub) { kcalSub.textContent = Math.max(0, 2000 - totalKcal) + ' kcal kvar av mål'; kcalSub.style.fontStyle = 'normal'; }
+    } else {
+      kcalEl.innerHTML = '–<span class="unit"> kcal</span>';
+      kcalEl.style.color = 'var(--text-dim)';
+      if (kcalSub) { kcalSub.textContent = 'Ingen data – logga mat'; kcalSub.style.fontStyle = 'italic'; }
+    }
+  }
+  // Vikt – från profil
+  try {
+    const p = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
+    const wEl = document.getElementById('overview-weight');
+    const wSub = document.getElementById('overview-weight-sub');
+    if (wEl) {
+      if (p.weight) {
+        wEl.innerHTML = p.weight + '<span class="unit"> kg</span>';
+        wEl.style.color = 'var(--cream)';
+        if (wSub) { wSub.textContent = 'BMI ' + (p.weight && p.height ? (p.weight/Math.pow(p.height/100,2)).toFixed(1) : '–'); wSub.style.fontStyle = 'normal'; }
+      } else {
+        wEl.innerHTML = '–<span class="unit"> kg</span>';
+        wEl.style.color = 'var(--text-dim)';
+        if (wSub) { wSub.textContent = 'Ange i Profil'; wSub.style.fontStyle = 'italic'; }
+      }
+    }
+  } catch(e){}
+}
+
 function updateFoodStats(){
   const goal=2000; const remaining=Math.max(0,goal-totalKcal);
   const meals=document.getElementById('food-list').querySelectorAll('.food-item').length;
   document.getElementById('total-kcal').innerHTML=totalKcal.toLocaleString('sv')+'<span class="unit"> kcal</span>';
   document.getElementById('remaining-kcal').innerHTML=remaining.toLocaleString('sv')+'<span class="unit"> kcal</span>';
   document.getElementById('meal-count').textContent=meals;
+  updateOverview();
 }
 document.getElementById('food-input').addEventListener('keydown',e=>{if(e.key==='Enter')addFood();});
 
@@ -2705,6 +2749,7 @@ function saveProfile() {
   };
   try { localStorage.setItem('vitalis_profile', JSON.stringify(profile)); } catch(e){}
   updateProfileUI(profile);
+  updateOverview();
 }
 
 function loadProfile() {
@@ -2769,6 +2814,7 @@ function calcBMI() {
 }
 
 loadProfile();
+updateOverview();
 
 // ── MEDICINE SYSTEM ──
 let medicines = JSON.parse(localStorage.getItem('vitalis_medicines') || '[]');

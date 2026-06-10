@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vitalis – Skapa konto</title>
+<title>Vitalis Flow – Skapa konto</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -791,7 +791,7 @@
   }
   .device-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
 
-  /* Vitalis Band product card */
+  /* Vitalis Flow Band product card */
   .band-card {
     background: linear-gradient(135deg, rgba(26,58,42,0.9), rgba(15,35,24,0.9));
     border: 1px solid rgba(201,168,76,0.3);
@@ -867,13 +867,17 @@
   @media (max-width: 700px) {
     .device-grid { grid-template-columns: 1fr; }
   }
+
+  select { background-color: #1a3a2a !important; color: var(--cream) !important; -webkit-appearance:none; appearance:none; }
+  select option { background-color: #1a3a2a; color: var(--cream); }
+  select option:checked { background-color: #2a5040; color: var(--lime); }
 </style>
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="logo">Vita<span>lis</span></a>
+  <a href="index.html" class="logo">Vita<span>lis Flow</span></a>
   <div class="nav-right">
     <div class="lang-switcher">
       <button class="lang-btn active" onclick="setLang('sv')" id="lang-sv">SV</button>
@@ -941,7 +945,7 @@
       <div class="form-row">
         <div class="form-group">
           <label data-i18n="label_email">E-postadress</label>
-          <input type="email" id="email" placeholder="anna@vitalis.se" autocomplete="email">
+          <input type="email" id="email" placeholder="anna@vitalisflow.se" autocomplete="email">
           <span class="field-error" id="err-email" data-i18n="err_email">Ange en giltig e-postadress</span>
         </div>
         <div class="form-group">
@@ -1072,7 +1076,7 @@
     <div class="panel-card" style="max-width:600px;margin:0 auto">
       <div class="panel-eyebrow">Steg 3 av 3 – Valfritt</div>
       <h1 class="panel-title">Koppla din <em>enhet</em></h1>
-      <p class="panel-sub">Synka automatiskt steg, puls och sömn – eller beställ ditt Vitalis Band direkt.</p>
+      <p class="panel-sub">Synka automatiskt steg, puls och sömn – eller beställ ditt Vitalis Flow Band direkt.</p>
       <div class="skip-link" style="margin-bottom:20px"><a onclick="submitStep3()">Hoppa över – koppla enhet senare i inställningar</a></div>
 
       <!-- Connect existing device -->
@@ -1105,16 +1109,16 @@
 
       <div style="display:flex;align-items:center;gap:12px;margin:4px 0 20px">
         <div style="flex:1;height:1px;background:var(--border)"></div>
-        <span style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase">eller köp Vitalis Band</span>
+        <span style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase">eller köp Vitalis Flow Band</span>
         <div style="flex:1;height:1px;background:var(--border)"></div>
       </div>
 
-      <!-- Vitalis Band product -->
+      <!-- Vitalis Flow Band product -->
       <div class="band-card">
         <div class="band-header">
           <div class="band-img">⌚</div>
           <div>
-            <div class="band-title">Vitalis Band</div>
+            <div class="band-title">Vitalis Flow Band</div>
             <div class="band-subtitle">Officiellt hälsoarmband från Vitalis</div>
             <div class="band-price">799 kr</div>
           </div>
@@ -1131,7 +1135,7 @@
           🛡️ <span>2 års garanti</span> ingår – full täckning för material- och tillverkningsfel
         </div>
         <button class="btn-order" id="btn-order" onclick="orderBand()">
-          🛒 Beställ Vitalis Band – 799 kr
+          🛒 Beställ Vitalis Flow Band – 799 kr
         </button>
       </div>
 
@@ -1231,7 +1235,7 @@ const i18n = {
   },
   ar: {
     step1_label: "بياناتك", step2_label: "اختر الخطة", step3_label: "تم!",
-    reg_eyebrow: "الخطوة 1 من 2", reg_title: "أنشئ حساب<br><em>Vitalis</em> الخاص بك",
+    reg_eyebrow: "الخطوة 1 من 2", reg_title: "أنشئ حساب<br><em>Vitalis Flow</em> الخاص بك",
     reg_sub: "أدخل بياناتك أدناه. جميع الحقول مطلوبة.",
     label_fname: "الاسم الأول", label_lname: "اسم العائلة", label_address: "العنوان",
     label_email: "البريد الإلكتروني", label_phone: "رقم الهاتف",
@@ -1442,7 +1446,7 @@ function selectDevice(dev) {
 function orderBand() {
   bandOrdered = true;
   const btn = document.getElementById('btn-order');
-  btn.textContent = '✓ Vitalis Band beställt! Leverans 3–5 dagar';
+  btn.textContent = '✓ Vitalis Flow Band beställt! Leverans 3–5 dagar';
   btn.classList.add('ordered');
   btn.disabled = true;
   showToast('Beställning mottagen! 🛒');
@@ -1467,7 +1471,7 @@ function submitStep3() {
   const devText = document.getElementById('device-badge-text');
   if (bandOrdered) {
     devBadge.style.display = 'block';
-    devText.textContent = 'Vitalis Band – beställd ✓';
+    devText.textContent = 'Vitalis Flow Band – beställd ✓';
   } else if (selectedDevice) {
     devBadge.style.display = 'block';
     devText.textContent = devNames[selectedDevice];

@@ -3480,9 +3480,23 @@ function togglePref(btn, val) {
   else { btn.classList.remove('active'); btn.style.background='transparent'; btn.style.borderColor='var(--border)'; btn.style.color='var(--text-dim)'; btn.style.fontWeight='400'; }
 }
 
-async function analyzeFridge() {
+async function scanFridge() {
   document.getElementById('fridge-loading').style.display='block';
   document.getElementById('fridge-results').style.display='none';
+
+  // Scanning animation steps
+  const statusEl = document.getElementById('fridge-scan-status');
+  const steps = [
+    '🔍 AI skannar ditt kylskåp…',
+    '🥦 Identifierar ingredienser…',
+    '👨‍🍳 Sätter ihop recept…',
+    '✅ Klart!'
+  ];
+  let step = 0;
+  const stepInterval = setInterval(() => {
+    if (step < steps.length - 1) { step++; if(statusEl) statusEl.textContent = steps[step]; }
+  }, 1200);
+
   const prefs = Array.from(document.querySelectorAll('.pref-btn.active')).map(b=>b.textContent.trim()).join(', ')||'Allt';
   const allFridgeImgs = getAllFridgeImages();
   const hasImages = allFridgeImgs.length > 0;
@@ -3492,8 +3506,12 @@ async function analyzeFridge() {
   try {
     const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,messages:[{role:'user',content:contentArr}]})});
     const data = await resp.json();
+    clearInterval(stepInterval);
+    if(statusEl) statusEl.textContent = '✅ Recept klara!';
     renderFridgeResults(JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim()));
   } catch(e) {
+    clearInterval(stepInterval);
+    if(statusEl) statusEl.textContent = '🍳 Visar exempelrecept…';
     renderFridgeResults({ingredients:['ägg','havre','bär','kyckling','sallad','avokado','pasta','tomater'],recipes:[
       {meal:'Frukost',name:'Äggröra med rostat bröd',time_min:8,kcal:320,ingredients:['3 ägg','smör','rostat bröd'],steps:['Vispa äggen','Stek mjukt i smör','Servera på bröd']},
       {meal:'Mellanmål',name:'Havregrynsgröt med bär',time_min:5,kcal:210,ingredients:['1 dl havre','2 dl mjölk','bär'],steps:['Koka havre med mjölk','Häll upp','Toppa med bär']},

@@ -933,17 +933,12 @@ select option:checked {
           <!-- Manual input – stacked for mobile -->
           <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Logga manuellt</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <!-- Datum – klickbar rad öppnar kalender -->
-            <div style="position:relative">
-              <div onclick="document.getElementById('sleep-date').showPicker?document.getElementById('sleep-date').showPicker():document.getElementById('sleep-date').focus()"
-                style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all 0.2s"
-                onmouseover="this.style.borderColor='rgba(126,200,80,0.4)'" onmouseout="this.style.borderColor='var(--border)'">
-                <span style="font-size:1rem">📅</span>
-                <span id="sleep-date-display" style="flex:1;font-size:0.86rem;color:var(--text-dim);font-family:'DM Sans',sans-serif">Idag</span>
-                <span style="font-size:0.75rem;color:var(--lime)">▼</span>
-              </div>
+            <!-- Datum – stilat input direkt klickbart -->
+            <div style="position:relative;display:flex;align-items:center;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;padding:0 14px;transition:border-color 0.2s;cursor:pointer"
+              onmouseover="this.style.borderColor='rgba(126,200,80,0.4)'" onmouseout="this.style.borderColor='var(--border)'">
+              <span style="font-size:1rem;margin-right:10px;pointer-events:none">📅</span>
               <input type="date" id="sleep-date"
-                style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2"
+                style="flex:1;padding:11px 0;background:transparent;border:none;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.86rem;outline:none;cursor:pointer;color-scheme:dark;min-width:0"
                 onchange="updateSleepDateDisplay(this.value)">
             </div>
             <!-- Timmar + kvalitet -->

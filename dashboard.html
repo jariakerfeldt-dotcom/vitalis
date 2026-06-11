@@ -1935,6 +1935,41 @@ function deleteEntry(btn) {
 }
 
 // ── QUICK ADD FOOD ──
+function makeFoodItemHTML(name, kcal, time, extraBadge) {
+  const badge = extraBadge ? `<span style="font-size:0.65rem;color:var(--lime);margin-left:4px">${extraBadge}</span>` : '';
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+      <div class="food-left" style="flex:1;min-width:0">
+        <span class="food-emoji">${name.split(' ')[0]}</span>
+        <div style="min-width:0">
+          <div class="food-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}${badge}</div>
+          <div class="food-time">${time} · <span style="color:var(--lime);font-size:0.68rem">Klicka för detaljer</span></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px">
+        <span class="food-kcal">${kcal} kcal</span>
+        <button onclick="event.stopPropagation();openMealDetailPhoto(this.closest('.food-item'))"
+          style="padding:4px 8px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.25);border-radius:8px;color:var(--gold);font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s"
+          onmouseover="this.style.background='rgba(201,168,76,0.25)'" onmouseout="this.style.background='rgba(201,168,76,0.12)'">📸</button>
+        <button onclick="event.stopPropagation();openMealDetailShare(this.closest('.food-item'))"
+          style="padding:4px 8px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:8px;color:var(--lime);font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s"
+          onmouseover="this.style.background='rgba(126,200,80,0.2)'" onmouseout="this.style.background='rgba(126,200,80,0.1)'">↗</button>
+        <button class="food-delete" onclick="event.stopPropagation();deleteFood(this)">✕</button>
+      </div>
+    </div>`;
+}
+
+function openMealDetailPhoto(item) {
+  currentMealItem = item;
+  mealDetailPhotoB64 = item.dataset.photo || null;
+  document.getElementById('meal-detail-photo-input').click();
+}
+
+function openMealDetailShare(item) {
+  openMealDetail(item);
+  setTimeout(() => shareMealDetail(), 100);
+}
+
 function quickAddFood(name, kcal) {
   totalKcal += kcal;
   const now = new Date();
@@ -1945,7 +1980,26 @@ function quickAddFood(name, kcal) {
   item.setAttribute('data-name', name);
   item.setAttribute('data-time', time);
   item.style.cursor = 'pointer';
-  item.innerHTML=`<div class="food-left" onclick="openMealDetail(this.closest('.food-item'))"><span class="food-emoji">${name.split(' ')[0]}</span><div><div class="food-name">${name}</div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal">${kcal} kcal</span><button class="food-delete" onclick="event.stopPropagation();deleteFood(this)">✕</button></div>`;
+  item.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+      <div class="food-left" style="flex:1;min-width:0">
+        <span class="food-emoji">${name.split(' ')[0]}</span>
+        <div style="min-width:0">
+          <div class="food-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+          <div class="food-time">${time} · <span style="color:var(--lime);font-size:0.68rem">Klicka för detaljer</span></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px">
+        <span class="food-kcal">${kcal} kcal</span>
+        <button onclick="event.stopPropagation();openMealDetailPhoto(this.closest('.food-item'))"
+          style="padding:4px 8px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.25);border-radius:8px;color:var(--gold);font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.2s"
+          onmouseover="this.style.background='rgba(201,168,76,0.25)'" onmouseout="this.style.background='rgba(201,168,76,0.12)'">📸</button>
+        <button onclick="event.stopPropagation();openMealDetailShare(this.closest('.food-item'))"
+          style="padding:4px 8px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:8px;color:var(--lime);font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.2s"
+          onmouseover="this.style.background='rgba(126,200,80,0.2)'" onmouseout="this.style.background='rgba(126,200,80,0.1)'">↗</button>
+        <button class="food-delete" onclick="event.stopPropagation();deleteFood(this)">✕</button>
+      </div>
+    </div>`;
   const list=document.getElementById('food-list');
   const empty=document.getElementById('food-empty-state');
   if(empty) empty.style.display='none';
@@ -2052,8 +2106,12 @@ function addFood(){
   const emojis = ['🍽','🥘','🍱','🥙','🍛','🥗','🍜'];
   const em = emojis[Math.floor(Math.random()*emojis.length)];
   const item = document.createElement('div');
-  item.className='food-item'; item.setAttribute('data-kcal',kcal);
-  item.innerHTML=`<div class="food-left"><span class="food-emoji">${em}</span><div><div class="food-name">${val}</div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal">${kcal} kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>`;
+  item.className='food-item';
+  item.setAttribute('data-kcal', kcal);
+  item.setAttribute('data-name', val);
+  item.setAttribute('data-time', time);
+  item.style.cursor = 'pointer';
+  item.innerHTML = makeFoodItemHTML(em + ' ' + val, kcal, time, '');
   item.style.opacity='0'; item.style.transform='translateY(-8px)';
   const empty = document.getElementById('food-empty-state');
   if(empty) empty.style.display='none';

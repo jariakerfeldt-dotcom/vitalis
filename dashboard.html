@@ -986,38 +986,141 @@ select option:checked {
 
     <!-- ACTIVITY TAB -->
     <div class="tab-content" id="tab-activity">
+
+      <!-- Metrics -->
       <div class="grid-4" style="margin-bottom:20px">
         <div class="card metric-big">
-          <div class="card-title" data-i18n="ac_steps">Steg idag</div>
+          <div class="card-title">Steg idag</div>
           <div class="val" style="color:var(--text-dim)">–</div>
           <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Koppla enhet</div>
         </div>
         <div class="card metric-big">
-          <div class="card-title" data-i18n="ac_kcal">Förbrända kcal</div>
+          <div class="card-title">Förbrända kcal</div>
           <div class="val" id="activity-kcal-total" style="color:var(--text-dim)">–<span class="unit"> kcal</span></div>
           <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Logga aktivitet</div>
         </div>
         <div class="card metric-big">
-          <div class="card-title" data-i18n="ac_hr">Vilopuls</div>
+          <div class="card-title">Vilopuls</div>
           <div class="val" style="color:var(--text-dim)">–<span class="unit"> bpm</span></div>
           <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Koppla enhet</div>
         </div>
         <div class="card metric-big" style="position:relative">
-          <div class="card-title" data-i18n="ac_active">Aktiva min</div>
+          <div class="card-title">Aktiva min</div>
           <div class="val" id="activity-min-total" style="color:var(--text-dim)">–<span class="unit"> min</span></div>
           <button onclick="openShareModal('activity')" style="position:absolute;top:12px;right:12px;padding:4px 10px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:100px;color:var(--lime);font-size:0.68rem;cursor:pointer;font-family:'DM Sans',sans-serif">↗ Dela</button>
         </div>
       </div>
 
-      <!-- ACTIVITY LOG + ADD -->
+      <!-- WEIGHT REMINDER -->
+      <div id="weight-reminder" style="display:none;margin-bottom:16px;padding:14px 18px;background:rgba(201,168,76,0.08);border:1.5px solid rgba(201,168,76,0.25);border-radius:14px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:1.4rem">⚖️</span>
+        <div style="flex:1">
+          <div style="font-size:0.86rem;color:var(--gold);font-weight:600">Dags att uppdatera vikten</div>
+          <div style="font-size:0.74rem;color:var(--text-dim);margin-top:2px">Uppdatera 1 gång/vecka för bättre tränings- och kostförslag</div>
+        </div>
+        <button onclick="showTab('profile');document.getElementById('weight-reminder').style.display='none'" style="padding:8px 14px;background:var(--gold);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer">Uppdatera →</button>
+        <button onclick="dismissWeightReminder()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;padding:4px">✕</button>
+      </div>
+
+      <!-- AI WORKOUT GENERATOR -->
+      <div class="card" style="margin-bottom:16px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--soft-white)">🤖 Generera träningspass</div>
+          <span style="font-size:0.68rem;padding:2px 8px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:100px;color:var(--lime)">AI-anpassat</span>
+        </div>
+        <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:16px;line-height:1.6">AI skapar ett träningspass anpassat efter din ålder, vikt och mål från profilen.</div>
+
+        <!-- Intensity -->
+        <div style="margin-bottom:14px">
+          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">💪 Intensitet</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="setWorkoutParam(this,'intensity','Lätt')" class="workout-param-btn" data-group="intensity"
+              style="flex:1;padding:10px;background:rgba(126,200,80,0.06);border:1.5px solid rgba(126,200,80,0.2);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s;text-align:center">
+              💚<div style="font-size:0.72rem;margin-top:3px">Lätt</div>
+            </button>
+            <button onclick="setWorkoutParam(this,'intensity','Måttlig')" class="workout-param-btn active" data-group="intensity"
+              style="flex:1;padding:10px;background:rgba(201,168,76,0.12);border:1.5px solid rgba(201,168,76,0.4);border-radius:12px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s;text-align:center">
+              🟡<div style="font-size:0.72rem;margin-top:3px;font-weight:600">Måttlig</div>
+            </button>
+            <button onclick="setWorkoutParam(this,'intensity','Intensiv')" class="workout-param-btn" data-group="intensity"
+              style="flex:1;padding:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s;text-align:center">
+              🔴<div style="font-size:0.72rem;margin-top:3px">Intensiv</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Duration -->
+        <div style="margin-bottom:14px">
+          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⏱ Tid</div>
+          <div style="display:flex;gap:6px">
+            <button onclick="setWorkoutParam(this,'duration','15 min')" class="workout-param-btn" data-group="duration"
+              style="flex:1;padding:9px 6px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;text-align:center">15 min</button>
+            <button onclick="setWorkoutParam(this,'duration','30 min')" class="workout-param-btn active" data-group="duration"
+              style="flex:1;padding:9px 6px;background:rgba(126,200,80,0.1);border:1.5px solid rgba(126,200,80,0.35);border-radius:10px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;text-align:center;font-weight:600">30 min</button>
+            <button onclick="setWorkoutParam(this,'duration','45 min')" class="workout-param-btn" data-group="duration"
+              style="flex:1;padding:9px 6px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;text-align:center">45 min</button>
+            <button onclick="setWorkoutParam(this,'duration','60 min')" class="workout-param-btn" data-group="duration"
+              style="flex:1;padding:9px 6px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;text-align:center">60 min</button>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">📍 Plats</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="setWorkoutParam(this,'location','Inomhus')" class="workout-param-btn active" data-group="location"
+              style="flex:1;padding:10px;background:rgba(126,200,80,0.1);border:1.5px solid rgba(126,200,80,0.35);border-radius:12px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s;font-weight:600">
+              🏠 Inomhus
+            </button>
+            <button onclick="setWorkoutParam(this,'location','Utomhus')" class="workout-param-btn" data-group="location"
+              style="flex:1;padding:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s">
+              🌳 Utomhus
+            </button>
+            <button onclick="setWorkoutParam(this,'location','Gym')" class="workout-param-btn" data-group="location"
+              style="flex:1;padding:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s">
+              🏋️ Gym
+            </button>
+          </div>
+        </div>
+
+        <!-- Generate button -->
+        <button onclick="generateWorkout()"
+          style="width:100%;padding:14px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.94rem;font-weight:700;cursor:pointer;transition:all 0.2s"
+          onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">
+          🤖 Generera mitt träningspass
+        </button>
+
+        <!-- Loading -->
+        <div id="workout-gen-loading" style="display:none;margin-top:14px;text-align:center;padding:20px">
+          <div style="display:flex;justify-content:center;gap:6px;margin-bottom:10px">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0s infinite ease"></span>
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.2s infinite ease"></span>
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.4s infinite ease"></span>
+          </div>
+          <div id="workout-gen-status" style="font-size:0.82rem;color:var(--lime)">🤖 AI skapar ditt träningspass…</div>
+        </div>
+
+        <!-- Workout Result -->
+        <div id="workout-gen-result" style="display:none;margin-top:14px;background:rgba(126,200,80,0.04);border:1px solid rgba(126,200,80,0.2);border-radius:14px;padding:16px;position:relative">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);border-radius:14px 14px 0 0"></div>
+          <div style="font-size:0.7rem;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">✅ Ditt träningspass</div>
+          <div id="workout-gen-content" style="font-size:0.85rem;color:var(--cream);line-height:1.9"></div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button onclick="logGeneratedWorkout()" style="flex:1;padding:11px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:700;cursor:pointer">+ Logga träning</button>
+            <button onclick="shareGeneratedWorkout()" style="flex:1;padding:11px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.86rem;cursor:pointer">↗ Dela</button>
+            <button onclick="document.getElementById('workout-gen-result').style.display='none'" style="padding:11px 14px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);cursor:pointer">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY LOG -->
       <div class="card" style="margin-bottom:16px">
         <div class="card-title">Aktivitetslogg</div>
         <div id="activity-list" style="text-align:center;padding:20px 0;color:var(--text-dim)">
           <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">🏃</div>
           <div style="font-size:0.84rem">Inga aktiviteter loggade ännu</div>
         </div>
-
-        <!-- Quick picks -->
         <div style="margin-top:14px;margin-bottom:12px">
           <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⚡ Snabbval</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
@@ -1036,48 +1139,117 @@ select option:checked {
         </div>
       </div>
 
+      <!-- WORKOUT GENERATOR -->
+      <div class="card" style="margin-bottom:16px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--soft-white)">🤖 Generera träningspass</div>
+          <span style="font-size:0.68rem;padding:2px 8px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:100px;color:var(--gold)">AI-anpassat</span>
+        </div>
+        <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:16px;line-height:1.6">AI skapar ett träningspass anpassat efter din ålder, vikt och mål från din profil.</div>
+
+        <!-- Weight reminder -->
+        <div id="weight-reminder" style="display:none;padding:10px 14px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);border-radius:10px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:1rem">⚖️</span>
+          <div style="flex:1">
+            <div style="font-size:0.78rem;color:var(--gold);font-weight:600">Uppdatera din vikt</div>
+            <div style="font-size:0.7rem;color:var(--text-dim)">För bättre träningsförslag – uppdatera 1 gång/vecka</div>
+          </div>
+          <button onclick="showTab('profile')" style="padding:5px 10px;background:var(--gold);color:var(--deep-green);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:700;cursor:pointer">Uppdatera →</button>
+        </div>
+
+        <!-- Intensity -->
+        <div style="margin-bottom:14px">
+          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Intensitet</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="setWorkoutIntensity(this,'Lätt')" class="intensity-btn" style="flex:1;padding:10px;border-radius:10px;background:rgba(126,200,80,0.08);border:1.5px solid rgba(126,200,80,0.2);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s">
+              💚 Lätt
+            </button>
+            <button onclick="setWorkoutIntensity(this,'Måttlig')" class="intensity-btn active-intensity" style="flex:1;padding:10px;border-radius:10px;background:rgba(201,168,76,0.15);border:1.5px solid rgba(201,168,76,0.4);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s">
+              🟡 Måttlig
+            </button>
+            <button onclick="setWorkoutIntensity(this,'Intensiv')" class="intensity-btn" style="flex:1;padding:10px;border-radius:10px;background:rgba(224,92,92,0.08);border:1.5px solid rgba(224,92,92,0.2);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s">
+              🔴 Intensiv
+            </button>
+          </div>
+        </div>
+
+        <!-- Duration -->
+        <div style="margin-bottom:14px">
+          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Tid</div>
+          <div style="display:flex;gap:6px">
+            <button onclick="setWorkoutDuration(this,15)" class="duration-btn" style="flex:1;padding:9px 6px;border-radius:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s">15 min</button>
+            <button onclick="setWorkoutDuration(this,30)" class="duration-btn" style="flex:1;padding:9px 6px;border-radius:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s">30 min</button>
+            <button onclick="setWorkoutDuration(this,45)" class="duration-btn active-duration" style="flex:1;padding:9px 6px;border-radius:10px;background:rgba(126,200,80,0.12);border:1.5px solid rgba(126,200,80,0.4);color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s">45 min</button>
+            <button onclick="setWorkoutDuration(this,60)" class="duration-btn" style="flex:1;padding:9px 6px;border-radius:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s">1 tim</button>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Plats</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="setWorkoutLocation(this,'Inomhus')" class="location-btn active-location" style="flex:1;padding:9px;border-radius:10px;background:rgba(126,200,80,0.12);border:1.5px solid rgba(126,200,80,0.4);color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s">🏠 Inomhus</button>
+            <button onclick="setWorkoutLocation(this,'Utomhus')" class="location-btn" style="flex:1;padding:9px;border-radius:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s">🌳 Utomhus</button>
+            <button onclick="setWorkoutLocation(this,'Gym')" class="location-btn" style="flex:1;padding:9px;border-radius:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s">🏋️ Gym</button>
+          </div>
+        </div>
+
+        <button onclick="generateWorkout()" style="width:100%;padding:13px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">
+          ⚡ Generera mitt träningspass
+        </button>
+
+        <!-- Loading -->
+        <div id="workout-gen-loading" style="display:none;margin-top:14px;text-align:center;padding:20px">
+          <div style="display:flex;justify-content:center;gap:6px;margin-bottom:10px">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);display:inline-block;animation:pulseDot 1.2s 0s infinite ease"></span>
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);display:inline-block;animation:pulseDot 1.2s 0.2s infinite ease"></span>
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);display:inline-block;animation:pulseDot 1.2s 0.4s infinite ease"></span>
+          </div>
+          <div id="workout-gen-status" style="font-size:0.82rem;color:var(--lime)">🤖 AI skapar ditt träningspass…</div>
+        </div>
+
+        <!-- Result -->
+        <div id="workout-gen-result" style="display:none;margin-top:14px;background:rgba(126,200,80,0.04);border:1px solid rgba(126,200,80,0.2);border-radius:14px;padding:16px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:0.7rem;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase">✓ Träningspass klart</div>
+            <div id="workout-gen-kcal" style="font-size:0.78rem;color:var(--gold);font-weight:600"></div>
+          </div>
+          <div id="workout-gen-content" style="font-size:0.84rem;color:var(--cream);line-height:1.9"></div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button onclick="startWorkout()" style="flex:1;padding:11px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer">▶ Starta passet</button>
+            <button onclick="shareWorkout()" style="flex:1;padding:11px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;cursor:pointer">↗ Dela</button>
+            <button onclick="document.getElementById('workout-gen-result').style.display='none'" style="padding:11px 14px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);cursor:pointer">✕</button>
+          </div>
+        </div>
+      </div>
+
       <!-- PHOTO / VIDEO + AI COACH -->
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
           <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--soft-white)">📸 Träningsfoto & AI-coaching</div>
           <span style="font-size:0.68rem;padding:2px 8px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:100px;color:var(--lime)">Unik funktion</span>
         </div>
-        <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:14px;line-height:1.6">Ladda upp foto eller film på din träning – AI analyserar din teknik, ger förbättringsförslag och personliga råd.</div>
-
-        <!-- Upload area -->
+        <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:14px;line-height:1.6">Ladda upp foto eller film – AI analyserar din teknik och ger personliga råd.</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-          <!-- Photo upload -->
           <div onclick="document.getElementById('activity-photo-input').click()"
-            style="border:2px dashed rgba(126,200,80,0.22);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden"
-            onmouseover="this.style.borderColor='rgba(126,200,80,0.5)';this.style.background='rgba(126,200,80,0.04)'"
-            onmouseout="this.style.borderColor='rgba(126,200,80,0.22)';this.style.background='transparent'">
-            <div id="act-photo-placeholder">
-              <div style="font-size:1.6rem;margin-bottom:4px">📷</div>
-              <div style="font-size:0.76rem;color:var(--cream)">Foto</div>
-              <div style="font-size:0.68rem;color:var(--text-dim)">Upp till 4 bilder</div>
-            </div>
+            style="border:2px dashed rgba(126,200,80,0.22);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s"
+            onmouseover="this.style.borderColor='rgba(126,200,80,0.5)'" onmouseout="this.style.borderColor='rgba(126,200,80,0.22)'">
+            <div id="act-photo-placeholder"><div style="font-size:1.6rem;margin-bottom:4px">📷</div><div style="font-size:0.76rem;color:var(--cream)">Foto</div><div style="font-size:0.68rem;color:var(--text-dim)">Upp till 4 bilder</div></div>
             <img id="act-photo-preview" src="" style="display:none;width:100%;height:80px;object-fit:cover;border-radius:8px">
           </div>
           <input type="file" id="activity-photo-input" accept="image/*" multiple style="display:none" onchange="loadActivityMedia(event,'photo')">
-
-          <!-- Video upload -->
           <div onclick="document.getElementById('activity-video-input').click()"
             style="border:2px dashed rgba(201,168,76,0.22);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s"
-            onmouseover="this.style.borderColor='rgba(201,168,76,0.5)';this.style.background='rgba(201,168,76,0.04)'"
-            onmouseout="this.style.borderColor='rgba(201,168,76,0.22)';this.style.background='transparent'">
-            <div id="act-video-placeholder">
-              <div style="font-size:1.6rem;margin-bottom:4px">🎥</div>
-              <div style="font-size:0.76rem;color:var(--cream)">Film</div>
-              <div style="font-size:0.68rem;color:var(--text-dim)">AI analyserar teknik</div>
-            </div>
+            onmouseover="this.style.borderColor='rgba(201,168,76,0.5)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.22)'">
+            <div id="act-video-placeholder"><div style="font-size:1.6rem;margin-bottom:4px">🎥</div><div style="font-size:0.76rem;color:var(--cream)">Film</div><div style="font-size:0.68rem;color:var(--text-dim)">AI analyserar teknik</div></div>
             <div id="act-video-name" style="display:none;font-size:0.76rem;color:var(--gold);padding:8px">🎥 Video uppladdad</div>
           </div>
           <input type="file" id="activity-video-input" accept="video/*" style="display:none" onchange="loadActivityMedia(event,'video')">
         </div>
-
-        <!-- Workout type selector -->
         <div style="margin-bottom:12px">
-          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Typ av träning (hjälper AI)</div>
+          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Typ av träning</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             <button onclick="setWorkoutType(this,'Styrketräning')" class="workout-type-btn" style="padding:5px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🏋️ Styrketräning</button>
             <button onclick="setWorkoutType(this,'Löpning')" class="workout-type-btn" style="padding:5px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🏃 Löpning</button>
@@ -1087,14 +1259,10 @@ select option:checked {
             <button onclick="setWorkoutType(this,'Annan')" class="workout-type-btn" style="padding:5px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">⚡ Annan</button>
           </div>
         </div>
-
-        <!-- Analyze button -->
         <button id="activity-analyze-btn" onclick="analyzeActivityMedia()" disabled
-          style="width:100%;padding:12px;background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.15);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;cursor:not-allowed;transition:all 0.3s;margin-bottom:0">
+          style="width:100%;padding:12px;background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.15);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;cursor:not-allowed;transition:all 0.3s">
           Ladda upp foto eller film för att få AI-coaching
         </button>
-
-        <!-- Loading -->
         <div id="activity-ai-loading" style="display:none;margin-top:14px;text-align:center;padding:20px;background:rgba(126,200,80,0.04);border:1px solid rgba(126,200,80,0.15);border-radius:12px">
           <div style="display:flex;justify-content:center;gap:6px;margin-bottom:10px">
             <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0s infinite ease"></span>
@@ -1103,8 +1271,6 @@ select option:checked {
           </div>
           <div id="activity-ai-status" style="font-size:0.82rem;color:var(--lime)">🔍 AI analyserar din träning…</div>
         </div>
-
-        <!-- AI Result -->
         <div id="activity-ai-result" style="display:none;margin-top:14px;background:rgba(126,200,80,0.04);border:1px solid rgba(126,200,80,0.2);border-radius:14px;padding:16px;position:relative;overflow:hidden">
           <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
           <div style="font-size:0.7rem;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px">🤖 AI-träningscoach</div>
@@ -2817,6 +2983,135 @@ function logActivityFromAI() {
   activityPhotosB64 = [];
   activityVideoFile = null;
 }
+// ── WORKOUT GENERATOR ──
+let workoutIntensity = 'Måttlig';
+let workoutDuration = 45;
+let workoutLocation = 'Inomhus';
+
+function setWorkoutIntensity(btn, val) {
+  workoutIntensity = val;
+  document.querySelectorAll('.intensity-btn').forEach(b => {
+    b.style.fontWeight='400';
+    if (b.textContent.includes('Lätt')) { b.style.background='rgba(126,200,80,0.08)'; b.style.borderColor='rgba(126,200,80,0.2)'; b.style.color='var(--text-dim)'; }
+    else if (b.textContent.includes('Måttlig')) { b.style.background='rgba(255,255,255,0.04)'; b.style.borderColor='var(--border)'; b.style.color='var(--text-dim)'; }
+    else { b.style.background='rgba(224,92,92,0.08)'; b.style.borderColor='rgba(224,92,92,0.2)'; b.style.color='var(--text-dim)'; }
+  });
+  btn.style.fontWeight='600';
+  if (val==='Lätt') { btn.style.background='rgba(126,200,80,0.18)'; btn.style.borderColor='rgba(126,200,80,0.5)'; btn.style.color='var(--lime)'; }
+  else if (val==='Måttlig') { btn.style.background='rgba(201,168,76,0.18)'; btn.style.borderColor='rgba(201,168,76,0.5)'; btn.style.color='var(--gold)'; }
+  else { btn.style.background='rgba(224,92,92,0.18)'; btn.style.borderColor='rgba(224,92,92,0.5)'; btn.style.color='#e05c5c'; }
+}
+
+function setWorkoutDuration(btn, val) {
+  workoutDuration = val;
+  document.querySelectorAll('.duration-btn').forEach(b => { b.style.background='rgba(255,255,255,0.04)'; b.style.borderColor='var(--border)'; b.style.color='var(--text-dim)'; b.style.fontWeight='400'; });
+  btn.style.background='rgba(126,200,80,0.12)'; btn.style.borderColor='rgba(126,200,80,0.4)'; btn.style.color='var(--lime)'; btn.style.fontWeight='600';
+}
+
+function setWorkoutLocation(btn, val) {
+  workoutLocation = val;
+  document.querySelectorAll('.location-btn').forEach(b => { b.style.background='rgba(255,255,255,0.04)'; b.style.borderColor='var(--border)'; b.style.color='var(--text-dim)'; b.style.fontWeight='400'; });
+  btn.style.background='rgba(126,200,80,0.12)'; btn.style.borderColor='rgba(126,200,80,0.4)'; btn.style.color='var(--lime)'; btn.style.fontWeight='600';
+}
+
+function checkWeightReminder() {
+  const profile = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
+  const lastUpdate = localStorage.getItem('vitalis_weight_updated');
+  const el = document.getElementById('weight-reminder');
+  if (!el) return;
+  if (!profile.weight) { el.style.display='flex'; return; }
+  if (lastUpdate) {
+    const days = (Date.now() - new Date(lastUpdate)) / (1000*60*60*24);
+    if (days > 7) { el.style.display='flex'; return; }
+  }
+  el.style.display='none';
+}
+
+async function generateWorkout() {
+  const profile = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
+  document.getElementById('workout-gen-loading').style.display='block';
+  document.getElementById('workout-gen-result').style.display='none';
+  const statusEl = document.getElementById('workout-gen-status');
+  const steps = ['🤖 AI analyserar din profil…','💪 Anpassar övningar efter ditt mål…','⏱ Sätter ihop passet…','✅ Träningspass klart!'];
+  let step = 0;
+  const iv = setInterval(() => { if(step<steps.length-1){step++;if(statusEl)statusEl.textContent=steps[step];}}, 1200);
+  const kcalMap = {Lätt:{15:80,30:150,45:220,60:290},Måttlig:{15:120,30:230,45:340,60:450},Intensiv:{15:160,30:310,45:460,60:620}};
+  const estKcal = kcalMap[workoutIntensity]?.[workoutDuration]||300;
+  const profileCtx = [profile.fname?'Namn: '+profile.fname:'', profile.age?'Ålder: '+profile.age+' år':'', profile.weight?'Vikt: '+profile.weight+' kg':'', profile.height?'Längd: '+profile.height+' cm':'', profile.goal?'Mål: '+profile.goal:''].filter(Boolean).join('. ');
+  try {
+    const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:800,
+        system:'Du är en personlig tränare. Skapa träningspass på svenska. Inga # eller ## – använd emojis och radbrytningar.',
+        messages:[{role:'user',content:`Skapa ett ${workoutDuration}-minuters ${workoutIntensity.toLowerCase()} träningspass för ${workoutLocation.toLowerCase()}.
+${profileCtx?'Profil: '+profileCtx:''}
+
+Format:
+🎯 Mål: [vad passet tränar]
+
+⚡ Uppvärmning (5 min):
+- Övning 1
+
+💪 Huvudpass (${workoutDuration-10} min):
+- Övning + set/reps
+
+🧘 Nedvarvning (5 min):
+- Stretching
+
+🔥 ~${estKcal} kcal
+💡 Tips: [personligt tips]`}]})});
+    const data = await resp.json();
+    clearInterval(iv);
+    if(statusEl)statusEl.textContent='✅ Träningspass klart!';
+    const text=(data.content?.[0]?.text||'').replace(/#{1,3}\s*/g,'').replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--lime)">$1</strong>');
+    document.getElementById('workout-gen-content').innerHTML=text.replace(/\n/g,'<br>');
+    document.getElementById('workout-gen-kcal').textContent='🔥 ~'+estKcal+' kcal';
+    document.getElementById('workout-gen-result').style.display='block';
+    window._lastWorkout={text,kcal:estKcal,duration:workoutDuration,intensity:workoutIntensity,location:workoutLocation};
+  } catch(e) {
+    clearInterval(iv);
+    const fb=`🎯 Mål: Helkropp\n\n⚡ Uppvärmning (5 min):\n- Hopp på stället 60 sek\n- Höga knän 60 sek\n\n💪 Huvudpass:\n- Knäböj 3×15\n- Push-ups 3×12\n- Utfall 3×10/ben\n- Plankan 3×30 sek\n\n🧘 Nedvarvning:\n- Quad-stretch 30 sek/ben\n\n🔥 ~${estKcal} kcal`;
+    document.getElementById('workout-gen-content').innerHTML=fb.replace(/\n/g,'<br>');
+    document.getElementById('workout-gen-kcal').textContent='🔥 ~'+estKcal+' kcal';
+    document.getElementById('workout-gen-result').style.display='block';
+    window._lastWorkout={text:fb,kcal:estKcal,duration:workoutDuration,intensity:workoutIntensity,location:workoutLocation};
+  }
+  document.getElementById('workout-gen-loading').style.display='none';
+}
+
+function startWorkout() {
+  const w=window._lastWorkout; if(!w) return;
+  quickAddActivity('🏋️ '+w.location+' – '+w.intensity+' '+w.duration+' min', w.duration, w.kcal);
+  document.getElementById('workout-gen-result').style.display='none';
+  showToast('💪 Träningspass loggat! ~'+w.kcal+' kcal 🔥');
+}
+
+function shareWorkout() {
+  const w=window._lastWorkout; if(!w) return;
+  const t=document.getElementById('recipe-modal-title'); const s=document.getElementById('recipe-modal-subtitle');
+  if(t)t.textContent=w.location+' träning – '+w.intensity;
+  if(s)s.textContent=w.duration+' min · ~'+w.kcal+' kcal';
+  currentCookPhotoB64=null;
+  openShareModal('activity');
+}
+
+function quickAddActivity(name, minutes, kcal) {
+  const list = document.getElementById('activity-list');
+  if (list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
+  const now = new Date();
+  const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  const item = document.createElement('div');
+  item.className = 'activity-item';
+  item.innerHTML = `<div class="activity-icon">🏋️</div><div class="activity-text"><div class="title">${name}</div><div class="time">${time} · ${minutes} min</div></div><div style="display:flex;align-items:center;gap:8px"><div class="activity-val" style="color:var(--lime)">${kcal} kcal</div><button onclick="deleteEntry(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:2px 6px" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button></div>`;
+  item.style.opacity='0'; list.appendChild(item);
+  setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
+  // Update metrics
+  const kcalEl = document.getElementById('activity-kcal-total');
+  const minEl = document.getElementById('activity-min-total');
+  if(kcalEl) kcalEl.innerHTML = (parseInt(kcalEl.textContent)||0)+kcal+'<span class="unit"> kcal</span>';
+  if(minEl) minEl.innerHTML = (parseInt(minEl.textContent)||0)+minutes+'<span class="unit"> min</span>';
+  showToast(name + ' loggad ✓');
+}
+
 function addActivity(){
   const input = document.getElementById('activity-input');
   const val = input.value.trim(); if(!val) return;
@@ -3055,6 +3350,7 @@ function calcBMI() {
 
 loadProfile();
 updateOverview();
+checkWeightReminder();
 // Set today as default sleep date
 (function(){
   const el = document.getElementById('sleep-date');

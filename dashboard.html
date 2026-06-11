@@ -231,9 +231,23 @@ nav.sidebar-nav{
 /* Food log */
 .food-item{
   display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;background:rgba(255,255,255,0.03);
+  padding:10px 14px;background:rgba(255,255,255,0.03);
   border:1px solid var(--border);border-radius:12px;
-  margin-bottom:8px;transition:all 0.2s;
+  margin-bottom:8px;transition:all 0.2s;cursor:pointer;
+  position:relative;
+}
+.food-item:hover{
+  background:rgba(126,200,80,0.05);
+  border-color:rgba(126,200,80,0.3);
+}
+.food-item .meal-actions{
+  display:flex;align-items:center;gap:5px;flex-shrink:0;
+}
+.meal-action-btn{
+  padding:4px 9px;border-radius:8px;font-size:0.72rem;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-weight:600;transition:all 0.2s;border:1px solid;
+  white-space:nowrap;
 }
 .food-item:hover{background:rgba(126,200,80,0.04);border-color:rgba(126,200,80,0.2);}
 .food-left{display:flex;align-items:center;gap:10px;}
@@ -1938,24 +1952,22 @@ function deleteEntry(btn) {
 function makeFoodItemHTML(name, kcal, time, extraBadge) {
   const badge = extraBadge ? `<span style="font-size:0.65rem;color:var(--lime);margin-left:4px">${extraBadge}</span>` : '';
   return `
-    <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
-      <div class="food-left" style="flex:1;min-width:0">
-        <span class="food-emoji">${name.split(' ')[0]}</span>
-        <div style="min-width:0">
-          <div class="food-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}${badge}</div>
-          <div class="food-time">${time} · <span style="color:var(--lime);font-size:0.68rem">Klicka för detaljer</span></div>
-        </div>
+    <div class="food-left" style="flex:1;min-width:0;overflow:hidden" onclick="openMealDetail(this.closest('.food-item'))">
+      <span class="food-emoji">${name.split(' ')[0]}</span>
+      <div style="min-width:0">
+        <div class="food-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}${badge}</div>
+        <div class="food-time">${time}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px">
-        <span class="food-kcal">${kcal} kcal</span>
-        <button onclick="event.stopPropagation();openMealDetailPhoto(this.closest('.food-item'))"
-          style="padding:4px 8px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.25);border-radius:8px;color:var(--gold);font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s"
-          onmouseover="this.style.background='rgba(201,168,76,0.25)'" onmouseout="this.style.background='rgba(201,168,76,0.12)'">📸</button>
-        <button onclick="event.stopPropagation();openMealDetailShare(this.closest('.food-item'))"
-          style="padding:4px 8px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:8px;color:var(--lime);font-size:0.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s"
-          onmouseover="this.style.background='rgba(126,200,80,0.2)'" onmouseout="this.style.background='rgba(126,200,80,0.1)'">↗</button>
-        <button class="food-delete" onclick="event.stopPropagation();deleteFood(this)">✕</button>
-      </div>
+    </div>
+    <div class="meal-actions">
+      <span class="food-kcal" style="margin-right:3px">${kcal} kcal</span>
+      <button class="meal-action-btn" onclick="event.stopPropagation();openMealDetailPhoto(this.closest('.food-item'))"
+        style="background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.3);color:var(--gold)"
+        title="Fotografera lagad mat">📸</button>
+      <button class="meal-action-btn" onclick="event.stopPropagation();openMealDetailShare(this.closest('.food-item'))"
+        style="background:rgba(126,200,80,0.1);border-color:rgba(126,200,80,0.25);color:var(--lime)"
+        title="Dela måltid">↗</button>
+      <button class="food-delete" onclick="event.stopPropagation();deleteFood(this)">✕</button>
     </div>`;
 }
 

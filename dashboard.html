@@ -3697,24 +3697,36 @@ async function scanFridge() {
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-sonnet-4-5',
-        max_tokens:2000,
+        max_tokens:3000,
         system: systemPrompt,
         messages:[{role:'user',content:contentArr}]
       })
     });
     const data = await resp.json();
+    if (data.error) throw new Error(data.error);
     clearInterval(stepInterval);
     if(statusEl) statusEl.textContent = '✅ Recept klara!';
-    const raw = data.content[0].text.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(raw);
-    // Validera att inga förbjudna ingredienser finns
+    const raw = (data.content[0].text || '').replace(/```json|```/g,'').trim();
+    // Extract JSON even if wrapped in text
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No JSON');
+    const parsed = JSON.parse(match[0]);
     const validated = validateDietaryCompliance(parsed, prefs);
     renderFridgeResults(validated);
   } catch(e) {
     clearInterval(stepInterval);
+    console.error('Scan error:', e);
     if(statusEl) statusEl.textContent = '⚠️ Försök igen';
     document.getElementById('fridge-loading').style.display='none';
-    showToast('Något gick fel – försök igen');
+    // Show friendly retry message
+    const resultsEl = document.getElementById('fridge-results');
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = `<div style="padding:20px;text-align:center;background:var(--card-bg);border:1px solid var(--border);border-radius:16px">
+      <div style="font-size:1.5rem;margin-bottom:8px">⚠️</div>
+      <div style="font-size:0.86rem;color:var(--cream);margin-bottom:6px;font-weight:600">Analysen misslyckades</div>
+      <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:16px">Försök gärna igen – AI kan ibland behöva ett extra försök</div>
+      <button onclick="scanFridge()" style="padding:10px 24px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:700;cursor:pointer">🔄 Försök igen</button>
+    </div>`;
     return;
   }
   document.getElementById('fridge-loading').style.display='none';

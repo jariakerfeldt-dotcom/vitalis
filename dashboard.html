@@ -1701,6 +1701,18 @@ select option:checked {
 <div class="toast" id="toast"></div>
 
 <script>
+// ── GLOBAL VARIABLES ──
+let totalKcal = 0;
+const categoryPhotos = { fridge: { 1: [], 2: [], 3: [] } };
+let weekMediaB64 = [];
+let suggestMediaB64 = [];
+let activityPhotosB64 = [];
+let activityVideoFile = null;
+let foodPhotosB64 = [];
+let medPhotoB64 = null;
+let medPhotoResult = null;
+
+
 // ── DATE & GREETING ──
 (function(){
   const d = new Date();
@@ -2560,8 +2572,8 @@ function downloadShareCard() {
 }
 
 // ── ACTIVITY MEDIA & AI COACHING ──
-let activityPhotosB64 = [];
-let activityVideoFile = null;
+// declared above
+// declared above
 let currentWorkoutType = '';
 let activityAIText = '';
 
@@ -3101,8 +3113,8 @@ function setDose(dose) {
   });
 }
 
-let medPhotoB64 = null;
-let medPhotoResult = null;
+// declared above
+// declared above
 
 async function scanMedicinePhoto(event) {
   const file = event.target.files[0]; if (!file) return;
@@ -3528,7 +3540,7 @@ function validateDietaryCompliance(data, activePrefs) {
   }
   return data;
 }
-const categoryPhotos = { fridge: { 1: [], 2: [], 3: [] } };
+// categoryPhotos moved to top of script
 
 function loadCategoryPhotos(event, section, cat) {
   const files = Array.from(event.target.files); if (!files.length) return;
@@ -3572,7 +3584,7 @@ function getAllFridgeImages() {
 }
 
 // ── WEEK MENU PHOTO GRID ──
-let weekMediaB64 = [];
+// declared above
 function loadWeekMedia(input, type) {
   const files = Array.from(input.files); if (!files.length) return;
   if (type === 'img') {
@@ -3602,7 +3614,7 @@ function renderWeekPhotoGrid() {
 }
 
 // ── SUGGEST PHOTO GRID ──
-let suggestMediaB64 = [];
+// declared above
 function loadSuggestMedia(input, type) {
   const files = Array.from(input.files); if (!files.length) return;
   if (type === 'img') {

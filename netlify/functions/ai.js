@@ -7,16 +7,18 @@ function httpsPost(url, headers, body) {
       hostname: urlObj.hostname,
       path: urlObj.pathname,
       method: 'POST',
-      headers: { ...headers, 'Content-Length': Buffer.byteLength(body) }
+      headers: { ...headers, 'Content-Length': Buffer.byteLength(body) },
+      timeout: 55000
     };
     const req = https.request(options, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
         try { resolve(JSON.parse(data)); }
-        catch(e) { reject(new Error('Invalid JSON: ' + data)); }
+        catch(e) { reject(new Error('Invalid JSON: ' + data.substring(0, 200))); }
       });
     });
+    req.on('timeout', () => { req.destroy(); reject(new Error('Request timeout')); });
     req.on('error', reject);
     req.write(body);
     req.end();
@@ -24,16 +26,10 @@ function httpsPost(url, headers, body) {
 }
 
 exports.handler = async function(event, context) {
+  context.callbackWaitsForEmptyEventLoop = false;
+
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
-      body: ''
-    };
+    return { statusCode: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' }, body: '' };
   }
 
   if (event.httpMethod !== 'POST') {
@@ -42,38 +38,13 @@ exports.handler = async function(event, context) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return {
-      statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: 'API key not configured' })
-    };
+    return { statusCode: 500, headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'API key not configured' }) };
   }
 
   try {
-    const body = event.body;
-    const data = await httpsPost(
-      'https://api.anthropic.com/v1/messages',
-      {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body
-    );
-
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    };
+    const data = await httpsPost('https://api.anthropic.com/v1/messages', { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' }, event.body);
+    return { statusCode: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify(data) };
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: err.message })
-    };
+    return { statusCode: 500, headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: err.message }) };
   }
 };

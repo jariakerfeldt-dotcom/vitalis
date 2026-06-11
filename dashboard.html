@@ -1363,6 +1363,65 @@ select option:checked {
         <button onclick="downloadFoodShareCard()" style="width:100%;padding:11px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;cursor:pointer">⬇ Ladda ner bild</button>
       </div>
     </div>
+
+    <!-- MEAL DETAIL MODAL -->
+    <div id="meal-detail-modal" style="display:none;position:fixed;inset:0;z-index:650;background:rgba(8,20,13,0.92);backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+      <div style="background:var(--mid-green);border:1px solid rgba(126,200,80,0.2);border-radius:28px;width:100%;max-width:480px;position:relative;animation:fadeUp 0.3s ease both;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+
+        <!-- Meal photo (if added) -->
+        <div id="meal-detail-photo-wrap" style="display:none;height:180px;overflow:hidden;position:relative">
+          <img id="meal-detail-photo-img" style="width:100%;height:100%;object-fit:cover" src="">
+          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(10,25,15,0.9))"></div>
+          <div style="position:absolute;bottom:12px;left:16px;font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:white" id="meal-detail-name-over"></div>
+        </div>
+
+        <div style="padding:24px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+            <div>
+              <div id="meal-detail-name" style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--soft-white);line-height:1.2"></div>
+              <div id="meal-detail-time" style="font-size:0.74rem;color:var(--text-dim);margin-top:4px"></div>
+            </div>
+            <button onclick="closeMealDetail()" style="background:none;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer">✕</button>
+          </div>
+
+          <!-- Stats row -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+            <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px">
+              <div id="meal-detail-kcal" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--lime)">–</div>
+              <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px">kcal</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px">
+              <div id="meal-detail-logged" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--cream)">–</div>
+              <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px">loggad</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px">
+              <div id="meal-detail-type" style="font-size:1.2rem">🍽️</div>
+              <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px">måltid</div>
+            </div>
+          </div>
+
+          <!-- Photo upload section -->
+          <div id="meal-detail-photo-section" style="margin-bottom:16px;padding:14px;background:rgba(201,168,76,0.06);border:1.5px dashed rgba(201,168,76,0.25);border-radius:12px;cursor:pointer;transition:all 0.2s;text-align:center"
+            onclick="document.getElementById('meal-detail-photo-input').click()"
+            onmouseover="this.style.borderColor='rgba(201,168,76,0.5)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.25)'">
+            <div style="font-size:1.3rem;margin-bottom:4px">📸</div>
+            <div style="font-size:0.84rem;color:var(--gold);font-weight:600">Fotografera din lagade mat</div>
+            <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px">Spara foto + dela på sociala medier</div>
+          </div>
+          <input type="file" id="meal-detail-photo-input" accept="image/*" style="display:none" onchange="handleMealDetailPhoto(event)">
+
+          <!-- Action buttons -->
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;gap:8px">
+              <button onclick="shareMealDetail()" style="flex:1;padding:11px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">↗ Dela måltid</button>
+              <button onclick="saveMealAsFavorite()" style="flex:1;padding:11px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:10px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.84rem;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(201,168,76,0.2)'" onmouseout="this.style.background='rgba(201,168,76,0.1)'">⭐ Spara favorit</button>
+            </div>
+            <button onclick="closeMealDetail()" style="width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.84rem;cursor:pointer">Stäng</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- DEVICES TAB -->
     <div class="tab-content" id="tab-devices">
 
@@ -1869,389 +1928,108 @@ function quickAddFood(name, kcal) {
   const now = new Date();
   const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
   const item = document.createElement('div');
-  item.className='food-item'; item.setAttribute('data-kcal',kcal);
-  item.innerHTML=`<div class="food-left"><span class="food-emoji">${name.split(' ')[0]}</span><div><div class="food-name">${name}</div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal">${kcal} kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>`;
-  item.style.opacity='0';
-  const empty = document.getElementById('food-empty-state');
+  item.className='food-item';
+  item.setAttribute('data-kcal', kcal);
+  item.setAttribute('data-name', name);
+  item.setAttribute('data-time', time);
+  item.style.cursor = 'pointer';
+  item.innerHTML=`<div class="food-left" onclick="openMealDetail(this.closest('.food-item'))"><span class="food-emoji">${name.split(' ')[0]}</span><div><div class="food-name">${name}</div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal">${kcal} kcal</span><button class="food-delete" onclick="event.stopPropagation();deleteFood(this)">✕</button></div>`;
+  const list=document.getElementById('food-list');
+  const empty=document.getElementById('food-empty-state');
   if(empty) empty.style.display='none';
-  document.getElementById('food-list').appendChild(item);
-  setTimeout(()=>{item.style.transition='all 0.3s';item.style.opacity='1';},10);
-  updateFoodStats(); showToast(name + ' tillagd ✓');
+  item.style.opacity='0'; list.appendChild(item);
+  setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
+  updateFoodStats(); showToast(name+' tillagd ✓');
 }
 
-// ── SLEEP LOG ──
-function quickAddSleep(hours, label) {
-  addSleepEntry(hours, label, new Date());
-}
+// ── MEAL DETAIL MODAL ──
+let currentMealItem = null;
+let mealDetailPhotoB64 = null;
 
-function updateSleepDateDisplay(val) {
-  const display = document.getElementById('sleep-date-display');
-  const label = document.getElementById('sleep-date-label');
-  if (!display) return;
-  const today = new Date();
-  const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
-  const todayStr = today.toISOString().split('T')[0];
-  const yestStr = yesterday.toISOString().split('T')[0];
-  let dayLabel, dateLabel;
-  if (!val || val === todayStr) {
-    dayLabel = 'Idag';
-    dateLabel = today.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
-  } else if (val === yestStr) {
-    dayLabel = 'Igår';
-    dateLabel = yesterday.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+function openMealDetail(item) {
+  currentMealItem = item;
+  mealDetailPhotoB64 = item.dataset.photo || null;
+  const name = item.dataset.name || item.querySelector('.food-name')?.textContent || '–';
+  const kcal = item.dataset.kcal || '–';
+  const time = item.dataset.time || item.querySelector('.food-time')?.textContent || '–';
+  const emoji = item.querySelector('.food-emoji')?.textContent || '🍽️';
+  document.getElementById('meal-detail-name').textContent = name;
+  document.getElementById('meal-detail-name-over').textContent = name;
+  document.getElementById('meal-detail-time').textContent = 'Loggad kl ' + time;
+  document.getElementById('meal-detail-kcal').textContent = kcal;
+  document.getElementById('meal-detail-logged').textContent = time;
+  document.getElementById('meal-detail-type').textContent = emoji;
+  const photoWrap = document.getElementById('meal-detail-photo-wrap');
+  const photoImg = document.getElementById('meal-detail-photo-img');
+  const photoSec = document.getElementById('meal-detail-photo-section');
+  if (mealDetailPhotoB64) {
+    photoImg.src = mealDetailPhotoB64;
+    photoWrap.style.display = 'block';
+    if (photoSec) photoSec.innerHTML = '<div style="font-size:0.78rem;color:var(--lime)">📸 Foto tillagt – klicka för att byta</div>';
   } else {
-    const d = new Date(val + 'T12:00:00');
-    dayLabel = d.toLocaleDateString('sv-SE', {weekday:'long'});
-    dayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
-    dateLabel = d.toLocaleDateString('sv-SE', {day:'numeric', month:'long', year:'numeric'});
+    photoWrap.style.display = 'none';
+    if (photoSec) photoSec.innerHTML = '<div style="font-size:1.3rem;margin-bottom:4px">📸</div><div style="font-size:0.84rem;color:var(--gold);font-weight:600">Fotografera din lagade mat</div><div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px">Spara foto + dela på sociala medier</div>';
   }
-  display.innerHTML = dayLabel + ' <span id="sleep-date-label" style="color:var(--text-dim);font-weight:400;font-size:0.8rem">– ' + dateLabel + '</span>';
+  document.getElementById('meal-detail-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
 
-function addSleep() {
-  const h = parseFloat(document.getElementById('sleep-hours').value);
-  if (!h || h <= 0) { showToast('Ange antal timmar!'); return; }
-  const q = document.getElementById('sleep-quality').value;
-  const labels = {bra:'😊 Bra sömn', okej:'🙂 Okej sömn', dalig:'😴 Dålig sömn', orolig:'😰 Orolig sömn'};
-  const dateVal = document.getElementById('sleep-date').value;
-  const date = dateVal ? new Date(dateVal + 'T12:00:00') : new Date();
-  addSleepEntry(h, labels[q] || 'Sömn', date);
-  document.getElementById('sleep-hours').value = '';
-  document.getElementById('sleep-date').value = '';
+function closeMealDetail() {
+  document.getElementById('meal-detail-modal').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
-function addSleepEntry(hours, label, dateObj) {
-  const list = document.getElementById('sleep-list');
-  if(list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
-  const d = dateObj || new Date();
-  const dateStr = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
-  const item = document.createElement('div');
-  item.className = 'activity-item';
-  const color = hours >= 8 ? 'var(--lime)' : hours >= 7 ? 'var(--gold)' : '#e05c5c';
-  item.innerHTML = `<div class="activity-icon">🌙</div><div class="activity-text"><div class="title">${label}</div><div class="time">${dateStr}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="activity-val" style="color:${color}">${hours}h</div><button onclick="deleteEntry(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:2px 6px;transition:color 0.2s" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button></div>`;
-  item.style.opacity='0';
-  list.appendChild(item);
-  setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
-  showToast(`${hours}h sömn loggad ✓`);
-  const slEl = document.getElementById('overview-sleep');
-  const slSub = document.getElementById('overview-sleep-sub');
-  if (slEl) { slEl.innerHTML = hours + '<span class="unit"> h</span>'; slEl.style.color = hours >= 7 ? 'var(--lime)' : hours >= 6 ? 'var(--gold)' : '#e05c5c'; }
-  if (slSub) { slSub.textContent = label; slSub.style.fontStyle = 'normal'; }
-}
-
-// ── QUICK ADD ACTIVITY ──
-function quickAddActivity(name, minutes, kcal) {
-  const list = document.getElementById('activity-list');
-  if(list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
-  const now = new Date();
-  const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-  const item = document.createElement('div');
-  item.className='activity-item';
-  item.innerHTML=`<div class="activity-icon">${name.split(' ')[0]}</div><div class="activity-text"><div class="title">${name}</div><div class="time">${time} · ${minutes} min</div></div><div style="display:flex;align-items:center;gap:8px"><div class="activity-val" style="color:var(--lime)">${kcal} kcal</div><button onclick="deleteEntry(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:2px 6px;transition:color 0.2s" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button></div>`;
-  item.style.opacity='0';
-  list.appendChild(item);
-  setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
-  showToast(name + ' loggad ✓');
-}
-
-function addActivity(){
-  const input = document.getElementById('activity-input');
-  const val = input.value.trim(); if(!val) return;
-  const list = document.getElementById('activity-list');
-  if(list.querySelector('[style*="opacity:0.25"]')) list.innerHTML='';
-  const now = new Date();
-  const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-  const icons = ['🏃','🚴','🧘','🏋️','🤸','⛹️','🎾','🏊'];
-  const ic = icons[Math.floor(Math.random()*icons.length)];
-  const item = document.createElement('div');
-  item.className='activity-item';
-  item.innerHTML=`<div class="activity-icon">${ic}</div><div class="activity-text"><div class="title">${val}</div><div class="time">${time}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="activity-val">Loggad</div><button onclick="deleteEntry(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:2px 6px;transition:color 0.2s" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button></div>`;
-  item.style.opacity='0';
-  list.appendChild(item);
-  setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
-  input.value=''; showToast('Aktivitet loggad ✓');
-}
-let foodLogPhotoB64 = null;
-let foodLogAIResult = null;
-let foodPhotosB64 = [];
-let scannedFoodResults = [];
-
-function addFoodPhotos(event) {
-  const files = Array.from(event.target.files);
-  if (!files.length) return;
-  const remaining = 4 - foodPhotosB64.length;
-  const toLoad = files.slice(0, remaining);
-
-  toLoad.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      foodPhotosB64.push(e.target.result.split(',')[1]);
-      renderFoodPhotoGrid();
-    };
-    reader.readAsDataURL(file);
-  });
-  event.target.value = '';
-}
-
-function renderFoodPhotoGrid() {
-  const grid = document.getElementById('food-img-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-
-  // Thumbnails
-  foodPhotosB64.forEach((b64, i) => {
-    const div = document.createElement('div');
-    div.style.cssText = 'width:72px;height:72px;border-radius:12px;overflow:hidden;position:relative;flex-shrink:0';
-    div.innerHTML = `
-      <img src="data:image/jpeg;base64,${b64}" style="width:100%;height:100%;object-fit:cover">
-      <button onclick="removeFoodPhoto(${i})" style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.65);border:none;color:white;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>`;
-    grid.appendChild(div);
-  });
-
-  // Add more button (max 4)
-  if (foodPhotosB64.length < 4) {
-    const add = document.createElement('div');
-    add.id = 'food-add-img-btn';
-    add.onclick = () => document.getElementById('food-multi-photo').click();
-    add.style.cssText = 'width:72px;height:72px;border:2px dashed rgba(126,200,80,0.3);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0';
-    add.onmouseover = () => { add.style.borderColor='rgba(126,200,80,0.7)'; add.style.background='rgba(126,200,80,0.06)'; };
-    add.onmouseout = () => { add.style.borderColor='rgba(126,200,80,0.3)'; add.style.background='transparent'; };
-    add.innerHTML = `<span style="font-size:1.5rem">📷</span><span style="font-size:0.6rem;color:var(--lime);margin-top:3px;font-weight:600">${foodPhotosB64.length === 0 ? '+ Foto' : '+ Fler'}</span>`;
-    grid.appendChild(add);
-  }
-
-  // Update analyze button
-  const btn = document.getElementById('food-analyze-multi-btn');
-  if (!btn) return;
-  if (foodPhotosB64.length > 0) {
-    btn.textContent = `🔍 Analysera ${foodPhotosB64.length} bild${foodPhotosB64.length > 1 ? 'er' : ''} med AI`;
-    btn.style.background = 'var(--lime)';
-    btn.style.color = 'var(--deep-green)';
-    btn.style.cursor = 'pointer';
-    btn.style.border = '1.5px solid var(--lime)';
-    btn.style.fontWeight = '700';
-    btn.onclick = () => analyzeFoodPhotos();
-  } else {
-    btn.textContent = '📷 Lägg till bilder och analysera med AI';
-    btn.style.background = 'rgba(126,200,80,0.08)';
-    btn.style.color = 'var(--text-dim)';
-    btn.style.cursor = 'pointer';
-    btn.style.border = '1.5px dashed rgba(126,200,80,0.25)';
-    btn.style.fontWeight = '500';
-    btn.onclick = () => document.getElementById('food-multi-photo').click();
-  }
-}
-
-function removeFoodPhoto(index) {
-  foodPhotosB64.splice(index, 1);
-  renderFoodPhotoGrid();
-}
-
-const scanSteps = [
-  { icon: '📷', text: 'Laddar upp bilder…' },
-  { icon: '🔍', text: 'AI identifierar ingredienser…' },
-  { icon: '🧮', text: 'Beräknar näringsvärden…' },
-  { icon: '✅', text: 'Analys klar!' }
-];
-
-async function analyzeFoodPhotos() {
-  if (!foodPhotosB64.length) return;
-
-  const loading = document.getElementById('food-scan-loading');
-  const result = document.getElementById('food-scan-result');
-  const statusText = document.getElementById('scan-status-text');
-  const previewImgs = document.getElementById('scan-preview-imgs');
-
-  loading.style.display = 'block';
-  result.style.display = 'none';
-
-  // Show thumbnails in loading box
-  previewImgs.innerHTML = foodPhotosB64.map(b64 =>
-    `<img src="data:image/jpeg;base64,${b64}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid rgba(126,200,80,0.2)">`
-  ).join('');
-
-  // Animate through steps
-  let stepIndex = 0;
-  const stepInterval = setInterval(() => {
-    if (stepIndex < scanSteps.length - 1) {
-      stepIndex++;
-      statusText.textContent = scanSteps[stepIndex].icon + ' ' + scanSteps[stepIndex].text;
-    }
-  }, 900);
-
-  try {
-    const contentArr = foodPhotosB64.map(b64 => ({
-      type: 'image',
-      source: { type: 'base64', media_type: 'image/jpeg', data: b64 }
-    }));
-    contentArr.push({
-      type: 'text',
-      text: `Analysera maten på bilderna noggrant. Använd alla bilder för bästa träffsäkerhet. Svara ENBART med JSON utan markdown:
-{"meals":[{"name":"maträttens namn på svenska","kcal":nummer,"protein_g":nummer,"carbs_g":nummer,"fat_g":nummer,"confidence":"hög/medel/låg"}],"total_kcal":nummer,"note":"kort sammanfattning på svenska"}`
-    });
-
-    const resp = await fetch('/.netlify/functions/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 600,
-        messages: [{ role: 'user', content: contentArr }]
-      })
-    });
-    const data = await resp.json();
-    const text = data.content?.[0]?.text || '';
-    scannedFoodResults = JSON.parse(text.replace(/```json|```/g,'').trim());
-  } catch(e) {
-    scannedFoodResults = {
-      meals: [{ name: 'Måltid (AI-uppskattning)', kcal: 420, protein_g: 32, carbs_g: 35, fat_g: 16, confidence: 'medel' }],
-      total_kcal: 420,
-      note: 'Uppskattning baserad på bilderna. Justera vid behov.'
-    };
-  }
-
-  clearInterval(stepInterval);
-  statusText.textContent = '✅ Analys klar!';
-  await new Promise(r => setTimeout(r, 600));
-
-  loading.style.display = 'none';
-  showScanResult();
-}
-
-function showScanResult() {
-  const result = document.getElementById('food-scan-result');
-  const content = document.getElementById('scan-result-content');
-  result.style.display = 'block';
-
-  const meals = scannedFoodResults.meals || [];
-  const note = scannedFoodResults.note || '';
-  const total = scannedFoodResults.total_kcal || 0;
-
-  content.innerHTML = meals.map(m => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div>
-        <div style="font-size:0.88rem;color:var(--cream);font-weight:500">${m.name}</div>
-        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px">
-          Protein: ${m.protein_g}g &nbsp;·&nbsp; Kolh: ${m.carbs_g}g &nbsp;·&nbsp; Fett: ${m.fat_g}g
-          &nbsp;·&nbsp; <span style="color:${m.confidence==='hög'?'var(--lime)':m.confidence==='medel'?'var(--gold)':'#e05c5c'}">${m.confidence} säkerhet</span>
-        </div>
-      </div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--lime);margin-left:12px">${m.kcal} kcal</div>
-    </div>`).join('') + `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px">
-      <div style="font-size:0.8rem;color:var(--text-dim);font-style:italic">${note}</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--lime);font-weight:300">Totalt: ${total} kcal</div>
-    </div>`;
-}
-
-function addAllScannedFoods() {
-  if (!scannedFoodResults.meals) return;
-  const now = new Date();
-  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
-  scannedFoodResults.meals.forEach(m => {
-    totalKcal += m.kcal;
-    const item = document.createElement('div');
-    item.className = 'food-item';
-    item.setAttribute('data-kcal', m.kcal);
-    item.innerHTML = `<div class="food-left"><span class="food-emoji">📷</span><div><div class="food-name">${m.name} <span style="font-size:0.68rem;color:var(--lime)">AI</span></div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal">${m.kcal} kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>`;
-    item.style.opacity = '0';
-    document.getElementById('food-list').appendChild(item);
-    setTimeout(() => { item.style.transition = 'all 0.3s'; item.style.opacity = '1'; }, 10);
-  });
-  updateFoodStats();
-  closeFoodScanResult();
-  showToast(`📷 ${scannedFoodResults.meals.length} måltider tillagda ✓`);
-  foodPhotosB64 = [];
-  scannedFoodResults = [];
-  renderFoodPhotoGrid();
-}
-
-function closeFoodScanResult() {
-  document.getElementById('food-scan-result').style.display = 'none';
-  document.getElementById('food-scan-loading').style.display = 'none';
-}
-
-async function handleFoodLogPhoto(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+function handleMealDetailPhoto(event) {
+  const file = event.target.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = async (e) => {
-    foodLogPhotoB64 = e.target.result.split(',')[1];
-    const img = document.getElementById('food-log-img');
-    img.src = e.target.result;
-    const box = document.getElementById('food-log-preview-box');
-    box.style.display = 'block';
-    const resultEl = document.getElementById('food-log-ai-result');
-    const addBtn = document.getElementById('food-log-add-btn');
-    resultEl.textContent = 'AI analyserar din måltid…';
-    resultEl.style.color = 'var(--text-dim)';
-    addBtn.style.display = 'none';
-
-    try {
-      const resp = await fetch('/.netlify/functions/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 300,
-          messages: [{
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: foodLogPhotoB64 } },
-              { type: 'text', text: 'Analysera maten på bilden. Svara ENBART med JSON utan markdown: {"name":"maträttens namn på svenska","kcal":nummer,"protein_g":nummer,"carbs_g":nummer,"fat_g":nummer,"note":"kort kommentar på svenska"}' }
-            ]
-          }]
-        })
-      });
-      const data = await resp.json();
-      const text = data.content?.[0]?.text || '';
-      foodLogAIResult = JSON.parse(text.replace(/```json|```/g,'').trim());
-      resultEl.innerHTML = `<strong style="color:var(--cream)">${foodLogAIResult.name}</strong><br>
-        <span style="color:var(--lime);font-weight:600">${foodLogAIResult.kcal} kcal</span>
-        &nbsp;·&nbsp; Protein: ${foodLogAIResult.protein_g}g
-        &nbsp;·&nbsp; Kolh: ${foodLogAIResult.carbs_g}g
-        &nbsp;·&nbsp; Fett: ${foodLogAIResult.fat_g}g<br>
-        <span style="font-size:0.75rem;opacity:0.7">${foodLogAIResult.note}</span>`;
-      addBtn.style.display = 'inline-block';
-    } catch(e) {
-      // Fallback demo
-      foodLogAIResult = { name: 'Måltid (AI-analys)', kcal: 380, protein_g: 28, carbs_g: 32, fat_g: 14, note: 'Uppskattning baserad på bilden.' };
-      resultEl.innerHTML = `<strong style="color:var(--cream)">${foodLogAIResult.name}</strong><br>
-        <span style="color:var(--lime);font-weight:600">${foodLogAIResult.kcal} kcal</span>
-        &nbsp;·&nbsp; Protein: ${foodLogAIResult.protein_g}g<br>
-        <span style="font-size:0.75rem;opacity:0.7">${foodLogAIResult.note}</span>`;
-      addBtn.style.display = 'inline-block';
-    }
+  reader.onload = e => {
+    mealDetailPhotoB64 = e.target.result;
+    if (currentMealItem) currentMealItem.dataset.photo = mealDetailPhotoB64;
+    document.getElementById('meal-detail-photo-img').src = mealDetailPhotoB64;
+    document.getElementById('meal-detail-photo-wrap').style.display = 'block';
+    const sec = document.getElementById('meal-detail-photo-section');
+    if (sec) sec.innerHTML = '<div style="font-size:0.78rem;color:var(--lime)">📸 Foto tillagt – klicka för att byta</div>';
+    showToast('Foto sparat! ✓');
   };
   reader.readAsDataURL(file);
 }
 
-function addAIFoodFromLog() {
-  if (!foodLogAIResult) return;
-  totalKcal += foodLogAIResult.kcal;
-  const now = new Date();
-  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
-  const item = document.createElement('div');
-  item.className = 'food-item';
-  item.setAttribute('data-kcal', foodLogAIResult.kcal);
-  item.innerHTML = `<div class="food-left"><span class="food-emoji">📷</span><div><div class="food-name">${foodLogAIResult.name} <span style="font-size:0.68rem;color:var(--lime)">AI</span></div><div class="food-time">${time}</div></div></div><div style="display:flex;align-items:center"><span class="food-kcal">${foodLogAIResult.kcal} kcal</span><button class="food-delete" onclick="deleteFood(this)">✕</button></div>`;
-  item.style.opacity = '0';
-  document.getElementById('food-list').appendChild(item);
-  setTimeout(() => { item.style.transition = 'all 0.3s'; item.style.opacity = '1'; }, 10);
-  updateFoodStats();
-  closeFoodLogPreview();
-  showToast('📷 ' + foodLogAIResult.name + ' tillagd ✓');
-  foodLogAIResult = null;
-  foodLogPhotoB64 = null;
-  document.getElementById('food-log-photo').value = '';
+function shareMealDetail() {
+  const name = document.getElementById('meal-detail-name').textContent;
+  const kcal = document.getElementById('meal-detail-kcal').textContent;
+  const titleEl = document.getElementById('recipe-modal-title');
+  const subEl = document.getElementById('recipe-modal-subtitle');
+  if (titleEl) titleEl.textContent = name;
+  if (subEl) subEl.textContent = 'Måltid · ' + kcal + ' kcal';
+  currentCookPhotoB64 = mealDetailPhotoB64;
+  if (mealDetailPhotoB64) {
+    const prev = document.getElementById('cook-photo-preview-img');
+    const wrap = document.getElementById('cook-photo-preview-wrap');
+    if (prev) prev.src = mealDetailPhotoB64;
+    if (wrap) wrap.style.display = 'block';
+    const fsPhoto = document.getElementById('fs-show-photo');
+    if (fsPhoto) fsPhoto.checked = true;
+  }
+  closeMealDetail();
+  openFoodShareModal('cook');
 }
 
-function closeFoodLogPreview() {
-  document.getElementById('food-log-preview-box').style.display = 'none';
-  document.getElementById('food-log-img').src = '';
-  foodLogPhotoB64 = null;
+function saveMealAsFavorite() {
+  const name = document.getElementById('meal-detail-name').textContent;
+  const kcal = document.getElementById('meal-detail-kcal').textContent;
+  try {
+    const favs = JSON.parse(localStorage.getItem('vitalis_favorites') || '[]');
+    if (!favs.find(f => f.name === name)) {
+      favs.unshift({ name, kcal, saved: new Date().toISOString() });
+      localStorage.setItem('vitalis_favorites', JSON.stringify(favs.slice(0,50)));
+      showToast('⭐ ' + name + ' sparad som favorit!');
+    } else {
+      showToast('Redan sparad ⭐');
+    }
+  } catch(e) {}
 }
-let totalKcal = 0;
+
+
 function addFood(){
   const input = document.getElementById('food-input');
   const val = input.value.trim(); if(!val) return;

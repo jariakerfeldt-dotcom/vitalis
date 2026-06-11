@@ -2136,24 +2136,34 @@ function deleteEntry(btn) {
 // ── QUICK ADD FOOD ──
 function makeFoodItemHTML(name, kcal, time, extraBadge) {
   const badge = extraBadge ? `<span style="font-size:0.65rem;color:var(--lime);margin-left:4px">${extraBadge}</span>` : '';
+  const uid = 'fp_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
   return `
     <div class="food-left" style="flex:1;min-width:0;overflow:hidden" onclick="openMealDetail(this.closest('.food-item'))">
       <span class="food-emoji">${name.split(' ')[0]}</span>
       <div style="min-width:0">
-        <div class="food-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}${badge}</div>
+        <div class="food-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px">${name}${badge}</div>
         <div class="food-time">${time}</div>
       </div>
     </div>
     <div class="meal-actions">
       <span class="food-kcal" style="margin-right:3px">${kcal} kcal</span>
-      <button class="meal-action-btn" onclick="event.stopPropagation();openMealDetailPhoto(this.closest('.food-item'))"
-        style="background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.3);color:var(--gold)"
-        title="Fotografera lagad mat">📸</button>
+      <label class="meal-action-btn"
+        style="background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.3);color:var(--gold);cursor:pointer;display:inline-flex;align-items:center;justify-content:center"
+        title="Fotografera lagad mat"
+        onclick="event.stopPropagation();setCurrentMealItem(this.closest('.food-item'))">
+        📸
+        <input type="file" accept="image/*" capture="environment" style="display:none;position:absolute;width:0;height:0" onchange="handleMealDetailPhoto(event)">
+      </label>
       <button class="meal-action-btn" onclick="event.stopPropagation();openMealDetailShare(this.closest('.food-item'))"
         style="background:rgba(126,200,80,0.1);border-color:rgba(126,200,80,0.25);color:var(--lime)"
         title="Dela måltid">↗</button>
       <button class="food-delete" onclick="event.stopPropagation();deleteFood(this)">✕</button>
     </div>`;
+}
+
+function setCurrentMealItem(item) {
+  currentMealItem = item;
+  mealDetailPhotoB64 = item?.dataset?.photo || null;
 }
 
 function openMealDetailPhoto(item) {
@@ -2244,15 +2254,21 @@ function closeMealDetail() {
 
 function handleMealDetailPhoto(event) {
   const file = event.target.files[0]; if (!file) return;
+  // Find the food item – either from currentMealItem or by traversing up
+  const item = currentMealItem || event.target.closest('.food-item');
   const reader = new FileReader();
   reader.onload = e => {
-    mealDetailPhotoB64 = e.target.result;
-    if (currentMealItem) currentMealItem.dataset.photo = mealDetailPhotoB64;
-    document.getElementById('meal-detail-photo-img').src = mealDetailPhotoB64;
-    document.getElementById('meal-detail-photo-wrap').style.display = 'block';
+    const photoData = e.target.result;
+    if (item) item.dataset.photo = photoData;
+    mealDetailPhotoB64 = photoData;
+    // Update detail modal if open
+    const photoImg = document.getElementById('meal-detail-photo-img');
+    const photoWrap = document.getElementById('meal-detail-photo-wrap');
     const sec = document.getElementById('meal-detail-photo-section');
+    if (photoImg) photoImg.src = photoData;
+    if (photoWrap) photoWrap.style.display = 'block';
     if (sec) sec.innerHTML = '<div style="font-size:0.78rem;color:var(--lime)">📸 Foto tillagt – klicka för att byta</div>';
-    showToast('Foto sparat! ✓');
+    showToast('📸 Foto sparat! Klicka ↗ för att dela');
   };
   reader.readAsDataURL(file);
 }

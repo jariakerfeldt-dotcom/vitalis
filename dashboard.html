@@ -2282,11 +2282,27 @@ function renderFoodShareCard() {
       ctx.fillText('lis Flow', 24 + ctx.measureText('Vita').width, 32);
     }
 
-    // Meal name
+    // Meal name – wrap long text
     if (showRecipe && name) {
-      ctx.font = 'italic 300 32px Georgia, serif';
+      ctx.font = 'italic 300 28px Georgia, serif';
       ctx.fillStyle = '#f5f0e8';
-      ctx.fillText(name, 24, H - (showKcal ? 70 : 50));
+      // Word wrap
+      const words = name.split(' ');
+      let line = '';
+      let y2 = H - (showKcal ? 72 : 52);
+      const maxWidth = W - 48;
+      const lines = [];
+      words.forEach(word => {
+        const test = line + (line ? ' ' : '') + word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line); line = word;
+        } else { line = test; }
+      });
+      if (line) lines.push(line);
+      // Draw max 2 lines, bottom aligned
+      const lineH = 34;
+      const startY = y2 - (lines.length - 1) * lineH;
+      lines.slice(0, 2).forEach((l, i) => ctx.fillText(l, 24, startY + i * lineH));
     }
 
     // Kcal

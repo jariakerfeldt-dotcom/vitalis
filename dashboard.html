@@ -933,13 +933,17 @@ select option:checked {
           <!-- Manual input – stacked for mobile -->
           <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Logga manuellt</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <!-- Datum – stilat input direkt klickbart -->
-            <div style="position:relative;display:flex;align-items:center;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;padding:0 14px;transition:border-color 0.2s;cursor:pointer"
+            <!-- Datum – hela raden öppnar kalender -->
+            <div style="position:relative;display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:border-color 0.2s;overflow:hidden"
+              onclick="document.getElementById('sleep-date').click()"
               onmouseover="this.style.borderColor='rgba(126,200,80,0.4)'" onmouseout="this.style.borderColor='var(--border)'">
-              <span style="font-size:1rem;margin-right:10px;pointer-events:none">📅</span>
+              <span style="font-size:1rem">📅</span>
+              <span id="sleep-date-display" style="flex:1;font-size:0.86rem;color:var(--cream);font-family:'DM Sans',sans-serif">Idag</span>
+              <span style="font-size:0.72rem;color:var(--lime)">Välj datum ▼</span>
               <input type="date" id="sleep-date"
-                style="flex:1;padding:11px 0;background:transparent;border:none;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.86rem;outline:none;cursor:pointer;color-scheme:dark;min-width:0"
-                onchange="updateSleepDateDisplay(this.value)">
+                style="position:absolute;right:0;top:0;width:40px;height:100%;opacity:0;cursor:pointer;z-index:2"
+                onchange="updateSleepDateDisplay(this.value)"
+                onclick="event.stopPropagation()">
             </div>
             <!-- Timmar + kvalitet -->
             <div style="display:flex;gap:8px">
@@ -3807,3 +3811,4 @@ function dashOrderBand() {
 </script>
 </body>
 </html>
+

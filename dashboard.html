@@ -3444,7 +3444,54 @@ function loadFridgeVideo(input) {
   showToast('Video uppladdad! ✓');
 }
 
-// ── CATEGORY PHOTO LOADER ──
+// ── DIETARY VALIDATION ──
+const FORBIDDEN = {
+  laktosfri: ['mjölk','grädde','smör','ost','yoghurt','kvarg','créme fraiche','fil','kesella','ricotta','mozzarella','parmesan','feta','crème','skyr','glass','laktos','mejeriprodukter','mejeri'],
+  vegetarisk: ['kött','nötkött','fläsk','fläskfilé','bacon','skinka','korv','lammkött','kalvkött','kyckling','kycklingfilé','kalkon','fisk','lax','torsk','räkor','skaldjur','tonfisk','makrill','sardiner'],
+  vegansk:    ['mjölk','grädde','smör','ost','ägg','honung','yoghurt','kvarg','kött','kyckling','fisk','räkor','skaldjur','bacon','skinka','gelatin','mejeriprodukter'],
+  glutenfri:  ['vetemjöl','vete','råg','korn','spelt','pasta','makaroner','spaghetti','penne','bröd','rostat bröd','knäcke','bulgur','couscous','semolina','rågmjöl']
+};
+
+function validateDietaryCompliance(data, activePrefs) {
+  const forbidden = [];
+  if (activePrefs.some(p => p.includes('Laktosfri'))) forbidden.push(...FORBIDDEN.laktosfri);
+  if (activePrefs.some(p => p.includes('Vegetarisk'))) forbidden.push(...FORBIDDEN.vegetarisk);
+  if (activePrefs.some(p => p.includes('Vegansk'))) { forbidden.push(...FORBIDDEN.vegansk); forbidden.push(...FORBIDDEN.vegetarisk); }
+  if (activePrefs.some(p => p.includes('Glutenfri'))) forbidden.push(...FORBIDDEN.glutenfri);
+  if (forbidden.length === 0) return data;
+
+  // Flag violations
+  const violations = [];
+  data.recipes?.forEach(recipe => {
+    recipe.ingredients?.forEach(ing => {
+      const ingLower = ing.toLowerCase();
+      forbidden.forEach(f => {
+        if (ingLower.includes(f)) violations.push(`${recipe.meal}: "${ing}" innehåller ${f}`);
+      });
+    });
+    recipe.steps?.forEach(step => {
+      const stepLower = step.toLowerCase();
+      forbidden.forEach(f => {
+        if (stepLower.includes(f)) violations.push(`${recipe.meal} steg: "${step}"`);
+      });
+    });
+  });
+
+  if (violations.length > 0) {
+    console.warn('Kostregelbrott:', violations);
+    // Show warning to user
+    const resultsEl = document.getElementById('fridge-results');
+    if (resultsEl) {
+      const warn = document.createElement('div');
+      warn.style.cssText = 'margin-bottom:12px;padding:12px 16px;background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);border-radius:12px;font-size:0.8rem;color:#e05c5c';
+      warn.innerHTML = `⚠️ <strong>OBS:</strong> AI inkluderade förbjudna ingredienser trots ${activePrefs.join(', ')}-krav. Kontrollera recepten noggrant. Klicka för att försöka igen med striktare inställningar.`;
+      warn.style.cursor = 'pointer';
+      warn.onclick = () => scanFridge();
+      resultsEl.insertAdjacentElement('afterbegin', warn);
+    }
+  }
+  return data;
+}
 const categoryPhotos = { fridge: { 1: [], 2: [], 3: [] } };
 
 function loadCategoryPhotos(event, section, cat) {
@@ -3639,21 +3686,36 @@ async function scanFridge() {
   const contentArr = [];
   allFridgeImgs.forEach(b64 => contentArr.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}}));
   contentArr.push({type:'text',text:`Titta på bilderna av kylskåpet/frysen/skafferiet. Identifiera ingredienserna och skapa recept ENBART från det du ser.${dietInstruction}\n\nSvara ENBART med JSON utan markdown: {"ingredients":["lista på hittade ingredienser"],"recipes":[{"meal":"Frukost","name":"namn","time_min":10,"kcal":300,"ingredients":["exakt mängd + ingrediens"],"steps":["steg 1","steg 2"]},{"meal":"Mellanmål","name":"namn","time_min":5,"kcal":150,"ingredients":[],"steps":[]},{"meal":"Lunch","name":"namn","time_min":15,"kcal":450,"ingredients":[],"steps":[]},{"meal":"Middag","name":"namn","time_min":20,"kcal":550,"ingredients":[],"steps":[]}]}`});
+  // System prompt som ALLTID följer kostregler
+  const systemPrompt = dietRules.length > 0
+    ? `Du är en kock som ALLTID följer dessa kostregler: ${dietRules.join(' | ')}. Du kontrollerar VARJE ingrediens. Svara BARA med JSON.`
+    : 'Du är en kock. Svara BARA med JSON utan markdown.';
+
   try {
-    const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,messages:[{role:'user',content:contentArr}]})});
+    const resp = await fetch('/.netlify/functions/ai',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-5',
+        max_tokens:2000,
+        system: systemPrompt,
+        messages:[{role:'user',content:contentArr}]
+      })
+    });
     const data = await resp.json();
     clearInterval(stepInterval);
     if(statusEl) statusEl.textContent = '✅ Recept klara!';
-    renderFridgeResults(JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim()));
+    const raw = data.content[0].text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+    // Validera att inga förbjudna ingredienser finns
+    const validated = validateDietaryCompliance(parsed, prefs);
+    renderFridgeResults(validated);
   } catch(e) {
     clearInterval(stepInterval);
-    if(statusEl) statusEl.textContent = '🍳 Visar exempelrecept…';
-    renderFridgeResults({ingredients:['ägg','havre','bär','kyckling','sallad','avokado','pasta','tomater'],recipes:[
-      {meal:'Frukost',name:'Äggröra med rostat bröd',time_min:8,kcal:320,ingredients:['3 ägg','smör','rostat bröd'],steps:['Vispa äggen','Stek mjukt i smör','Servera på bröd']},
-      {meal:'Mellanmål',name:'Havregrynsgröt med bär',time_min:5,kcal:210,ingredients:['1 dl havre','2 dl mjölk','bär'],steps:['Koka havre med mjölk','Häll upp','Toppa med bär']},
-      {meal:'Lunch',name:'Kycklingsallad med avokado',time_min:15,kcal:450,ingredients:['150g kyckling','sallad','avokado','tomater'],steps:['Stek kycklingen','Skiva avokado','Blanda allt','Ringla olivolja']},
-      {meal:'Middag',name:'Pasta med tomatsås',time_min:20,kcal:560,ingredients:['150g pasta','tomater','vitlök','olivolja'],steps:['Koka pasta','Fräs vitlök','Lägg i tomater 10 min','Blanda och servera']}
-    ]});
+    if(statusEl) statusEl.textContent = '⚠️ Försök igen';
+    document.getElementById('fridge-loading').style.display='none';
+    showToast('Något gick fel – försök igen');
+    return;
   }
   document.getElementById('fridge-loading').style.display='none';
 }

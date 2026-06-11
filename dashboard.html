@@ -2935,47 +2935,43 @@ function logActivityFromAI() {
 }
 // ── WORKOUT GENERATOR ──
 let workoutIntensity = 'Måttlig';
-let workoutDuration = 45;
+let workoutDuration = 30;
 let workoutLocation = 'Inomhus';
 
-function setWorkoutIntensity(btn, val) {
-  workoutIntensity = val;
-  document.querySelectorAll('.intensity-btn').forEach(b => {
-    b.style.fontWeight='400';
-    if (b.textContent.includes('Lätt')) { b.style.background='rgba(126,200,80,0.08)'; b.style.borderColor='rgba(126,200,80,0.2)'; b.style.color='var(--text-dim)'; }
-    else if (b.textContent.includes('Måttlig')) { b.style.background='rgba(255,255,255,0.04)'; b.style.borderColor='var(--border)'; b.style.color='var(--text-dim)'; }
-    else { b.style.background='rgba(224,92,92,0.08)'; b.style.borderColor='rgba(224,92,92,0.2)'; b.style.color='var(--text-dim)'; }
+function setWorkoutParam(btn, group, val) {
+  // Update value
+  if (group === 'intensity') workoutIntensity = val;
+  else if (group === 'duration') { workoutDuration = parseInt(val); }
+  else if (group === 'location') workoutLocation = val;
+
+  // Reset all buttons in same group
+  document.querySelectorAll(`.workout-param-btn[data-group="${group}"]`).forEach(b => {
+    b.classList.remove('active');
+    b.style.fontWeight = '400';
+    b.style.borderColor = 'var(--border)';
+    b.style.color = 'var(--text-dim)';
+    b.style.background = 'rgba(255,255,255,0.04)';
   });
-  btn.style.fontWeight='600';
-  if (val==='Lätt') { btn.style.background='rgba(126,200,80,0.18)'; btn.style.borderColor='rgba(126,200,80,0.5)'; btn.style.color='var(--lime)'; }
-  else if (val==='Måttlig') { btn.style.background='rgba(201,168,76,0.18)'; btn.style.borderColor='rgba(201,168,76,0.5)'; btn.style.color='var(--gold)'; }
-  else { btn.style.background='rgba(224,92,92,0.18)'; btn.style.borderColor='rgba(224,92,92,0.5)'; btn.style.color='#e05c5c'; }
-}
 
-function setWorkoutDuration(btn, val) {
-  workoutDuration = val;
-  document.querySelectorAll('.duration-btn').forEach(b => { b.style.background='rgba(255,255,255,0.04)'; b.style.borderColor='var(--border)'; b.style.color='var(--text-dim)'; b.style.fontWeight='400'; });
-  btn.style.background='rgba(126,200,80,0.12)'; btn.style.borderColor='rgba(126,200,80,0.4)'; btn.style.color='var(--lime)'; btn.style.fontWeight='600';
-}
-
-function setWorkoutLocation(btn, val) {
-  workoutLocation = val;
-  document.querySelectorAll('.location-btn').forEach(b => { b.style.background='rgba(255,255,255,0.04)'; b.style.borderColor='var(--border)'; b.style.color='var(--text-dim)'; b.style.fontWeight='400'; });
-  btn.style.background='rgba(126,200,80,0.12)'; btn.style.borderColor='rgba(126,200,80,0.4)'; btn.style.color='var(--lime)'; btn.style.fontWeight='600';
-}
-
-function checkWeightReminder() {
-  const profile = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
-  const lastUpdate = localStorage.getItem('vitalis_weight_updated');
-  const el = document.getElementById('weight-reminder');
-  if (!el) return;
-  if (!profile.weight) { el.style.display='flex'; return; }
-  if (lastUpdate) {
-    const days = (Date.now() - new Date(lastUpdate)) / (1000*60*60*24);
-    if (days > 7) { el.style.display='flex'; return; }
+  // Activate clicked
+  btn.classList.add('active');
+  btn.style.fontWeight = '600';
+  if (group === 'intensity') {
+    if (val === 'Lätt') { btn.style.background='rgba(126,200,80,0.15)'; btn.style.borderColor='rgba(126,200,80,0.5)'; btn.style.color='var(--lime)'; }
+    else if (val === 'Måttlig') { btn.style.background='rgba(201,168,76,0.15)'; btn.style.borderColor='rgba(201,168,76,0.5)'; btn.style.color='var(--gold)'; }
+    else { btn.style.background='rgba(224,92,92,0.15)'; btn.style.borderColor='rgba(224,92,92,0.5)'; btn.style.color='#e05c5c'; }
+  } else {
+    btn.style.background='rgba(126,200,80,0.12)'; btn.style.borderColor='rgba(126,200,80,0.4)'; btn.style.color='var(--lime)';
   }
-  el.style.display='none';
 }
+
+function logGeneratedWorkout() {
+  const w = window._lastWorkout; if (!w) return;
+  quickAddActivity('🏋️ ' + w.location + ' – ' + w.intensity + ' ' + w.duration + ' min', w.duration, w.kcal);
+  document.getElementById('workout-gen-result').style.display = 'none';
+  showToast('💪 Träningspass loggat! ~' + w.kcal + ' kcal 🔥');
+}
+
 
 async function generateWorkout() {
   const profile = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');

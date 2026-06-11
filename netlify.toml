@@ -1,11 +1,6 @@
 [build]
   functions = "netlify/functions"
   publish = "."
-  edge_functions = "netlify/edge-functions"
-
-[[edge_functions]]
-  function = "ai"
-  path = "/.netlify/functions/ai"
 
 [[redirects]]
   from = "/"

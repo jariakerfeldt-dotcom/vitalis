@@ -1182,7 +1182,7 @@ select option:checked {
             <button onclick="togglePref(this,'laktosfri')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🥛 Laktosfri</button>
             <button onclick="togglePref(this,'high protein')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">💪 High protein</button>
           </div>
-          <button onclick="scanFridge()" style="width:100%;padding:13px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">🔍 Skanna och hitta recept</button>
+          <button onclick="scanFridge()" id="fridge-scan-btn" style="width:100%;padding:13px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">🔍 Skanna och hitta recept</button>
         </div>
         <div id="fridge-loading" style="display:none;text-align:center;padding:32px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;margin-bottom:20px">
           <div style="display:flex;justify-content:center;gap:6px;margin-bottom:12px">
@@ -3563,6 +3563,32 @@ function togglePref(btn, val) {
 }
 
 async function scanFridge() {
+  // Kontrollera att bilder finns
+  const allFridgeImgs = getAllFridgeImages();
+  if (allFridgeImgs.length === 0) {
+    // Visa felruta
+    const btn = document.querySelector('#subtab-fridge button[onclick="scanFridge()"]');
+    const errorEl = document.getElementById('fridge-no-image-error');
+    if (!errorEl) {
+      const err = document.createElement('div');
+      err.id = 'fridge-no-image-error';
+      err.style.cssText = 'margin-bottom:12px;padding:12px 16px;background:rgba(201,168,76,0.1);border:1.5px solid rgba(201,168,76,0.3);border-radius:12px;display:flex;align-items:center;gap:10px;animation:fadeUp 0.3s ease both';
+      err.innerHTML = '<span style="font-size:1.2rem">📷</span><div><div style="font-size:0.84rem;color:var(--gold);font-weight:600">Inga bilder uppladdade</div><div style="font-size:0.76rem;color:var(--text-dim);margin-top:2px">Fotografera ditt kylskåp, frys eller skafferi för att AI ska kunna hitta rätt recept</div></div><button onclick="document.getElementById(\'fridge-no-image-error\').remove()" style="margin-left:auto;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;padding:0">✕</button>';
+      if (btn) btn.insertAdjacentElement('beforebegin', err);
+      else document.getElementById('subtab-fridge').querySelector('.card').appendChild(err);
+    }
+    // Skaka knappen
+    if (btn) {
+      btn.style.animation = 'none';
+      btn.style.background = 'var(--gold)';
+      setTimeout(() => { btn.style.background = 'var(--lime)'; btn.style.animation = ''; }, 600);
+    }
+    return;
+  }
+
+  // Ta bort eventuellt felmeddelande
+  document.getElementById('fridge-no-image-error')?.remove();
+
   document.getElementById('fridge-loading').style.display='block';
   document.getElementById('fridge-results').style.display='none';
 
@@ -3580,11 +3606,10 @@ async function scanFridge() {
   }, 1200);
 
   const prefs = Array.from(document.querySelectorAll('.pref-btn.active')).map(b=>b.textContent.trim()).join(', ')||'Allt';
-  const allFridgeImgs = getAllFridgeImages();
   const hasImages = allFridgeImgs.length > 0;
   const contentArr = [];
   if (hasImages) allFridgeImgs.forEach(b64=>contentArr.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}}));
-  contentArr.push({type:'text',text:`${hasImages?'Titta på bilderna av kylskåpet/fryseln/skafferiet och':'Anta att det finns vanliga svenska matvaror hemma och'} ge mig enkla recept för frukost, mellanmål, lunch och middag. Kostpreferens: ${prefs}. Svara ENBART med JSON utan markdown: {"ingredients":["lista"],"recipes":[{"meal":"Frukost","name":"namn","time_min":10,"kcal":300,"ingredients":["ing"],"steps":["steg"]},{"meal":"Mellanmål","name":"namn","time_min":5,"kcal":150,"ingredients":[],"steps":[]},{"meal":"Lunch","name":"namn","time_min":15,"kcal":450,"ingredients":[],"steps":[]},{"meal":"Middag","name":"namn","time_min":20,"kcal":550,"ingredients":[],"steps":[]}]}`});
+  contentArr.push({type:'text',text:`Titta på bilderna av kylskåpet/frysen/skafferiet och ge mig enkla recept för frukost, mellanmål, lunch och middag. Kostpreferens: ${prefs}. Svara ENBART med JSON utan markdown: {"ingredients":["lista"],"recipes":[{"meal":"Frukost","name":"namn","time_min":10,"kcal":300,"ingredients":["ing"],"steps":["steg"]},{"meal":"Mellanmål","name":"namn","time_min":5,"kcal":150,"ingredients":[],"steps":[]},{"meal":"Lunch","name":"namn","time_min":15,"kcal":450,"ingredients":[],"steps":[]},{"meal":"Middag","name":"namn","time_min":20,"kcal":550,"ingredients":[],"steps":[]}]}`});
   try {
     const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,messages:[{role:'user',content:contentArr}]})});
     const data = await resp.json();
@@ -3811,4 +3836,3 @@ function dashOrderBand() {
 </script>
 </body>
 </html>
-

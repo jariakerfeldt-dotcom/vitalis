@@ -933,16 +933,12 @@ select option:checked {
           <!-- Manual input – stacked for mobile -->
           <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Logga manuellt</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <!-- Datum – hela raden klickbar via full-size transparent input -->
-            <div style="position:relative;display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;transition:border-color 0.2s"
-              onmouseover="this.style.borderColor='rgba(126,200,80,0.4)'" onmouseout="this.style.borderColor='var(--border)'">
-              <span style="font-size:1rem;pointer-events:none">📅</span>
-              <span id="sleep-date-display" style="flex:1;font-size:0.86rem;color:var(--cream);font-family:'DM Sans',sans-serif;pointer-events:none">Idag</span>
-              <span style="font-size:0.72rem;color:var(--lime);pointer-events:none">▼</span>
-              <input type="date" id="sleep-date"
-                style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:3;margin:0;padding:0;border:none;background:transparent"
-                onchange="updateSleepDateDisplay(this.value)">
-            </div>
+            <!-- Datum – native input med full styling -->
+            <input type="date" id="sleep-date"
+              style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.86rem;outline:none;cursor:pointer;color-scheme:dark;-webkit-appearance:none"
+              onchange="updateSleepDateDisplay(this.value)"
+              onmouseover="this.style.borderColor='rgba(126,200,80,0.4)'"
+              onmouseout="this.style.borderColor='var(--border)'">
             <!-- Timmar + kvalitet -->
             <div style="display:flex;gap:8px">
               <input type="number" id="sleep-hours" placeholder="Timmar (t.ex. 7.5)" step="0.5" min="0" max="24"
@@ -2933,7 +2929,7 @@ updateOverview();
 // Set today as default sleep date
 (function(){
   const el = document.getElementById('sleep-date');
-  if(el) { el.value = new Date().toISOString().split('T')[0]; updateSleepDateDisplay(el.value); }
+  if(el) el.value = new Date().toISOString().split('T')[0];
 })();
 
 // ── MEDICINE SYSTEM ──

@@ -3545,15 +3545,20 @@ function loadFridgeThumb(input, num) {
 }
 
 function togglePref(btn, val) {
-  if (val==='allt') {
-    document.querySelectorAll('.pref-btn').forEach(b => { b.classList.remove('active'); b.style.background='transparent'; b.style.borderColor='var(--border)'; b.style.color='var(--text-dim)'; b.style.fontWeight='400'; });
-  } else {
-    const allBtn = document.querySelector('.pref-btn[onclick*="allt"]');
-    allBtn.classList.remove('active'); allBtn.style.background='transparent'; allBtn.style.borderColor='var(--border)'; allBtn.style.color='var(--text-dim)';
-  }
   const active = btn.classList.contains('active');
-  if (!active || val==='allt') { btn.classList.add('active'); btn.style.background='var(--lime)'; btn.style.borderColor='var(--lime)'; btn.style.color='var(--deep-green)'; btn.style.fontWeight='600'; }
-  else { btn.classList.remove('active'); btn.style.background='transparent'; btn.style.borderColor='var(--border)'; btn.style.color='var(--text-dim)'; btn.style.fontWeight='400'; }
+  if (!active) {
+    btn.classList.add('active');
+    btn.style.background = 'rgba(126,200,80,0.15)';
+    btn.style.borderColor = 'rgba(126,200,80,0.5)';
+    btn.style.color = 'var(--lime)';
+    btn.style.fontWeight = '600';
+  } else {
+    btn.classList.remove('active');
+    btn.style.background = 'rgba(255,255,255,0.04)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-dim)';
+    btn.style.fontWeight = '400';
+  }
 }
 
 async function scanFridge() {

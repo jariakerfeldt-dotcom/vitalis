@@ -3620,11 +3620,22 @@ async function scanFridge() {
     if (step < steps.length - 1) { step++; if(statusEl) statusEl.textContent = steps[step]; }
   }, 1200);
 
-  const prefs = Array.from(document.querySelectorAll('.pref-btn.active')).map(b=>b.textContent.trim()).join(', ')||'Allt';
-  const hasImages = allFridgeImgs.length > 0;
-  const contentArr = [];
-  if (hasImages) allFridgeImgs.forEach(b64=>contentArr.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}}));
-  contentArr.push({type:'text',text:`Titta på bilderna av kylskåpet/frysen/skafferiet och ge mig enkla recept för frukost, mellanmål, lunch och middag. Kostpreferens: ${prefs}. Svara ENBART med JSON utan markdown: {"ingredients":["lista"],"recipes":[{"meal":"Frukost","name":"namn","time_min":10,"kcal":300,"ingredients":["ing"],"steps":["steg"]},{"meal":"Mellanmål","name":"namn","time_min":5,"kcal":150,"ingredients":[],"steps":[]},{"meal":"Lunch","name":"namn","time_min":15,"kcal":450,"ingredients":[],"steps":[]},{"meal":"Middag","name":"namn","time_min":20,"kcal":550,"ingredients":[],"steps":[]}]}`});
+  // Bygg strikt kostpreferens-instruktion
+  const activePrefBtns = Array.from(document.querySelectorAll('.pref-btn.active'));
+  const prefs = activePrefBtns.map(b => b.textContent.trim());
+  
+  const dietRules = [];
+  if (prefs.some(p => p.includes('Laktosfri'))) dietRules.push('LAKTOSFRI: Använd ALDRIG mjölk, grädde, smör, ost, yoghurt, kvarg eller andra mejeriprodukter. Ersätt med havremjölk, kokosmjölk, olivolja eller växtbaserade alternativ.');
+  if (prefs.some(p => p.includes('Vegetarisk'))) dietRules.push('VEGETARISK: Använd ALDRIG kött, fisk, kyckling eller skaldjur.');
+  if (prefs.some(p => p.includes('Vegansk'))) dietRules.push('VEGANSK: Använd ALDRIG kött, fisk, mejeriprodukter, ägg eller honung.');
+  if (prefs.some(p => p.includes('Glutenfri'))) dietRules.push('GLUTENFRI: Använd ALDRIG vete, råg, korn, vanligt bröd, pasta eller bulgur. Använd ris, potatis, majsmjöl eller glutenfri pasta.');
+  if (prefs.some(p => p.includes('High protein'))) dietRules.push('HIGH PROTEIN: Varje måltid ska innehålla minst 25g protein. Prioritera ägg, kyckling, fisk, baljväxter eller proteinrika ingredienser.');
+  
+  const dietInstruction = dietRules.length > 0 
+    ? `\n\nKOSTKRAV – FÖLJ DESSA STRIKT:\n${dietRules.join('\n')}\n\nKontrollera VARJE ingrediens i VARJE recept mot dessa regler innan du svarar.`
+    : '';
+
+  contentArr.push({type:'text',text:`Titta på bilderna av kylskåpet/frysen/skafferiet. Identifiera ingredienserna och skapa recept ENBART från det du ser.${dietInstruction}\n\nSvara ENBART med JSON utan markdown: {"ingredients":["lista på hittade ingredienser"],"recipes":[{"meal":"Frukost","name":"namn","time_min":10,"kcal":300,"ingredients":["exakt mängd + ingrediens"],"steps":["steg 1","steg 2"]},{"meal":"Mellanmål","name":"namn","time_min":5,"kcal":150,"ingredients":[],"steps":[]},{"meal":"Lunch","name":"namn","time_min":15,"kcal":450,"ingredients":[],"steps":[]},{"meal":"Middag","name":"namn","time_min":20,"kcal":550,"ingredients":[],"steps":[]}]}`});
   try {
     const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,messages:[{role:'user',content:contentArr}]})});
     const data = await resp.json();
@@ -3662,14 +3673,24 @@ async function generateWeekMenu() {
   const excl=document.getElementById('week-exclude').value;
   document.getElementById('week-loading').style.display='block';
   document.getElementById('week-results').style.display='none';
+
+  // Bygg strikta kostregler
+  const dietRules = [];
+  if (diet.includes('Laktosfri') || diet.includes('Vegansk')) dietRules.push('LAKTOSFRI: Använd ALDRIG mjölk, grädde, smör, ost, yoghurt eller mejeriprodukter.');
+  if (diet.includes('Vegetarisk') || diet.includes('Vegansk')) dietRules.push('VEGETARISK: Använd ALDRIG kött, fisk, kyckling eller skaldjur.');
+  if (diet.includes('Vegansk')) dietRules.push('VEGANSK: Använd ALDRIG ägg, honung eller djurprodukter.');
+  if (diet.includes('Glutenfri')) dietRules.push('GLUTENFRI: Använd ALDRIG vete, råg, korn, vanligt bröd eller pasta.');
+  if (diet.includes('High protein')) dietRules.push('HIGH PROTEIN: Varje måltid ska ha minst 25g protein.');
+  if (excl) dietRules.push(`UNDVIK ALLTID: ${excl}`);
+  const rules = dietRules.length > 0 ? `\n\nSTRIKTA KOSTREGLER – kontrollera VARJE ingrediens:\n${dietRules.join('\n')}` : '';
+
   try {
-    // Build content – include images if uploaded
     const contentArr = [];
     if (weekMediaB64.length) {
       weekMediaB64.forEach(b64 => contentArr.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}}));
-      contentArr.push({type:'text',text:`Titta på bilderna av vad som finns hemma och skapa en veckomeny baserad på dessa ingredienser. Kalorimål:${kcal}/dag. Kosttyp:${diet}. ${excl?'Undvik:'+excl+'.':''} ENBART JSON utan markdown: {"days":[{"day":"Måndag","breakfast":{"name":"namn","kcal":300},"snack":{"name":"namn","kcal":150},"lunch":{"name":"namn","kcal":450},"dinner":{"name":"namn","kcal":550},"total_kcal":1450},...7 dagar]}`});
+      contentArr.push({type:'text',text:`Titta på bilderna och skapa en veckomeny. Kalorimål: ${kcal} kcal/dag. Kosttyp: ${diet}.${rules}\n\nSvara ENBART med JSON utan markdown: {"days":[{"day":"Måndag","breakfast":{"name":"namn","kcal":300},"snack":{"name":"namn","kcal":150},"lunch":{"name":"namn","kcal":450},"dinner":{"name":"namn","kcal":550},"total_kcal":1450}]}`});
     } else {
-      contentArr.push({type:'text',text:`Skapa en veckomeny 7 dagar. Kalorimål:${kcal}/dag. Kosttyp:${diet}. ${excl?'Undvik:'+excl+'.':''} ENBART JSON utan markdown: {"days":[{"day":"Måndag","breakfast":{"name":"namn","kcal":300},"snack":{"name":"namn","kcal":150},"lunch":{"name":"namn","kcal":450},"dinner":{"name":"namn","kcal":550},"total_kcal":1450},...7 dagar]}`});
+      contentArr.push({type:'text',text:`Skapa en varierad veckomeny för 7 dagar. Kalorimål: ${kcal} kcal/dag. Kosttyp: ${diet}.${rules}\n\nSvara ENBART med JSON utan markdown: {"days":[{"day":"Måndag","breakfast":{"name":"namn","kcal":300},"snack":{"name":"namn","kcal":150},"lunch":{"name":"namn","kcal":450},"dinner":{"name":"namn","kcal":550},"total_kcal":1450}]}`});
     }
     const resp=await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:3000,messages:[{role:'user',content:contentArr}]})});
     const data=await resp.json();
@@ -3681,8 +3702,8 @@ async function generateWeekMenu() {
       {day:'Onsdag',breakfast:{name:'Smoothiebowl med granola',kcal:380},snack:{name:'Rismjölskaka med jordnötssmör',kcal:190},lunch:{name:'Buddha bowl',kcal:490},dinner:{name:'Kycklingwok med ris',kcal:580},total_kcal:1640},
       {day:'Torsdag',breakfast:{name:'Fullkornsknäcke med avokado',kcal:290},snack:{name:'Banan & valnötter',kcal:210},lunch:{name:'Linssoppa med bröd',kcal:440},dinner:{name:'Ugnsbakad torsk med potatis',kcal:500},total_kcal:1440},
       {day:'Fredag',breakfast:{name:'Pannkakor med bär',kcal:420},snack:{name:'Proteinbar',kcal:200},lunch:{name:'Wraps med räkor & avokado',kcal:480},dinner:{name:'Hemmagjord pizza med grönsaker',kcal:620},total_kcal:1720},
-      {day:'Lördag',breakfast:{name:'Frukostbuffé: ägg, skinka, ost',kcal:480},snack:{name:'Fruktblandning',kcal:150},lunch:{name:'Halloumisallad',kcal:510},dinner:{name:'Grillad entrecôte med sallad',kcal:680},total_kcal:1820},
-      {day:'Söndag',breakfast:{name:'Croissant med te',kcal:350},snack:{name:'Smoothie på bär & banan',kcal:220},lunch:{name:'Köttbullar med potatismos',kcal:560},dinner:{name:'Ugnsbakad kyckling med rotfrukter',kcal:550},total_kcal:1680}
+      {day:'Lördag',breakfast:{name:'Frukostbuffé: ägg & avokado',kcal:480},snack:{name:'Fruktblandning',kcal:150},lunch:{name:'Halloumisallad',kcal:510},dinner:{name:'Grillad entrecôte med sallad',kcal:680},total_kcal:1820},
+      {day:'Söndag',breakfast:{name:'Bananpannkakor',kcal:350},snack:{name:'Smoothie på bär & banan',kcal:220},lunch:{name:'Köttbullar med potatismos',kcal:560},dinner:{name:'Ugnsbakad kyckling med rotfrukter',kcal:550},total_kcal:1680}
     ]});
   }
   document.getElementById('week-loading').style.display='none';

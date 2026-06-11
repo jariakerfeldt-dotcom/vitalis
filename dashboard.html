@@ -3444,6 +3444,27 @@ function loadFridgeVideo(input) {
   showToast('Video uppladdad! ✓');
 }
 
+// ── IMAGE COMPRESSION ──
+function compressImage(b64, maxSize) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+      resolve(compressed);
+    };
+    img.onerror = () => resolve(b64); // fallback to original
+    img.src = 'data:image/jpeg;base64,' + b64;
+  });
+}
+
 // ── DIETARY VALIDATION ──
 const FORBIDDEN = {
   laktosfri: ['mjölk','grädde','smör','ost','yoghurt','kvarg','créme fraiche','fil','kesella','ricotta','mozzarella','parmesan','feta','crème','skyr','glass','laktos','mejeriprodukter','mejeri'],
@@ -3682,9 +3703,12 @@ async function scanFridge() {
     ? `\n\nKOSTKRAV – FÖLJ DESSA STRIKT:\n${dietRules.join('\n')}\n\nKontrollera VARJE ingrediens i VARJE recept mot dessa regler innan du svarar.`
     : '';
 
+  // Komprimera bilder till max 800px för snabbare API-svar
+  const compressedImgs = await Promise.all(allFridgeImgs.map(b64 => compressImage(b64, 800)));
+
   // Bygg contentArr med bilder + text
   const contentArr = [];
-  allFridgeImgs.forEach(b64 => contentArr.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}}));
+  compressedImgs.forEach(b64 => contentArr.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}}));
   contentArr.push({type:'text',text:`Titta på bilderna av kylskåpet/frysen/skafferiet. Identifiera ingredienserna och skapa recept ENBART från det du ser.${dietInstruction}\n\nSvara ENBART med JSON utan markdown: {"ingredients":["lista på hittade ingredienser"],"recipes":[{"meal":"Frukost","name":"namn","time_min":10,"kcal":300,"ingredients":["exakt mängd + ingrediens"],"steps":["steg 1","steg 2"]},{"meal":"Mellanmål","name":"namn","time_min":5,"kcal":150,"ingredients":[],"steps":[]},{"meal":"Lunch","name":"namn","time_min":15,"kcal":450,"ingredients":[],"steps":[]},{"meal":"Middag","name":"namn","time_min":20,"kcal":550,"ingredients":[],"steps":[]}]}`});
   // System prompt som ALLTID följer kostregler
   const systemPrompt = dietRules.length > 0
@@ -3703,7 +3727,8 @@ async function scanFridge() {
       })
     });
     const data = await resp.json();
-    if (data.error) throw new Error(data.error);
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    if (!data.content?.[0]?.text) throw new Error('Tomt svar');
     clearInterval(stepInterval);
     if(statusEl) statusEl.textContent = '✅ Recept klara!';
     const raw = (data.content[0].text || '').replace(/```json|```/g,'').trim();

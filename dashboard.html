@@ -933,12 +933,19 @@ select option:checked {
           <!-- Manual input – stacked for mobile -->
           <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Logga manuellt</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <!-- Datum – native input med full styling -->
+            <!-- Datum – klickbar rad med dold input -->
+            <div id="sleep-date-row"
+              style="display:flex;align-items:center;gap:12px;padding:13px 16px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all 0.2s;user-select:none"
+              onclick="document.getElementById('sleep-date').focus();document.getElementById('sleep-date').click();document.getElementById('sleep-date').showPicker&&document.getElementById('sleep-date').showPicker()"
+              onmouseover="this.style.borderColor='rgba(126,200,80,0.45)';this.style.background='rgba(255,255,255,0.08)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.background='rgba(255,255,255,0.05)'">
+              <span style="font-size:1.2rem">📅</span>
+              <span id="sleep-date-display" style="flex:1;font-size:0.88rem;font-weight:500;color:var(--cream);font-family:'DM Sans',sans-serif">Idag – <span id="sleep-date-label" style="color:var(--lime)"></span></span>
+              <span style="font-size:0.75rem;color:var(--lime);font-weight:600;letter-spacing:0.05em">VÄLJ DATUM ▼</span>
+            </div>
             <input type="date" id="sleep-date"
-              style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.86rem;outline:none;cursor:pointer;color-scheme:dark;-webkit-appearance:none"
-              onchange="updateSleepDateDisplay(this.value)"
-              onmouseover="this.style.borderColor='rgba(126,200,80,0.4)'"
-              onmouseout="this.style.borderColor='var(--border)'">
+              style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
+              onchange="updateSleepDateDisplay(this.value)">
             <!-- Timmar + kvalitet -->
             <div style="display:flex;gap:8px">
               <input type="number" id="sleep-hours" placeholder="Timmar (t.ex. 7.5)" step="0.5" min="0" max="24"
@@ -1829,18 +1836,27 @@ function quickAddSleep(hours, label) {
 }
 
 function updateSleepDateDisplay(val) {
-  const el = document.getElementById('sleep-date-display');
-  if (!el) return;
-  if (!val) { el.textContent = 'Idag'; el.style.color = 'var(--text-dim)'; return; }
-  const d = new Date(val + 'T12:00:00');
+  const display = document.getElementById('sleep-date-display');
+  const label = document.getElementById('sleep-date-label');
+  if (!display) return;
   const today = new Date();
   const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
-  let label;
-  if (val === today.toISOString().split('T')[0]) label = 'Idag';
-  else if (val === yesterday.toISOString().split('T')[0]) label = 'Igår';
-  else label = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
-  el.textContent = label;
-  el.style.color = 'var(--cream)';
+  const todayStr = today.toISOString().split('T')[0];
+  const yestStr = yesterday.toISOString().split('T')[0];
+  let dayLabel, dateLabel;
+  if (!val || val === todayStr) {
+    dayLabel = 'Idag';
+    dateLabel = today.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+  } else if (val === yestStr) {
+    dayLabel = 'Igår';
+    dateLabel = yesterday.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+  } else {
+    const d = new Date(val + 'T12:00:00');
+    dayLabel = d.toLocaleDateString('sv-SE', {weekday:'long'});
+    dayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
+    dateLabel = d.toLocaleDateString('sv-SE', {day:'numeric', month:'long', year:'numeric'});
+  }
+  display.innerHTML = dayLabel + ' <span id="sleep-date-label" style="color:var(--text-dim);font-weight:400;font-size:0.8rem">– ' + dateLabel + '</span>';
 }
 
 function addSleep() {
@@ -2929,7 +2945,7 @@ updateOverview();
 // Set today as default sleep date
 (function(){
   const el = document.getElementById('sleep-date');
-  if(el) el.value = new Date().toISOString().split('T')[0];
+  if(el) { el.value = new Date().toISOString().split('T')[0]; updateSleepDateDisplay(el.value); }
 })();
 
 // ── MEDICINE SYSTEM ──

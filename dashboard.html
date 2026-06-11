@@ -933,13 +933,20 @@ select option:checked {
           <!-- Manual input – stacked for mobile -->
           <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Logga manuellt</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <!-- Row 1: datum -->
-            <div style="display:flex;align-items:center;gap:8px">
-              <label style="font-size:0.78rem;color:var(--text-dim);white-space:nowrap;min-width:52px">📅 Datum</label>
+            <!-- Datum – klickbar rad öppnar kalender -->
+            <div style="position:relative">
+              <div onclick="document.getElementById('sleep-date').showPicker?document.getElementById('sleep-date').showPicker():document.getElementById('sleep-date').focus()"
+                style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all 0.2s"
+                onmouseover="this.style.borderColor='rgba(126,200,80,0.4)'" onmouseout="this.style.borderColor='var(--border)'">
+                <span style="font-size:1rem">📅</span>
+                <span id="sleep-date-display" style="flex:1;font-size:0.86rem;color:var(--text-dim);font-family:'DM Sans',sans-serif">Idag</span>
+                <span style="font-size:0.75rem;color:var(--lime)">▼</span>
+              </div>
               <input type="date" id="sleep-date"
-                style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none;color-scheme:dark">
+                style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2"
+                onchange="updateSleepDateDisplay(this.value)">
             </div>
-            <!-- Row 2: timmar + kvalitet -->
+            <!-- Timmar + kvalitet -->
             <div style="display:flex;gap:8px">
               <input type="number" id="sleep-hours" placeholder="Timmar (t.ex. 7.5)" step="0.5" min="0" max="24"
                 style="flex:1;min-width:0;padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none"
@@ -952,7 +959,7 @@ select option:checked {
                 <option value="orolig">😰 Orolig</option>
               </select>
             </div>
-            <!-- Row 3: Logga-knapp -->
+            <!-- Logga-knapp -->
             <button onclick="addSleep()"
               style="width:100%;padding:12px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s"
               onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">
@@ -1285,6 +1292,27 @@ select option:checked {
         </div>
       </div>
 
+    </div>
+
+    <!-- RECIPE MODAL -->
+    <div id="recipe-modal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(8,20,13,0.92);backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+      <div style="background:var(--mid-green);border:1px solid rgba(126,200,80,0.2);border-radius:28px;width:100%;max-width:520px;padding:32px;position:relative;animation:fadeUp 0.3s ease both;max-height:85vh;overflow-y:auto">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);border-radius:28px 28px 0 0"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--soft-white)" id="recipe-modal-title"></div>
+            <div style="font-size:0.74rem;color:var(--text-dim);margin-top:3px" id="recipe-modal-subtitle"></div>
+          </div>
+          <button onclick="document.getElementById('recipe-modal').style.display='none';document.body.style.overflow=''"
+            style="background:none;border:none;color:var(--text-dim);font-size:1.3rem;cursor:pointer;padding:0 0 0 12px;line-height:1">✕</button>
+        </div>
+        <div style="height:1px;background:var(--border);margin:14px 0"></div>
+        <div id="recipe-modal-body"></div>
+        <div style="display:flex;gap:8px;margin-top:20px">
+          <button onclick="addRecipeToLog()" style="flex:1;padding:11px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">+ Lägg till i matlogg</button>
+          <button onclick="document.getElementById('recipe-modal').style.display='none';document.body.style.overflow=''" style="padding:11px 16px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.84rem;cursor:pointer">Stäng</button>
+        </div>
+      </div>
     </div>
     <!-- DEVICES TAB -->
     <div class="tab-content" id="tab-devices">
@@ -1807,6 +1835,21 @@ function quickAddSleep(hours, label) {
   addSleepEntry(hours, label, new Date());
 }
 
+function updateSleepDateDisplay(val) {
+  const el = document.getElementById('sleep-date-display');
+  if (!el) return;
+  if (!val) { el.textContent = 'Idag'; el.style.color = 'var(--text-dim)'; return; }
+  const d = new Date(val + 'T12:00:00');
+  const today = new Date();
+  const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+  let label;
+  if (val === today.toISOString().split('T')[0]) label = 'Idag';
+  else if (val === yesterday.toISOString().split('T')[0]) label = 'Igår';
+  else label = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+  el.textContent = label;
+  el.style.color = 'var(--cream)';
+}
+
 function addSleep() {
   const h = parseFloat(document.getElementById('sleep-hours').value);
   if (!h || h <= 0) { showToast('Ange antal timmar!'); return; }
@@ -2218,6 +2261,19 @@ function updateOverview() {
       }
     }
   } catch(e){}
+}
+
+
+function addRecipeToLog() {
+  const name = document.getElementById('recipe-modal-title').textContent;
+  const sub = document.getElementById('recipe-modal-subtitle').textContent;
+  const kcalMatch = sub.match(/(\d+)\s*kcal/);
+  const kcal = kcalMatch ? parseInt(kcalMatch[1]) : 400;
+  quickAddFood('🍽️ ' + name, kcal);
+  document.getElementById('recipe-modal').style.display = 'none';
+  document.body.style.overflow = '';
+  showTab('food');
+  showToast(name + ' tillagd i matloggen ✓');
 }
 
 // ── WEEKLY CALORIE CHART ──
@@ -2880,7 +2936,7 @@ updateOverview();
 // Set today as default sleep date
 (function(){
   const el = document.getElementById('sleep-date');
-  if(el) el.value = new Date().toISOString().split('T')[0];
+  if(el) { el.value = new Date().toISOString().split('T')[0]; updateSleepDateDisplay(el.value); }
 })();
 
 // ── MEDICINE SYSTEM ──
@@ -3597,12 +3653,60 @@ function renderWeekMenu(data) {
   const ml=[{k:'breakfast',icon:'🌅',label:'Frukost'},{k:'snack',icon:'🍎',label:'Mellanmål'},{k:'lunch',icon:'🥗',label:'Lunch'},{k:'dinner',icon:'🍽️',label:'Middag'}];
   let html='<div style="display:flex;flex-direction:column;gap:12px">';
   data.days.forEach(d=>{
-    html+=`<div class="card" style="position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--soft-white)">${d.day}</div><div style="font-size:0.78rem;color:var(--lime);font-weight:600">${d.total_kcal} kcal</div></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">${ml.map(m=>`<div style="padding:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:0.65rem;color:var(--text-dim);margin-bottom:3px">${m.icon} ${m.label}</div><div style="font-size:0.8rem;color:var(--cream);line-height:1.3">${d[m.k]?.name||'–'}</div><div style="font-size:0.68rem;color:var(--lime);margin-top:2px">${d[m.k]?.kcal||''} kcal</div></div>`).join('')}</div></div>`;
+    html+=`<div class="card" style="position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--soft-white)">${d.day}</div>
+        <div style="font-size:0.78rem;color:var(--lime);font-weight:600">${d.total_kcal} kcal</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+        ${ml.map(m=>`
+          <div onclick="openRecipe('${d.day}','${m.label}','${(d[m.k]?.name||'').replace(/'/g,"\\'")}',${d[m.k]?.kcal||0})"
+            style="padding:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.2s;position:relative"
+            onmouseover="this.style.borderColor='rgba(126,200,80,0.4)';this.style.background='rgba(255,255,255,0.06)'"
+            onmouseout="this.style.borderColor='var(--border)';this.style.background='rgba(255,255,255,0.03)'">
+            <div style="font-size:0.65rem;color:var(--text-dim);margin-bottom:3px">${m.icon} ${m.label}</div>
+            <div style="font-size:0.8rem;color:var(--cream);line-height:1.3">${d[m.k]?.name||'–'}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+              <span style="font-size:0.68rem;color:var(--lime)">${d[m.k]?.kcal||''} kcal</span>
+              <span style="font-size:0.62rem;color:rgba(126,200,80,0.5)">📖 Recept →</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
   });
   html+='</div>';
   const el=document.getElementById('week-results');
   el.innerHTML=html; el.style.display='block';
-  showToast('Veckomeny klar! 📅');
+  showToast('Veckomeny klar! Klicka på en måltid för recept 📅');
+}
+
+// ── RECIPE MODAL ──
+async function openRecipe(day, mealType, mealName, kcal) {
+  if (!mealName || mealName === '–') return;
+  const modal = document.getElementById('recipe-modal');
+  const title = document.getElementById('recipe-modal-title');
+  const subtitle = document.getElementById('recipe-modal-subtitle');
+  const body = document.getElementById('recipe-modal-body');
+  title.textContent = mealName;
+  subtitle.textContent = `${day} · ${mealType} · ${kcal} kcal`;
+  body.innerHTML = '<div style="display:flex;justify-content:center;gap:6px;padding:24px 0"><span style="width:8px;height:8px;border-radius:50%;background:var(--lime);display:inline-block;animation:pulseDot 1.2s 0s infinite ease"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--lime);display:inline-block;animation:pulseDot 1.2s 0.2s infinite ease"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--lime);display:inline-block;animation:pulseDot 1.2s 0.4s infinite ease"></span></div><div style="text-align:center;font-size:0.82rem;color:var(--text-dim)">Hämtar recept…</div>';
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  try {
+    const resp = await fetch('/.netlify/functions/ai', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:700,
+        system: 'Du är en kock. Ge korta, tydliga recept på svenska. Inga # eller ## – använd emojis och radbrytningar.',
+        messages:[{role:'user', content:`Ge ett enkelt recept för ${mealName} (${kcal} kcal). Format:\n🛒 Ingredienser (4 portioner):\n- ingrediens 1\n- ingrediens 2\n\n👨‍🍳 Tillagning:\n1. Steg 1\n2. Steg 2\n\n⏱️ Tid: X min | 💪 Protein: Xg | 🔥 Kcal/portion: ${kcal}`}]
+      })
+    });
+    const data = await resp.json();
+    const text = (data.content?.[0]?.text||'').replace(/#{1,3}\s*/g,'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    body.innerHTML = `<div style="font-size:0.86rem;color:var(--cream);line-height:1.9">${text.replace(/\n/g,'<br>')}</div>`;
+  } catch(e) {
+    body.innerHTML = `<div style="font-size:0.86rem;color:var(--text-dim)">Kunde inte hämta recept just nu. Sök på "${mealName}" för inspiration!</div>`;
+  }
 }
 
 async function sendSuggest() {

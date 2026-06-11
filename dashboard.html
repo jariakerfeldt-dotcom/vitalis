@@ -1883,6 +1883,7 @@ select option:checked {
 <script>
 // ── GLOBAL VARIABLES ──
 let totalKcal = 0;
+let medicines = JSON.parse(localStorage.getItem('vitalis_medicines') || '[]');
 const categoryPhotos = { fridge: { 1: [], 2: [], 3: [] } };
 let weekMediaB64 = [];
 let suggestMediaB64 = [];
@@ -2075,6 +2076,24 @@ function showStreakDetails() {
 
 // ── TABS ──
 // ── MEAL SUBTABS ──
+
+
+function updateSleepDateDisplay(val) {
+  const display = document.getElementById('sleep-date-display');
+  const today = new Date();
+  const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+  const todayStr = today.toISOString().split('T')[0];
+  const yestStr = yesterday.toISOString().split('T')[0];
+  let label;
+  if (!val || val === todayStr) label = 'Idag';
+  else if (val === yestStr) label = 'Igår';
+  else {
+    const d = new Date(val + 'T12:00:00');
+    label = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+    label = label.charAt(0).toUpperCase() + label.slice(1);
+  }
+  if (display) { display.textContent = label; display.style.color = 'var(--cream)'; }
+}
 
 // ── TAB NAVIGATION ──
 const tabMap = {
@@ -3354,11 +3373,11 @@ checkWeightReminder();
 // Set today as default sleep date
 (function(){
   const el = document.getElementById('sleep-date');
-  if(el) { el.value = new Date().toISOString().split('T')[0]; updateSleepDateDisplay(el.value); }
+  if(el) { el.value = new Date().toISOString().split('T')[0]; }
 })();
 
 // ── MEDICINE SYSTEM ──
-let medicines = JSON.parse(localStorage.getItem('vitalis_medicines') || '[]');
+// medicines declared at top
 
 const typeLabels = {
   daglig:'💊 Daglig', vid_behov:'🔔 Vid behov',

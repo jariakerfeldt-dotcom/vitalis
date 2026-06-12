@@ -1,11 +1,6 @@
 // netlify/functions/ai-background.js
-// Background Function – ingen 10s timeout, körs upp till 15 minuter
-// Används för bildanalys som tar lång tid
+// Fallback för långsamma AI-anrop – använder fetch istället för SDK (ingen package.json behövs)
 
-const Anthropic = require('@anthropic-ai/sdk');
-
-// Enkel in-memory store för resultat (räcker för Netlify's execution model)
-// I produktion: byt mot Supabase eller KV-store
 const results = {};
 
 exports.handler = async (event) => {
@@ -14,7 +9,7 @@ exports.handler = async (event) => {
     'Access-Control-Allow-Origin': '*'
   };
 
-  // ── POLL: GET /ai-background?jobId=xxx ──
+  // ── POLL: GET ?jobId=xxx ──
   if (event.httpMethod === 'GET') {
     const jobId = event.queryStringParameters?.jobId;
     if (!jobId) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing jobId' }) };
@@ -22,12 +17,11 @@ exports.handler = async (event) => {
     const result = results[jobId];
     if (!result) return { statusCode: 200, headers, body: JSON.stringify({ status: 'pending' }) };
 
-    // Rensa minnet efter att resultatet hämtats
     delete results[jobId];
     return { statusCode: 200, headers, body: JSON.stringify({ status: 'done', data: result }) };
   }
 
-  // ── SUBMIT: POST med payload ──
+  // ── SUBMIT: POST ──
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers, body: 'Method Not Allowed' };
   }
@@ -38,24 +32,31 @@ exports.handler = async (event) => {
 
   const jobId = 'job_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
 
-  // Returnera jobId DIREKT – anropet slutar inte vänta
-  // (Background Functions håller processen vid liv i bakgrunden)
-  const responsePromise = (async () => {
+  // Kör AI-anropet med fetch (ingen SDK-dependency)
+  (async () => {
     try {
-      const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-      const response = await client.messages.create({
-        model: body.model || 'claude-sonnet-4-5',
-        max_tokens: body.max_tokens || 1000,
-        system: body.system,
-        messages: body.messages,
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: body.model || 'claude-sonnet-4-5',
+          max_tokens: body.max_tokens || 1000,
+          system: body.system,
+          messages: body.messages
+        })
       });
-      results[jobId] = { content: response.content };
+      const data = await resp.json();
+      results[jobId] = { content: data.content };
     } catch(e) {
       results[jobId] = { error: e.message };
     }
   })();
 
-  // Vänta inte på AI – returnera jobId omedelbart
+  // Returnera jobId direkt utan att vänta på AI
   return {
     statusCode: 202,
     headers,

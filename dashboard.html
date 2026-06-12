@@ -3293,16 +3293,18 @@ async function analyzeActivityMedia() {
 
     contentArr.push({ type: 'text', text: prompt });
 
-    const resp = await fetch('/.netlify/functions/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    // Komprimera alla träningsfoton innan analys
+    const compressedActivityPhotos = await Promise.all(activityPhotosB64.map(b64 => compressImage(b64, 600)));
+    const compressedContent = compressedActivityPhotos.map(b64 => ({
+      type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 }
+    }));
+    const finalContent = compressedContent.length > 0 ? [...compressedContent, { type: 'text', text: prompt }] : [{ type: 'text', text: prompt }];
+
+    const data = await fetchAI({
         model: 'claude-sonnet-4-5',
         max_tokens: 600,
-        messages: [{ role: 'user', content: contentArr.length > 1 ? contentArr : [{ type: 'text', text: prompt }] }]
-      })
-    });
-    const data = await resp.json();
+        messages: [{ role: 'user', content: finalContent }]
+      }, msg => { if(statusEl) statusEl.textContent = msg; });
     activityAIText = data.content?.[0]?.text || '';
 
     clearInterval(stepInterval);
@@ -4388,17 +4390,14 @@ async function scanMedicinePhoto(event) {
     document.getElementById('med-photo-loading').style.display = 'block';
     document.getElementById('med-photo-result').style.display = 'none';
     try {
-      const resp = await fetch('/.netlify/functions/ai', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:400,
+      const compressedMed = await compressImage(medPhotoB64, 600);
+      const data = await fetchAI({ model:'claude-sonnet-4-5', max_tokens:400,
           system:'Du är en medicinsk databas. Svara ALLTID ENBART med ren JSON utan markdown.',
           messages:[{role:'user',content:[
-            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:medPhotoB64}},
+            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:compressedMed}},
             {type:'text',text:'Läs av medicinen/kosttillskottet på bilden. Returnera exakt detta JSON: {"name":"produktnamn","dose":"dos och styrka t.ex. 500mg","type":"daglig eller vid_behov eller vitamin eller kosttillskott eller smärtlindring","description":"vad det är på svenska i en mening"}'}
           ]}]
-        })
-      });
-      const data = await resp.json();
+        });
       let text = (data.content?.[0]?.text||'').replace(/```json|```/g,'').trim();
       const match = text.match(/\{[\s\S]*\}/);
       medPhotoResult = match ? JSON.parse(match[0]) : null;
@@ -4597,10 +4596,10 @@ async function analyzeFood() {
   btn.textContent = 'Analyserar…';
 
   try {
-    const response = await fetch('/.netlify/functions/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    // Komprimera bild hårt innan analys
+    const compressedPhoto = await compressImage(currentPhotoBase64, 600);
+    const statusEl = document.getElementById('ai-loading');
+    const data = await fetchAI({
         model: 'claude-sonnet-4-5',
         max_tokens: 1000,
         messages: [{
@@ -4608,7 +4607,7 @@ async function analyzeFood() {
           content: [
             {
               type: 'image',
-              source: { type: 'base64', media_type: 'image/jpeg', data: currentPhotoBase64 }
+              source: { type: 'base64', media_type: 'image/jpeg', data: compressedPhoto }
             },
             {
               type: 'text',
@@ -4617,9 +4616,7 @@ async function analyzeFood() {
             }
           ]
         }]
-      })
-    });
-    const data = await response.json();
+      }, msg => { if(statusEl) statusEl.querySelector && (statusEl.querySelector('p') || statusEl).textContent = msg; });
     const text = data.content[0].text.trim();
     const clean = text.replace(/```json|```/g, '').trim();
     aiResult = JSON.parse(clean);
@@ -4748,18 +4745,77 @@ function compressImage(b64, maxSize) {
     img.onload = () => {
       const canvas = document.createElement('canvas');
       let w = img.width, h = img.height;
-      if (w > maxSize || h > maxSize) {
-        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      // Hårdare komprimering: max 600px för att hålla under Netlify 10s timeout
+      const limit = maxSize || 600;
+      if (w > limit || h > limit) {
+        if (w > h) { h = Math.round(h * limit / w); w = limit; }
+        else { w = Math.round(w * limit / h); h = limit; }
       }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const compressed = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+      // JPEG quality 0.5 – tillräckligt för AI-analys, dramatiskt mindre payload
+      const compressed = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
       resolve(compressed);
     };
-    img.onerror = () => resolve(b64); // fallback to original
+    img.onerror = () => resolve(b64);
     img.src = 'data:image/jpeg;base64,' + b64;
   });
+}
+
+// ── AI FETCH MED AUTOMATISK TIMEOUT-FALLBACK ──
+// Provar vanliga ai-funktionen (10s). Vid timeout → byter till background function med polling.
+async function fetchAI(payload, onProgress) {
+  const TIMEOUT_MS = 9000; // 9s – lite marginal mot Netlify's 10s
+
+  // Försök 1: vanliga synkrona anropet
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    const resp = await fetch('/.netlify/functions/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (resp.ok) {
+      const data = await resp.json();
+      return data;
+    }
+  } catch(e) {
+    if (e.name !== 'AbortError') throw e;
+    // AbortError = timeout → fallback till background function
+    console.log('⏱ Timeout – byter till background function...');
+  }
+
+  // Försök 2: Background function med polling
+  if (onProgress) onProgress('⏳ Bilden är stor – analyserar i bakgrunden...');
+
+  const submitResp = await fetch('/.netlify/functions/ai-background', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!submitResp.ok) throw new Error('Background function failed');
+  const { jobId } = await submitResp.json();
+
+  // Polling var 2s, max 60s
+  for (let i = 0; i < 30; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    if (onProgress) onProgress(`⏳ Analyserar... (${(i+1)*2}s)`);
+
+    const pollResp = await fetch(`/.netlify/functions/ai-background?jobId=${jobId}`);
+    const result = await pollResp.json();
+
+    if (result.status === 'done') {
+      if (result.data.error) throw new Error(result.data.error);
+      return result.data;
+    }
+  }
+  throw new Error('Timeout – försök igen med en mindre bild');
 }
 
 function toggleFavoritesSection() {
@@ -5238,8 +5294,8 @@ async function scanFridge() {
     ? `\n\nKOSTKRAV – FÖLJ DESSA STRIKT:\n${dietRules.join('\n')}\n\nKontrollera VARJE ingrediens i VARJE recept mot dessa regler innan du svarar.`
     : '';
 
-  // Komprimera bilder till max 800px för snabbare API-svar
-  const compressedImgs = await Promise.all(allFridgeImgs.map(b64 => compressImage(b64, 800)));
+  // Komprimera bilder till max 500px – hårdare för att hålla under timeout
+  const compressedImgs = await Promise.all(allFridgeImgs.map(b64 => compressImage(b64, 500)));
 
   // Bygg contentArr med bilder + text
   const contentArr = [];
@@ -5251,17 +5307,12 @@ async function scanFridge() {
     : 'Du är en kock. Svara BARA med JSON utan markdown.';
 
   try {
-    const resp = await fetch('/.netlify/functions/ai',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
+    const data = await fetchAI({
         model:'claude-sonnet-4-5',
         max_tokens:3000,
         system: systemPrompt,
         messages:[{role:'user',content:contentArr}]
-      })
-    });
-    const data = await resp.json();
+      }, msg => { if(statusEl) statusEl.textContent = msg; });
     if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
     if (!data.content?.[0]?.text) throw new Error('Tomt svar');
     clearInterval(stepInterval);

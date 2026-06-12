@@ -885,6 +885,17 @@ select option:checked {
         </div>
       </div>
 
+      <!-- FAVORITES -->
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="card-title" style="margin-bottom:0">⭐ Favoritmåltider</div>
+          <button onclick="toggleFavoritesSection()" id="favs-toggle" style="font-size:0.72rem;color:var(--lime);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif">Visa ▼</button>
+        </div>
+        <div id="food-favorites-list" style="display:none">
+          <div style="font-size:0.78rem;color:var(--text-dim);text-align:center;padding:12px">Inga favoriter ännu – klicka ⭐ på en måltid för att spara</div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-title" data-i18n="f_weekly">Veckoöversikt – kalorier</div>
         <div id="weekly-chart" style="display:flex;align-items:flex-end;gap:8px;height:90px;margin:16px 0 8px">
@@ -2139,27 +2150,28 @@ function deleteEntry(btn) {
 // ── QUICK ADD FOOD ──
 function makeFoodItemHTML(name, kcal, time, extraBadge) {
   const badge = extraBadge ? `<span style="font-size:0.65rem;color:var(--lime);margin-left:4px">${extraBadge}</span>` : '';
-  const uid = 'fp_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const safeName = name.replace(/'/g, "\\'");
   return `
     <div class="food-left" style="flex:1;min-width:0;overflow:hidden" onclick="openMealDetail(this.closest('.food-item'))">
       <span class="food-emoji">${name.split(' ')[0]}</span>
       <div style="min-width:0">
-        <div class="food-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px">${name}${badge}</div>
+        <div class="food-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px">${name}${badge}</div>
         <div class="food-time">${time}</div>
       </div>
     </div>
     <div class="meal-actions">
-      <span class="food-kcal" style="margin-right:3px">${kcal} kcal</span>
+      <span class="food-kcal" style="margin-right:2px">${kcal} kcal</span>
+      <button class="meal-action-btn" onclick="event.stopPropagation();saveFoodFavorite('${safeName}',${kcal})"
+        style="background:rgba(201,168,76,0.08);border-color:rgba(201,168,76,0.2);color:var(--gold)"
+        title="Spara som favorit">⭐</button>
       <label class="meal-action-btn"
         style="background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.3);color:var(--gold);cursor:pointer;display:inline-flex;align-items:center;justify-content:center"
-        title="Fotografera lagad mat"
-        onclick="event.stopPropagation();setCurrentMealItem(this.closest('.food-item'))">
-        📸
-        <input type="file" accept="image/*" capture="environment" style="display:none;position:absolute;width:0;height:0" onchange="handleMealDetailPhoto(event)">
+        title="Fotografera" onclick="event.stopPropagation();setCurrentMealItem(this.closest('.food-item'))">
+        📸<input type="file" accept="image/*" capture="environment" style="display:none;position:absolute;width:0;height:0" onchange="handleMealDetailPhoto(event)">
       </label>
       <button class="meal-action-btn" onclick="event.stopPropagation();openMealDetailShare(this.closest('.food-item'))"
         style="background:rgba(126,200,80,0.1);border-color:rgba(126,200,80,0.25);color:var(--lime)"
-        title="Dela måltid">↗</button>
+        title="Dela">↗</button>
       <button class="food-delete" onclick="event.stopPropagation();deleteFood(this)">✕</button>
     </div>`;
 }
@@ -3921,6 +3933,108 @@ function compressImage(b64, maxSize) {
     img.onerror = () => resolve(b64); // fallback to original
     img.src = 'data:image/jpeg;base64,' + b64;
   });
+}
+
+function toggleFavoritesSection() {
+  const list = document.getElementById('food-favorites-list');
+  const btn = document.getElementById('favs-toggle');
+  if (!list) return;
+  const isHidden = list.style.display === 'none';
+  list.style.display = isHidden ? 'block' : 'none';
+  if (btn) btn.textContent = isHidden ? 'Dölj ▲' : 'Visa ▼';
+  if (isHidden) renderFoodFavorites();
+}
+
+// ── SLEEP LOG ──
+function quickAddSleep(hours, label) {
+  addSleepEntry(hours, label, new Date());
+}
+
+function addSleep() {
+  const h = parseFloat(document.getElementById('sleep-hours')?.value);
+  if (!h || h <= 0 || h > 24) { showToast('Ange antal timmar (1–24)'); return; }
+  const q = document.getElementById('sleep-quality')?.value || 'bra';
+  const labels = { bra:'😊 Bra sömn', okej:'🙂 Okej sömn', dalig:'😴 Dålig sömn', orolig:'😰 Orolig sömn' };
+  const dateVal = document.getElementById('sleep-date')?.value;
+  const date = dateVal ? new Date(dateVal + 'T12:00:00') : new Date();
+  addSleepEntry(h, labels[q] || '😊 Bra sömn', date);
+  document.getElementById('sleep-hours').value = '';
+}
+
+function addSleepEntry(hours, label, dateObj) {
+  const list = document.getElementById('sleep-list');
+  if (!list) return;
+  if (list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
+  const d = dateObj || new Date();
+  const dateStr = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+  const item = document.createElement('div');
+  item.className = 'activity-item';
+  const color = hours >= 8 ? 'var(--lime)' : hours >= 7 ? 'var(--gold)' : '#e05c5c';
+  item.innerHTML = `
+    <div class="activity-icon">🌙</div>
+    <div class="activity-text">
+      <div class="title">${label}</div>
+      <div class="time">${dateStr}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="activity-val" style="color:${color}">${hours}h</div>
+      <button onclick="deleteEntry(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:2px 6px" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button>
+    </div>`;
+  item.style.opacity = '0';
+  list.appendChild(item);
+  setTimeout(() => { item.style.transition='opacity 0.3s'; item.style.opacity='1'; }, 10);
+  showToast(`🌙 ${hours}h sömn loggad ✓`);
+  // Update overview
+  const slEl = document.getElementById('overview-sleep');
+  const slSub = document.getElementById('overview-sleep-sub');
+  if (slEl) { slEl.innerHTML = hours + '<span class="unit"> h</span>'; slEl.style.color = hours >= 7 ? 'var(--lime)' : hours >= 6 ? 'var(--gold)' : '#e05c5c'; }
+  if (slSub) { slSub.textContent = label; slSub.style.fontStyle = 'normal'; }
+}
+
+// ── FOOD FAVORITES ──
+function getFoodFavorites() {
+  try { return JSON.parse(localStorage.getItem('vitalis_food_favorites') || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveFoodFavorite(name, kcal) {
+  const favs = getFoodFavorites();
+  if (favs.find(f => f.name === name)) { showToast('Redan sparad som favorit ⭐'); return; }
+  favs.unshift({ name, kcal, saved: new Date().toISOString() });
+  localStorage.setItem('vitalis_food_favorites', JSON.stringify(favs.slice(0, 30)));
+  showToast('⭐ ' + name + ' sparad som favorit!');
+  renderFoodFavorites();
+}
+
+function removeFoodFavorite(name) {
+  const favs = getFoodFavorites().filter(f => f.name !== name);
+  localStorage.setItem('vitalis_food_favorites', JSON.stringify(favs));
+  renderFoodFavorites();
+  showToast('Favorit borttagen');
+}
+
+function renderFoodFavorites() {
+  const container = document.getElementById('food-favorites-list');
+  if (!container) return;
+  const favs = getFoodFavorites();
+  if (!favs.length) {
+    container.innerHTML = '<div style="font-size:0.78rem;color:var(--text-dim);text-align:center;padding:12px">Inga favoriter ännu – klicka ⭐ på en måltid för att spara</div>';
+    return;
+  }
+  container.innerHTML = favs.map(f => `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(126,200,80,0.08)">
+      <span style="font-size:1rem">${f.name.split(' ')[0]}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:0.82rem;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div>
+        <div style="font-size:0.68rem;color:var(--text-dim)">${f.kcal} kcal</div>
+      </div>
+      <button onclick="quickAddFood('${f.name.replace(/'/g,"\\'")}',${f.kcal})"
+        style="padding:5px 10px;background:var(--lime);color:var(--deep-green);border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">
+        + Lägg till
+      </button>
+      <button onclick="removeFoodFavorite('${f.name.replace(/'/g,"\\'")}');"
+        style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.8rem;padding:2px" title="Ta bort favorit">✕</button>
+    </div>`).join('');
 }
 
 // ── GOAL PROGRESS & DAILY NEEDS ──

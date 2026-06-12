@@ -3880,6 +3880,27 @@ function calcBMI() {
 
 loadProfile();
 updateOverview();
+
+function checkWeightReminder() {
+  const el = document.getElementById('weight-reminder');
+  if (!el) return;
+  const profile = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
+  const lastUpdate = localStorage.getItem('vitalis_weight_updated');
+
+  // No weight entered at all → show reminder
+  if (!profile.weight) { el.style.display='flex'; return; }
+
+  // Has weight but never stored update time → store now and hide
+  if (!lastUpdate) {
+    localStorage.setItem('vitalis_weight_updated', new Date().toISOString());
+    el.style.display = 'none'; return;
+  }
+
+  // Only show if 7+ days since last update
+  const days = (Date.now() - new Date(lastUpdate)) / (1000*60*60*24);
+  el.style.display = days > 7 ? 'flex' : 'none';
+}
+
 checkWeightReminder();
 // Set today as default sleep date
 (function(){

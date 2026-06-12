@@ -4616,7 +4616,8 @@ async function analyzeFood() {
             }
           ]
         }]
-      }, msg => { if(statusEl) statusEl.querySelector && (statusEl.querySelector('p') || statusEl).textContent = msg; });
+      }, msg => { if(statusEl) { const el = statusEl.querySelector('p') || statusEl; el.textContent = msg; } });
+    if (!data || !data.content) throw new Error('Tomt svar');
     const text = data.content[0].text.trim();
     const clean = text.replace(/```json|```/g, '').trim();
     aiResult = JSON.parse(clean);

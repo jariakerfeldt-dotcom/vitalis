@@ -3318,33 +3318,66 @@ async function loadExerciseGif(name, url) {
     <div style="font-size:0.8rem;color:var(--text-dim)">Hämtar övningsbild…</div>
   </div>`;
 
-  // Map exercise names to ExerciseDB search terms
   const searchMap = {
-    'squat':'squat', 'knäböj':'squat', 'push-up':'push-up', 'armhävning':'push-up',
-    'plank':'plank', 'plankan':'plank', 'lunge':'lunge', 'utfall':'lunge',
-    'sit-up':'sit up', 'situp':'sit up', 'burpee':'burpee',
-    'deadlift':'deadlift', 'marklyft':'deadlift',
-    'pull-up':'pull-up', 'pullup':'pull-up',
+    // Squats & legs
+    'squat':'squat', 'knäböj':'squat', 'goblet':'squat', 'bulgarian':'squat',
+    'benspress':'leg press', 'benboj':'squat', 'stol-squat':'squat', 'wall squat':'squat',
+    'leg press':'leg press', 'leg extension':'leg extension', 'leg curl':'leg curl',
+    // Push
+    'push-up':'push-up', 'armhävning':'push-up', 'pushup':'push-up',
+    'väggarmhävning':'push-up', 'bröstspress':'bench press', 'bench press':'bench press',
+    'chest press':'bench press', 'dips':'tricep dip', 'dippar':'tricep dip',
+    // Pull
+    'pull-up':'pull-up', 'pullup':'pull-up', 'chin-up':'pull-up',
+    'rodd':'bent over row', 'roddning':'bent over row', 'bent over row':'bent over row',
+    'lat pulldown':'lat pulldown', 'cable row':'seated cable row',
+    // Core
+    'plank':'plank', 'plankan':'plank', 'sidoplanka':'side plank',
+    'sit-up':'sit up', 'situp':'sit up', 'crunch':'crunch', 'crunches':'crunch',
+    'russian twist':'russian twist', 'leg raise':'leg raise', 'mountain climber':'mountain climber',
+    'bergklättrare':'mountain climber', 'hollow':'hollow body hold',
+    // Hinge
+    'deadlift':'deadlift', 'marklyft':'deadlift', 'romanian':'romanian deadlift',
+    'hip hinge':'deadlift', 'good morning':'good morning',
+    // Lunge
+    'lunge':'lunge', 'utfall':'lunge', 'bulgarian split':'bulgarian split squat',
+    'step up':'step-up', 'steguppgång':'step-up',
+    // Shoulders
     'shoulder press':'shoulder press', 'axelpress':'shoulder press',
-    'bicep curl':'bicep curl', 'bicep':'bicep curl',
-    'calf raise':'calf raise', 'tåhävning':'calf raise',
+    'overhead press':'overhead press', 'lateral raise':'lateral raise',
+    'sidohöjning':'lateral raise', 'front raise':'front raise',
+    // Arms
+    'bicep':'bicep curl', 'curl':'bicep curl', 'hammer curl':'hammer curl',
+    'tricep':'tricep dip', 'skull crusher':'skull crusher',
+    // Glutes & hamstrings
     'glute bridge':'glute bridge', 'höftlyft':'glute bridge',
-    'side plank':'side plank', 'sidoplanka':'side plank',
-    'russian twist':'russian twist',
-    'bent over row':'bent over row', 'rodd':'bent over row',
-    'tricep dip':'tricep dip', 'mountain climber':'mountain climber',
-    'jumping jack':'jumping jack', 'high knees':'high knees',
-    'leg raise':'leg raise', 'benspress':'leg press',
-    'bröstspress':'bench press', 'bench press':'bench press',
-    'roddning':'seated cable row',
-    'enbensstående':'single leg squat',
-    'stol-squat':'squat', 'benboj':'squat',
+    'hip thrust':'hip thrust', 'kickback':'donkey kickback',
+    // Calves
+    'calf raise':'calf raise', 'tåhävning':'calf raise',
+    // Cardio
+    'burpee':'burpee', 'jumping jack':'jumping jack', 'high knees':'high knees',
+    'höga knän':'high knees', 'box jump':'box jump', 'jump rope':'jump rope',
+    'battle rope':'battle rope',
+    // Kettlebell
+    'kettlebell':'kettlebell swing', 'swing':'kettlebell swing',
+    'turkish':'turkish get-up', 'clean':'clean',
+    // Other
+    'farmer':'farmer walk', 'carry':'farmer walk',
+    'face pull':'face pull', 'cable fly':'cable fly',
   };
 
   const nameLower = name.toLowerCase();
-  let searchTerm = name;
+  let searchTerm = null;
+
+  // Try progressively longer keyword matches
   for (const [key, val] of Object.entries(searchMap)) {
     if (nameLower.includes(key)) { searchTerm = val; break; }
+  }
+
+  // Fallback: use first meaningful word(s) of exercise name
+  if (!searchTerm) {
+    const words = nameLower.replace(/[^a-zåäöA-ZÅÄÖ\s]/g,'').trim().split(' ');
+    searchTerm = words.slice(0,2).join(' ');
   }
 
   try {

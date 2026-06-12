@@ -3680,13 +3680,7 @@ async function loadExerciseGif(name, url) {
 
   try {
     const resp = await fetch(
-      `https://exercisedb.p.rapidapi.com/exercises/name/${encodeURIComponent(searchTerm)}?limit=1&offset=0`,
-      {
-        headers: {
-          'X-RapidAPI-Key': 'bda887a7a2mshed401e7bd7f6664p1d440ejsn8b3d590485fd',
-          'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-        }
-      }
+      `/.netlify/functions/exercisedb?exercise=${encodeURIComponent(searchTerm)}`
     );
 
     if (resp.ok) {

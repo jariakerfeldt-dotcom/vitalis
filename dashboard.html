@@ -3111,32 +3111,53 @@ function logGeneratedWorkout() {
 
 function shareGeneratedWorkout() {
   const w = window._lastWorkout; if (!w) return;
-  const text = encodeURIComponent(
-    '💪 Jag har tränat ' + w.duration + ' min ' + w.intensity.toLowerCase() + ' träning!\n' +
-    '🎯 Fokus: ' + (w.focus || 'Helkropp') + '\n' +
-    '🔥 ~' + w.kcal + ' kcal\n' +
-    '🌿 Träna med Vitalis Flow → vitalisflow.se'
-  );
-  // Native share if available
-  if (navigator.share) {
-    navigator.share({
-      title: 'Mitt träningspass – Vitalis Flow',
-      text: decodeURIComponent(text),
-      url: 'https://vitalisflow.se'
-    }).catch(() => {});
-    return;
+
+  const shareText = '💪 Jag har tränat ' + w.duration + ' min ' + w.intensity.toLowerCase() + ' träning!\n🎯 Fokus: ' + (w.focus||'Helkropp') + '\n🔥 ~' + w.kcal + ' kcal\n🌿 Träna med Vitalis Flow → vitalisflow.se';
+  const encoded = encodeURIComponent(shareText);
+  const url = encodeURIComponent('https://vitalisflow.se');
+
+  // Show custom share modal
+  let modal = document.getElementById('workout-share-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'workout-share-modal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:700;background:rgba(8,20,13,0.92);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px';
+    modal.innerHTML = `
+      <div style="background:var(--mid-green);border:1px solid rgba(126,200,80,0.2);border-radius:24px;width:100%;max-width:420px;padding:28px;position:relative">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);border-radius:24px 24px 0 0"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--soft-white)">↗ Dela träningspass</div>
+          <button onclick="document.getElementById('workout-share-modal').style.display='none';document.body.style.overflow=''" style="background:none;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer">✕</button>
+        </div>
+        <div id="workout-share-preview" style="padding:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;font-size:0.82rem;color:var(--text-dim);line-height:1.7;margin-bottom:16px;white-space:pre-line"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <button id="ws-whatsapp" style="padding:11px;background:#25d366;border:none;border-radius:12px;color:white;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer">💬 WhatsApp</button>
+          <button id="ws-twitter" style="padding:11px;background:#000;border:none;border-radius:12px;color:white;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer">✖ X / Twitter</button>
+          <button id="ws-facebook" style="padding:11px;background:#1877f2;border:none;border-radius:12px;color:white;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer">👍 Facebook</button>
+          <button id="ws-sms" style="padding:11px;background:rgba(126,200,80,0.15);border:1px solid rgba(126,200,80,0.3);border-radius:12px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer">📱 SMS</button>
+        </div>
+        <button id="ws-email" style="width:100%;padding:11px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;margin-bottom:8px">📧 Skicka via Mail</button>
+        <button id="ws-copy" style="width:100%;padding:11px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer">📋 Kopiera text</button>
+      </div>`;
+    document.body.appendChild(modal);
   }
-  // Fallback share modal
-  const titleEl = document.getElementById('recipe-modal-title');
-  const subEl = document.getElementById('recipe-modal-subtitle');
-  if (titleEl) titleEl.textContent = w.location + ' träning – ' + w.intensity;
-  if (subEl) subEl.textContent = w.duration + ' min · ~' + w.kcal + ' kcal · ' + (w.focus || 'Helkropp');
-  currentCookPhotoB64 = null;
-  const wrap = document.getElementById('cook-photo-preview-wrap');
-  if (wrap) wrap.style.display = 'none';
-  document.getElementById('food-share-modal').style.display = 'flex';
+
+  // Fill preview and set up buttons
+  document.getElementById('workout-share-preview').textContent = shareText;
+  document.getElementById('ws-whatsapp').onclick = () => window.open('https://wa.me/?text=' + encoded, '_blank');
+  document.getElementById('ws-twitter').onclick = () => window.open('https://twitter.com/intent/tweet?text=' + encoded, '_blank');
+  document.getElementById('ws-facebook').onclick = () => window.open('https://www.facebook.com/sharer/sharer.php?u=' + url + '&quote=' + encoded, '_blank');
+  document.getElementById('ws-sms').onclick = () => window.open('sms:?body=' + encoded);
+  document.getElementById('ws-email').onclick = () => window.open('mailto:?subject=' + encodeURIComponent('Mitt träningspass – Vitalis Flow') + '&body=' + encoded);
+  document.getElementById('ws-copy').onclick = () => {
+    navigator.clipboard.writeText(shareText).then(() => {
+      document.getElementById('ws-copy').textContent = '✓ Kopierad!';
+      setTimeout(() => { document.getElementById('ws-copy').textContent = '📋 Kopiera text'; }, 2000);
+    });
+  };
+
+  modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  setTimeout(() => renderFoodShareCard(), 100);
 }
 
 // ── EXERCISE GIF SYSTEM ──

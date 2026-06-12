@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vitalis Flow – Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --deep-green: #0f2318;
@@ -545,6 +546,10 @@ select option:checked {
     <div>
       <div class="topbar-title"><span id="greeting-time">God kväll</span>, <em id="greeting-name" style="color:var(--lime)">du</em> 🌿</div>
       <div class="topbar-date" id="top-date"></div>
+      <div id="sync-status" style="font-size:0.6rem;color:var(--text-dim);margin-top:2px;display:flex;align-items:center;gap:4px">
+        <span id="sync-dot" style="width:6px;height:6px;border-radius:50%;background:var(--text-dim);display:inline-block"></span>
+        <span id="sync-label">Synkar...</span>
+      </div>
     </div>
     <div class="streak-pill" style="flex-direction:column;align-items:flex-end;gap:4px;min-width:160px">
       <div style="display:flex;align-items:center;gap:6px">
@@ -1911,6 +1916,292 @@ select option:checked {
 <div class="toast" id="toast"></div>
 
 <script>
+// ── SUPABASE INTEGRATION ──
+const SUPABASE_URL = 'https://kzzvrwybrycokorgkobw.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6enZyd3licnljb2tvcmdrb2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNzY3NjcsImV4cCI6MjA5Njg1Mjc2N30.PS3TyH9qPKfE5H7ZlOGR2TtQsCi9BvX7FU3Oll14lgg';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Unikt enhets-ID (ersätter inloggning tills vidare)
+function getDeviceId() {
+  let id = localStorage.getItem('vitalis_device_id');
+  if (!id) {
+    id = 'dev_' + Math.random().toString(36).substr(2,9) + '_' + Date.now();
+    localStorage.setItem('vitalis_device_id', id);
+  }
+  return id;
+}
+const DEVICE_ID = getDeviceId();
+
+// ── DB: PROFIL ──
+async function dbSaveProfile(profile) {
+  try {
+    await sb.from('profiles').upsert({
+      device_id: DEVICE_ID,
+      ...profile,
+      weight_updated_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'device_id' });
+  } catch(e) { console.log('Supabase profile save:', e); }
+}
+
+async function dbLoadProfile() {
+  try {
+    const { data } = await sb.from('profiles').select('*').eq('device_id', DEVICE_ID).single();
+    return data;
+  } catch(e) { return null; }
+}
+
+// ── DB: MATLOGG ──
+async function dbAddFood(name, kcal, source='manual') {
+  try {
+    const result = await sb.from('food_logs').insert({
+      device_id: DEVICE_ID,
+      name, kcal, source,
+      log_date: new Date().toISOString().split('T')[0]
+    }).select();
+    return result;
+  } catch(e) { console.log('Supabase food save:', e); return null; }
+}
+
+async function dbLoadTodayFood() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const { data } = await sb.from('food_logs')
+      .select('*').eq('device_id', DEVICE_ID).eq('log_date', today)
+      .order('logged_at', { ascending: true });
+    return data || [];
+  } catch(e) { return []; }
+}
+
+async function dbDeleteFood(id) {
+  try { await sb.from('food_logs').delete().eq('id', id); } catch(e) {}
+}
+
+// ── DB: SÖMNLOGG ──
+async function dbAddSleep(hours, quality, label) {
+  try {
+    await sb.from('sleep_logs').insert({
+      device_id: DEVICE_ID,
+      hours, quality, label,
+      log_date: new Date().toISOString().split('T')[0]
+    });
+  } catch(e) { console.log('Supabase sleep save:', e); }
+}
+
+async function dbLoadRecentSleep(days=7) {
+  try {
+    const { data } = await sb.from('sleep_logs')
+      .select('*').eq('device_id', DEVICE_ID)
+      .order('log_date', { ascending: false }).limit(days);
+    return data || [];
+  } catch(e) { return []; }
+}
+
+// ── DB: AKTIVITETSLOGG ──
+async function dbAddActivity(name, minutes, kcal, type='manual') {
+  try {
+    await sb.from('activity_logs').insert({
+      device_id: DEVICE_ID,
+      name, minutes, kcal,
+      activity_type: type,
+      log_date: new Date().toISOString().split('T')[0]
+    });
+  } catch(e) { console.log('Supabase activity save:', e); }
+}
+
+// ── DB: MEDICINER ──
+async function dbSaveMedicines(medicinesArr) {
+  try {
+    await sb.from('medicines').delete().eq('device_id', DEVICE_ID);
+    if (medicinesArr.length > 0) {
+      await sb.from('medicines').insert(
+        medicinesArr.map(m => ({ device_id: DEVICE_ID, ...m }))
+      );
+    }
+  } catch(e) { console.log('Supabase medicines save:', e); }
+}
+
+async function dbLoadMedicines() {
+  try {
+    const { data } = await sb.from('medicines').select('*').eq('device_id', DEVICE_ID);
+    return data || [];
+  } catch(e) { return []; }
+}
+
+// ── DB: MAT-FAVORITER ──
+async function dbSaveFoodFavorite(name, kcal) {
+  try {
+    await sb.from('food_favorites').upsert(
+      { device_id: DEVICE_ID, name, kcal },
+      { onConflict: 'device_id,name' }
+    );
+  } catch(e) {}
+}
+
+async function dbRemoveFoodFavorite(name) {
+  try {
+    await sb.from('food_favorites').delete()
+      .eq('device_id', DEVICE_ID).eq('name', name);
+  } catch(e) {}
+}
+
+async function dbLoadFoodFavorites() {
+  try {
+    const { data } = await sb.from('food_favorites').select('*')
+      .eq('device_id', DEVICE_ID).order('saved_at', { ascending: false }).limit(30);
+    return data || [];
+  } catch(e) { return []; }
+}
+
+// ── DB: STREAK ──
+async function dbSaveStreak(streak, lastDate) {
+  try {
+    await sb.from('streaks').upsert(
+      { device_id: DEVICE_ID, streak, last_date: lastDate, updated_at: new Date().toISOString() },
+      { onConflict: 'device_id' }
+    );
+  } catch(e) {}
+}
+
+async function dbLoadStreak() {
+  try {
+    const { data } = await sb.from('streaks').select('*').eq('device_id', DEVICE_ID).single();
+    return data;
+  } catch(e) { return null; }
+}
+
+// ── SYNK: Ladda upp localStorage-data till Supabase (engångsmigration) ──
+async function migrateLocalStorageToSupabase() {
+  const migrated = localStorage.getItem('vitalis_sb_migrated');
+  if (migrated) return;
+  console.log('🌿 Vitalis: Migrerar data till Supabase...');
+
+  // Profil
+  const localProfile = (() => { try { return JSON.parse(localStorage.getItem('vitalis_profile')||'{}'); } catch(e){return{};} })();
+  if (localProfile.fname || localProfile.weight) {
+    await dbSaveProfile({
+      fname: localProfile.fname||'', lname: localProfile.lname||'',
+      email: localProfile.email||'', phone: localProfile.phone||'',
+      weight: parseFloat(localProfile.weight)||null,
+      height: parseFloat(localProfile.height)||null,
+      birthyear: parseInt(localProfile.birthyear)||null,
+      gender: localProfile.gender||'', activity: parseFloat(localProfile.activity)||1.55,
+      goal: localProfile.goal||'', target_weight: parseFloat(localProfile.target_weight)||null,
+      start_weight: parseFloat(localStorage.getItem('vitalis_start_weight'))||null
+    });
+  }
+
+  // Mediciner
+  const localMeds = (() => { try { return JSON.parse(localStorage.getItem('vitalis_medicines')||'[]'); } catch(e){return[];} })();
+  if (localMeds.length > 0) await dbSaveMedicines(localMeds);
+
+  // Mat-favoriter
+  const localFavs = (() => { try { return JSON.parse(localStorage.getItem('vitalis_food_favorites')||'[]'); } catch(e){return[];} })();
+  for (const f of localFavs) { await dbSaveFoodFavorite(f.name, f.kcal); }
+
+  // Streak
+  const localStreak = parseInt(localStorage.getItem('vitalis_streak')||'0');
+  const localStreakLast = localStorage.getItem('vitalis_streak_last')||'';
+  if (localStreak > 0) await dbSaveStreak(localStreak, localStreakLast);
+
+  localStorage.setItem('vitalis_sb_migrated', '1');
+  console.log('✅ Migration klar!');
+}
+
+// Kör migration + ladda data vid start
+(async function initSupabase() {
+  await migrateLocalStorageToSupabase();
+
+  // Ladda profil från Supabase
+  const sbProfile = await dbLoadProfile();
+  if (sbProfile) {
+    const profileData = {
+      fname: sbProfile.fname||'', lname: sbProfile.lname||'',
+      email: sbProfile.email||'', phone: sbProfile.phone||'',
+      weight: sbProfile.weight||'', height: sbProfile.height||'',
+      birthyear: sbProfile.birthyear||'', gender: sbProfile.gender||'',
+      activity: sbProfile.activity||'', goal: sbProfile.goal||'',
+      target_weight: sbProfile.target_weight||''
+    };
+    // Uppdatera localStorage så befintliga funktioner fungerar
+    localStorage.setItem('vitalis_profile', JSON.stringify(profileData));
+    if (sbProfile.start_weight) localStorage.setItem('vitalis_start_weight', sbProfile.start_weight);
+    if (sbProfile.weight_updated_at) localStorage.setItem('vitalis_weight_updated', sbProfile.weight_updated_at);
+  }
+
+  // Ladda mediciner
+  const sbMeds = await dbLoadMedicines();
+  if (sbMeds.length > 0) {
+    medicines = sbMeds.map(m => ({ name:m.name, dose:m.dose, type:m.type }));
+    localStorage.setItem('vitalis_medicines', JSON.stringify(medicines));
+  }
+
+  // Ladda mat-favoriter
+  const sbFavs = await dbLoadFoodFavorites();
+  if (sbFavs.length > 0) {
+    localStorage.setItem('vitalis_food_favorites', JSON.stringify(sbFavs.map(f=>({name:f.name,kcal:f.kcal}))));
+  }
+
+  // Ladda streak
+  const sbStreak = await dbLoadStreak();
+  if (sbStreak) {
+    localStorage.setItem('vitalis_streak', sbStreak.streak);
+    localStorage.setItem('vitalis_streak_last', sbStreak.last_date);
+  }
+
+  // Ladda dagens mat
+  const todayFood = await dbLoadTodayFood();
+  if (todayFood.length > 0) {
+    setTimeout(() => {
+      const list = document.getElementById('food-list');
+      const empty = document.getElementById('food-empty-state');
+      if (!list) return;
+      todayFood.forEach(entry => {
+        totalKcal += entry.kcal;
+        const item = document.createElement('div');
+        item.className = 'food-item';
+        item.setAttribute('data-kcal', entry.kcal);
+        item.setAttribute('data-name', entry.name);
+        item.setAttribute('data-sb-id', entry.id);
+        const time = new Date(entry.logged_at).toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
+        item.setAttribute('data-time', time);
+        item.style.cursor = 'pointer';
+        item.innerHTML = makeFoodItemHTML(entry.name, entry.kcal, time, '');
+        if (empty) empty.style.display = 'none';
+        list.appendChild(item);
+      });
+      updateFoodStats();
+      updateOverview();
+    }, 500);
+  }
+
+  // Ladda senaste sömn
+  const recentSleep = await dbLoadRecentSleep(1);
+  if (recentSleep.length > 0) {
+    const s = recentSleep[0];
+    setTimeout(() => {
+      const slEl = document.getElementById('overview-sleep');
+      const slSub = document.getElementById('overview-sleep-sub');
+      const today = new Date().toISOString().split('T')[0];
+      if (s.log_date === today) {
+        if (slEl) { slEl.innerHTML = s.hours + '<span class="unit"> h</span>'; slEl.style.color = s.hours >= 7 ? 'var(--lime)' : s.hours >= 6 ? 'var(--gold)' : '#e05c5c'; }
+        if (slSub) { slSub.textContent = s.label||'Loggad'; slSub.style.fontStyle='normal'; }
+      }
+    }, 600);
+  }
+
+  // Visa synk-status i UI
+  const dot = document.getElementById('sync-dot');
+  const label = document.getElementById('sync-label');
+  if (dot) dot.style.background = 'var(--lime)';
+  if (label) label.textContent = '✓ Synkad';
+  setTimeout(() => {
+    const st = document.getElementById('sync-status');
+    if (st) st.style.display = 'none';
+  }, 3000);
+  console.log('🌿 Vitalis Flow: Supabase ansluten ✓');
+})();
+
 // ── GLOBAL VARIABLES ──
 let totalKcal = 0;
 let medicines = JSON.parse(localStorage.getItem('vitalis_medicines') || '[]');
@@ -1951,6 +2242,7 @@ let medPhotoResult = null;
       streak = (last === yesterday.toDateString()) ? streak + 1 : 1;
       localStorage.setItem('vitalis_streak', streak);
       localStorage.setItem('vitalis_streak_last', today);
+      dbSaveStreak(streak, today);
     }
     updateStreakUI(streak);
   } catch(e){}
@@ -2362,10 +2654,15 @@ function addFood(){
   document.getElementById('food-list').appendChild(item);
   setTimeout(()=>{item.style.transition='all 0.3s';item.style.opacity='1';item.style.transform='none';},10);
   input.value=''; updateFoodStats(); showToast('Måltid tillagd ✓');
+  // Supabase synk
+  dbAddFood(em + ' ' + val, kcal, 'manual').then(result => {
+    if (result && result.data && result.data[0]) item.setAttribute('data-sb-id', result.data[0].id);
+  });
 }
 function deleteFood(btn){
   const item = btn.closest('.food-item');
   const kcal = parseInt(item.getAttribute('data-kcal')||0);
+  const sbId = item.getAttribute('data-sb-id');
   totalKcal -= kcal;
   item.style.transition='all 0.3s'; item.style.opacity='0'; item.style.transform='translateX(10px)';
   setTimeout(()=>{
@@ -2377,6 +2674,7 @@ function deleteFood(btn){
       if(empty) empty.style.display='block';
     }
   }, 300);
+  if (sbId) dbDeleteFood(sbId);
   updateFoodStats();
 }
 function updateOverview() {
@@ -3516,6 +3814,7 @@ function shareWorkout() {
 }
 
 function quickAddActivity(name, minutes, kcal) {
+  dbAddActivity(name, minutes, kcal, 'quick');
   const list = document.getElementById('activity-list');
   if (list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
   const now = new Date();
@@ -3549,6 +3848,7 @@ function addActivity(){
   list.appendChild(item);
   setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
   input.value=''; showToast('Aktivitet loggad ✓');
+  dbAddActivity(val, 0, 0, 'manual');
 }
 document.getElementById('activity-input').addEventListener('keydown',e=>{if(e.key==='Enter')addActivity();});
 
@@ -3951,6 +4251,7 @@ const typeLabels = {
 
 function saveMedicines() {
   try { localStorage.setItem('vitalis_medicines', JSON.stringify(medicines)); } catch(e){}
+  dbSaveMedicines(medicines);
 }
 
 function renderMedicines() {
@@ -4516,6 +4817,8 @@ function addSleepEntry(hours, label, dateObj) {
   list.appendChild(item);
   setTimeout(() => { item.style.transition='opacity 0.3s'; item.style.opacity='1'; }, 10);
   showToast(`🌙 ${hours}h sömn loggad ✓`);
+  // Supabase synk
+  dbAddSleep(hours, quality || 'bra', label);
   // Update overview
   const slEl = document.getElementById('overview-sleep');
   const slSub = document.getElementById('overview-sleep-sub');
@@ -4530,6 +4833,7 @@ function getFoodFavorites() {
 }
 
 function saveFoodFavorite(name, kcal) {
+  dbSaveFoodFavorite(name, kcal);
   const favs = getFoodFavorites();
   if (favs.find(f => f.name === name)) { showToast('Redan sparad som favorit ⭐'); return; }
   favs.unshift({ name, kcal, saved: new Date().toISOString() });
@@ -4539,6 +4843,7 @@ function saveFoodFavorite(name, kcal) {
 }
 
 function removeFoodFavorite(name) {
+  dbRemoveFoodFavorite(name);
   const favs = getFoodFavorites().filter(f => f.name !== name);
   localStorage.setItem('vitalis_food_favorites', JSON.stringify(favs));
   renderFoodFavorites();

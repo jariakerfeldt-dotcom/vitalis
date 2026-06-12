@@ -1301,6 +1301,7 @@ select option:checked {
             <button onclick="togglePref(this,'glutenfri')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🌾 Glutenfri</button>
             <button onclick="togglePref(this,'laktosfri')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🥛 Laktosfri</button>
             <button onclick="togglePref(this,'high protein')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">💪 High protein</button>
+            <button onclick="togglePref(this,'halal')" class="pref-btn" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:0.74rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">☪️ Halal</button>
           </div>
           <button onclick="scanFridge()" id="fridge-scan-btn" style="width:100%;padding:13px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">🔍 Skanna och hitta recept</button>
         </div>
@@ -1353,6 +1354,7 @@ select option:checked {
                 <option value="High protein">High protein</option>
                 <option value="Keto">Keto</option>
                 <option value="Medelhavs">Medelhavs</option>
+              <option value="Halal">☪️ Halal</option>
               </select>
             </div>
           </div>
@@ -1708,6 +1710,7 @@ select option:checked {
               <option value="sleep">Förbättra sömnen</option>
               <option value="energy">Mer energi i vardagen</option>
               <option value="health">Allmänt hälsosammare liv</option>
+              <option value="halal">☪️ Halal-kost</option>
             </select>
           </div>
           <!-- Target weight – shown for lose/gain -->
@@ -3343,7 +3346,7 @@ async function generateWorkout() {
   try {
     const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:900,
-        system:'Du är en personlig tränare som skapar individuella träningspass. ALLTID på svenska. Inga # eller ##.',
+        system:'Du är en personlig tränare. Svara på samma språk som instruktionen är skriven på. Inga # eller ##.',
         messages:[{role:'user',content:
           'Skapa ett INDIVIDUELLT '+workoutDuration+'-minuters träningspass.\n\n'+
           'INSTÄLLNINGAR:\n'+
@@ -3455,6 +3458,7 @@ async function sendChat(){
   typing.innerHTML='<div class="msg-av">🤖</div><div class="msg-bubble" style="opacity:0.5">•••</div>';
   box.appendChild(typing); box.scrollTop=box.scrollHeight;
   const medCtx = getMedicineContext();
+  const dietCtx = getDietaryContext();
   const system = `Du är en vänlig professionell AI-hälsocoach för Vitalis Flow. Svara kort och konkret på svenska (max 4 meningar). ${medCtx ? 'Användarens mediciner: ' + medCtx + ' Ta hänsyn till detta i dina råd.' : ''} Håll en varm men seriös ton.`;
   try {
     const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,system,messages:[{role:'user',content:val}]})});
@@ -3486,33 +3490,46 @@ const i18n = {
     c_nutrition:'Näring idag', pr_protein:'Protein', pr_carbs:'Kolhydrater', pr_fat:'Fett', pr_water:'Vatten',
     c_weight_trend:'Viktutveckling (4 v)', four_weeks_ago:'4 v sedan', today:'Idag',
     c_recent_activity:'Senaste aktiviteter',
-    act1:'Loggade frukost – Havregrynsgröt', act2:'AI-coach: Sömnråd', act3:'Morgonpromenad', act4:'Sömn registrerad',
+    act1:'Loggade frukost', act2:'AI-coach: Sömnråd', act3:'Morgonpromenad', act4:'Sömn registrerad',
     f_eaten:'Ätit idag', f_remaining:'Kvar av mål', f_meals:'Måltider',
     f_log_today:'Matlogg – idag', meal1:'Havregrynsgröt med bär', meal2:'Kycklingsallad', meal3:'Äpple & nötter',
-    food_ph:'Lägg till måltid...', food_add_btn:'+ Lägg till',
+    food_ph:'Skriv måltid manuellt...', food_add_btn:'+ Lägg till',
     f_weekly:'Veckoöversikt – kalorier',
     day_mon:'Mån', day_tue:'Tis', day_wed:'Ons', day_thu:'Tor', day_fri:'Fre', day_sat:'Lör', day_sun:'Sön',
     sl_last:'Senaste natten', sl_avg:'Veckosnitt', sl_score:'Sömnpoäng',
     sl_week:'Sömn senaste 7 nätterna', sl_ideal:'Ideal: 8h', sl_log:'Sömnlogg',
-    sl_entry1:'Sömn: 22:45 – 06:10', sl_entry2:'Sömn: 23:20 – 07:05', sl_entry3:'Sömn: 00:10 – 05:45',
+    sl_entry1:'Sömn: 22:45–06:10', sl_entry2:'Sömn: 23:20–07:05', sl_entry3:'Sömn: 00:10–05:45',
     yesterday:'Igår', two_days:'2 dagar sedan', three_days:'3 dagar sedan',
     ac_steps:'Steg idag', ac_kcal:'Förbrända kcal', ac_hr:'Vilopuls', ac_active:'Aktiva min',
-    ac_log:'Aktivitetslogg', ac1:'Morgonpromenad', ac2:'Styrketräning', ac3:'Cykling', ac4:'Yoga',
-    ac_ph:'Logga aktivitet...', ac_add_btn:'+ Logga',
+    ac_log:'Aktivitetslogg', ac1:'Promenad', ac2:'Styrketräning', ac3:'Cykling', ac4:'Yoga',
+    ac_ph:'Annan aktivitet (t.ex. tennis 45 min)...', ac_add_btn:'+ Logga',
     ai_title:'AI-coach – personliga råd',
-    ai1:'Hej Anna! Baserat på dina data: du sover bra men behöver dricka mer vatten.',
-    ai2:'Ja, vad rekommenderar du?',
-    ai3:'Drick ett glas vid uppvaknande, vid varje måltid och vid 10, 14 och 16. Det ger 1.5L enkelt!',
-    ai_history:'Tidigare råd', aih1:'Vattenintag – drick vid varje måltid', aih2:'Sömnschema', aih3:'Proteinmål',
+    ai_history:'Tidigare råd',
     ai_ph:'Fråga din AI-coach...', ai_send:'Skicka ↑',
     pr_personal:'Personliga uppgifter', label_fname:'Förnamn', label_lname:'Efternamn',
     label_email:'E-post', label_phone:'Telefon',
-    pr_health:'Hälsoprofil', pr_weight:'Vikt', pr_height:'Längd', pr_bmi:'BMI',
-    pr_goal:'Mål', goal_val:'Gå ner 2 kg & förbättra sömn',
+    pr_health:'Hälsoprofil', pr_weight:'Vikt (kg)', pr_height:'Längd (cm)', pr_bmi:'BMI',
+    pr_goal:'Mål',
     up_title:'✦ Wellness Pro – Aktiv', up_sub:'Du har tillgång till alla funktioner.',
     up_btn:'Hantera plan',
     pr_stats:'Din statistik totalt', stat_days:'Aktiva dagar', stat_meals:'Måltider loggade',
     stat_ai:'AI-frågor ställda', stat_weight:'kg sedan start',
+    // Workout
+    workout_title:'Generera träningspass', workout_intensity:'Intensitet', workout_duration:'Tid',
+    workout_location:'Plats', workout_focus:'Fokus (välj flera)', workout_extra:'Berätta mer för AI-tränaren',
+    workout_generate:'Generera mitt träningspass', workout_log:'+ Logga träning', workout_share:'↗ Dela',
+    workout_indoor:'🏠 Inomhus', workout_outdoor:'🌳 Utomhus', workout_gym:'🏋️ Gym',
+    // Food preferences
+    pref_veg:'🥦 Vegetarisk', pref_vegan:'🌱 Vegansk', pref_gluten:'🌾 Glutenfri',
+    pref_lactose:'🥛 Laktosfri', pref_protein:'💪 High protein', pref_halal:'☪️ Halal',
+    // Sleep
+    sleep_quick:'⚡ Snabbval – klicka för att logga', sleep_manual:'Logga manuellt',
+    sleep_log_btn:'+ Logga sömn',
+    // Scan
+    scan_btn:'🔍 Skanna och hitta recept', scan_loading:'AI skannar ditt kylskåp…',
+    // Goal
+    goal_progress:'🎯 Viktmål – progress', goal_daily:'📊 Ditt dagliga behov',
+    weight_reminder:'⚖️ Dags att uppdatera vikten',
   },
   en:{
     nav_main:'Main menu', nav_overview:'Overview', nav_food:'Food log', nav_sleep:'Sleep',
@@ -3524,36 +3541,149 @@ const i18n = {
     c_nutrition:'Nutrition today', pr_protein:'Protein', pr_carbs:'Carbs', pr_fat:'Fat', pr_water:'Water',
     c_weight_trend:'Weight trend (4 wk)', four_weeks_ago:'4 wks ago', today:'Today',
     c_recent_activity:'Recent activity',
-    act1:'Logged breakfast – Oatmeal', act2:'AI coach: Sleep advice', act3:'Morning walk', act4:'Sleep recorded',
+    act1:'Logged breakfast', act2:'AI coach: Sleep advice', act3:'Morning walk', act4:'Sleep recorded',
     f_eaten:'Eaten today', f_remaining:'Remaining', f_meals:'Meals',
     f_log_today:'Food log – today', meal1:'Oatmeal with berries', meal2:'Chicken salad', meal3:'Apple & nuts',
-    food_ph:'Add a meal...', food_add_btn:'+ Add',
+    food_ph:'Add a meal manually...', food_add_btn:'+ Add',
     f_weekly:'Weekly overview – calories',
     day_mon:'Mon', day_tue:'Tue', day_wed:'Wed', day_thu:'Thu', day_fri:'Fri', day_sat:'Sat', day_sun:'Sun',
     sl_last:'Last night', sl_avg:'Weekly avg', sl_score:'Sleep score',
     sl_week:'Sleep last 7 nights', sl_ideal:'Ideal: 8h', sl_log:'Sleep log',
-    sl_entry1:'Sleep: 22:45 – 06:10', sl_entry2:'Sleep: 23:20 – 07:05', sl_entry3:'Sleep: 00:10 – 05:45',
+    sl_entry1:'Sleep: 22:45–06:10', sl_entry2:'Sleep: 23:20–07:05', sl_entry3:'Sleep: 00:10–05:45',
     yesterday:'Yesterday', two_days:'2 days ago', three_days:'3 days ago',
     ac_steps:'Steps today', ac_kcal:'Calories burned', ac_hr:'Resting HR', ac_active:'Active min',
-    ac_log:'Activity log', ac1:'Morning walk', ac2:'Strength training', ac3:'Cycling', ac4:'Yoga',
-    ac_ph:'Log activity...', ac_add_btn:'+ Log',
+    ac_log:'Activity log', ac1:'Walk', ac2:'Strength training', ac3:'Cycling', ac4:'Yoga',
+    ac_ph:'Other activity (e.g. tennis 45 min)...', ac_add_btn:'+ Log',
     ai_title:'AI coach – personal advice',
-    ai1:'Hi Anna! Based on your data: your sleep is good but you need to drink more water.',
-    ai2:'Yes, what do you recommend?',
-    ai3:'Try drinking a glass upon waking, with every meal, and at 10, 14 and 16. That is 1.5L easily!',
-    ai_history:'Previous advice', aih1:'Water intake – drink with every meal', aih2:'Sleep schedule', aih3:'Protein goal',
+    ai_history:'Previous advice',
     ai_ph:'Ask your AI coach...', ai_send:'Send ↑',
     pr_personal:'Personal details', label_fname:'First name', label_lname:'Last name',
     label_email:'Email', label_phone:'Phone',
-    pr_health:'Health profile', pr_weight:'Weight', pr_height:'Height', pr_bmi:'BMI',
-    pr_goal:'Goal', goal_val:'Lose 2 kg & improve sleep',
+    pr_health:'Health profile', pr_weight:'Weight (kg)', pr_height:'Height (cm)', pr_bmi:'BMI',
+    pr_goal:'Goal',
     up_title:'✦ Wellness Pro – Active', up_sub:'You have access to all features.',
     up_btn:'Manage plan',
     pr_stats:'Your total stats', stat_days:'Active days', stat_meals:'Meals logged',
     stat_ai:'AI questions asked', stat_weight:'kg since start',
+    workout_title:'Generate workout', workout_intensity:'Intensity', workout_duration:'Duration',
+    workout_location:'Location', workout_focus:'Focus (select multiple)', workout_extra:'Tell AI trainer more',
+    workout_generate:'Generate my workout', workout_log:'+ Log workout', workout_share:'↗ Share',
+    workout_indoor:'🏠 Indoors', workout_outdoor:'🌳 Outdoors', workout_gym:'🏋️ Gym',
+    pref_veg:'🥦 Vegetarian', pref_vegan:'🌱 Vegan', pref_gluten:'🌾 Gluten-free',
+    pref_lactose:'🥛 Lactose-free', pref_protein:'💪 High protein', pref_halal:'☪️ Halal',
+    sleep_quick:'⚡ Quick select – tap to log', sleep_manual:'Log manually',
+    sleep_log_btn:'+ Log sleep',
+    scan_btn:'🔍 Scan and find recipes', scan_loading:'AI scanning your fridge…',
+    goal_progress:'🎯 Weight goal – progress', goal_daily:'📊 Your daily needs',
+    weight_reminder:'⚖️ Time to update your weight',
+    // New sections
+    fav_title:'⭐ Favourite meals', fav_show:'Show ▼', fav_hide:'Hide ▲',
+    fav_empty:'No favourites yet – tap ⭐ on a meal to save',
+    meal_detail_title:'Meal details', meal_photo_btn:'📸 Photograph your meal',
+    meal_share_btn:'↗ Share meal', meal_fav_btn:'⭐ Save favourite',
+    goal_card_title:'🎯 Weight goal – progress', daily_needs_title:'📊 Your daily needs',
+    activity_gen_title:'🤖 Generate workout', activity_focus:'🎯 Focus (select multiple)',
+    activity_extra_ph:'E.g. "sore left knee", "want to improve push-ups", "trained legs yesterday"…',
+    activity_generate:'🤖 Generate my workout',
+    activity_log_btn:'+ Log workout', activity_share_btn:'↗ Share',
+    see_exercise:'▶ See exercise',
+    // Diet preferences  
+    diet_vegetarian:'🥦 Vegetarian', diet_vegan:'🌱 Vegan', diet_glutenfree:'🌾 Gluten-free',
+    diet_lactosefree:'🥛 Lactose-free', diet_highprotein:'💪 High protein', diet_halal:'☪️ Halal',
+    // Halal specific
+    halal_warning:'HALAL: NEVER use pork, bacon, ham, alcohol or non-halal products.',
+    // Sleep
+    sleep_date_label:'📅 Date', sleep_hours_ph:'Hours (e.g. 7.5)',
+    // Scan fridge
+    fridge_cat1:'🧊 Fridge', fridge_cat2:'❄️ Freezer', fridge_cat3:'🗄️ Pantry',
+    fridge_add_btn:'📷 + Photos', fridge_video:'🎥 Or upload video',
+    fridge_prefs:'Dietary preferences', fridge_scan_btn:'🔍 Scan and find recipes',
+    fridge_no_images:'📷 No images uploaded – photograph your fridge/freezer/pantry',
+    // Week menu
+    week_optional:'📷 Optional – upload what you have at home',
+    week_kcal_label:'Calorie limit/day', week_diet_label:'Diet type', week_exclude_label:'Allergies/avoid',
+    week_gen_btn:'📅 Generate my weekly menu',
+    // Recipes
+    recipe_add_log:'+ Add to food log', recipe_share:'↗ Share recipe',
+    recipe_cook_btn:'📸 I cooked it! – Photograph & share',
+  },
+  ar:{
+    nav_main:'القائمة الرئيسية', nav_overview:'نظرة عامة', nav_food:'سجل الطعام', nav_sleep:'النوم',
+    nav_activity:'النشاط', nav_ai:'مدرب الذكاء الاصطناعي', nav_account:'الحساب',
+    nav_profile:'الملف الشخصي', nav_home:'الصفحة الرئيسية', nav_logout:'تسجيل الخروج',
+    dash_greeting:'صباح الخير،', streak_label:'يوم متواصل',
+    m_kcal:'السعرات اليوم', m_sleep:'نوم الأمس', m_steps:'الخطوات اليوم', m_weight:'الوزن',
+    vs_goal:'مقابل الهدف', vs_avg:'مقابل المتوسط', this_month:'هذا الشهر',
+    c_nutrition:'التغذية اليوم', pr_protein:'البروتين', pr_carbs:'الكربوهيدرات', pr_fat:'الدهون', pr_water:'الماء',
+    c_weight_trend:'تطور الوزن (4 أسابيع)', four_weeks_ago:'منذ 4 أسابيع', today:'اليوم',
+    c_recent_activity:'آخر الأنشطة',
+    act1:'تم تسجيل الإفطار', act2:'نصيحة النوم', act3:'المشي الصباحي', act4:'تم تسجيل النوم',
+    f_eaten:'تم تناوله اليوم', f_remaining:'المتبقي من الهدف', f_meals:'الوجبات',
+    f_log_today:'سجل الطعام – اليوم', meal1:'شوفان مع التوت', meal2:'سلطة الدجاج', meal3:'تفاح ومكسرات',
+    food_ph:'أضف وجبة يدوياً...', food_add_btn:'+ إضافة',
+    f_weekly:'نظرة أسبوعية – السعرات',
+    day_mon:'الإثنين', day_tue:'الثلاثاء', day_wed:'الأربعاء', day_thu:'الخميس', day_fri:'الجمعة', day_sat:'السبت', day_sun:'الأحد',
+    sl_last:'الليلة الماضية', sl_avg:'متوسط الأسبوع', sl_score:'نقاط النوم',
+    sl_week:'النوم خلال 7 ليالٍ', sl_ideal:'مثالي: 8 ساعات', sl_log:'سجل النوم',
+    sl_entry1:'نوم: 22:45–06:10', sl_entry2:'نوم: 23:20–07:05', sl_entry3:'نوم: 00:10–05:45',
+    yesterday:'أمس', two_days:'منذ يومين', three_days:'منذ 3 أيام',
+    ac_steps:'الخطوات اليوم', ac_kcal:'السعرات المحروقة', ac_hr:'النبض في الراحة', ac_active:'دقائق نشطة',
+    ac_log:'سجل النشاط', ac1:'المشي', ac2:'تدريب القوة', ac3:'ركوب الدراجة', ac4:'يوغا',
+    ac_ph:'نشاط آخر (مثل: تنس 45 دقيقة)...', ac_add_btn:'+ تسجيل',
+    ai_title:'مدرب الذكاء الاصطناعي – نصائح شخصية',
+    ai_history:'النصائح السابقة',
+    ai_ph:'اسأل مدربك...', ai_send:'إرسال ↑',
+    pr_personal:'البيانات الشخصية', label_fname:'الاسم الأول', label_lname:'اسم العائلة',
+    label_email:'البريد الإلكتروني', label_phone:'الهاتف',
+    pr_health:'الملف الصحي', pr_weight:'الوزن (كغ)', pr_height:'الطول (سم)', pr_bmi:'مؤشر كتلة الجسم',
+    pr_goal:'الهدف',
+    up_title:'✦ ويلنس برو – نشط', up_sub:'يمكنك الوصول إلى جميع الميزات.',
+    up_btn:'إدارة الخطة',
+    pr_stats:'إحصائياتك الكاملة', stat_days:'أيام نشطة', stat_meals:'وجبات مسجلة',
+    stat_ai:'أسئلة الذكاء الاصطناعي', stat_weight:'كغ منذ البداية',
+    workout_title:'توليد برنامج تدريبي', workout_intensity:'الشدة', workout_duration:'المدة',
+    workout_location:'المكان', workout_focus:'التركيز (اختر أكثر من واحد)', workout_extra:'أخبر المدرب أكثر',
+    workout_generate:'توليد برنامجي التدريبي', workout_log:'+ تسجيل التدريب', workout_share:'↗ مشاركة',
+    workout_indoor:'🏠 داخلي', workout_outdoor:'🌳 خارجي', workout_gym:'🏋️ صالة رياضية',
+    pref_veg:'🥦 نباتي', pref_vegan:'🌱 نباتي صارم', pref_gluten:'🌾 خالٍ من الغلوتين',
+    pref_lactose:'🥛 خالٍ من اللاكتوز', pref_protein:'💪 بروتين عالٍ', pref_halal:'☪️ حلال',
+    sleep_quick:'⚡ اختيار سريع', sleep_manual:'تسجيل يدوي',
+    sleep_log_btn:'+ تسجيل النوم',
+    scan_btn:'🔍 مسح وإيجاد وصفات', scan_loading:'الذكاء الاصطناعي يمسح ثلاجتك…',
+    goal_progress:'🎯 هدف الوزن – التقدم', goal_daily:'📊 احتياجاتك اليومية',
+    weight_reminder:'⚖️ حان وقت تحديث وزنك',
+    // New sections
+    fav_title:'⭐ الوجبات المفضلة', fav_show:'عرض ▼', fav_hide:'إخفاء ▲',
+    fav_empty:'لا توجد مفضلات بعد – اضغط ⭐ على وجبة لحفظها',
+    meal_detail_title:'تفاصيل الوجبة', meal_photo_btn:'📸 صوّر طبقك',
+    meal_share_btn:'↗ مشاركة الوجبة', meal_fav_btn:'⭐ حفظ كمفضل',
+    goal_card_title:'🎯 هدف الوزن – التقدم', daily_needs_title:'📊 احتياجاتك اليومية',
+    activity_gen_title:'🤖 توليد برنامج تدريبي', activity_focus:'🎯 التركيز (اختر أكثر من واحد)',
+    activity_extra_ph:'مثل: ألم في الركبة اليسرى، أريد تحسين تمرين الضغط، تدربت على الساقين أمس…',
+    activity_generate:'🤖 توليد برنامجي التدريبي',
+    activity_log_btn:'+ تسجيل التدريب', activity_share_btn:'↗ مشاركة',
+    see_exercise:'▶ شاهد التمرين',
+    // Diet preferences
+    diet_vegetarian:'🥦 نباتي', diet_vegan:'🌱 نباتي صارم', diet_glutenfree:'🌾 خالٍ من الغلوتين',
+    diet_lactosefree:'🥛 خالٍ من اللاكتوز', diet_highprotein:'💪 بروتين عالٍ', diet_halal:'☪️ حلال',
+    // Halal - critical
+    halal_warning:'حلال: لا تستخدم أبداً لحم الخنزير أو الكحول أو المنتجات غير الحلال.',
+    // Sleep
+    sleep_date_label:'📅 التاريخ', sleep_hours_ph:'الساعات (مثل: 7.5)',
+    // Scan fridge
+    fridge_cat1:'🧊 الثلاجة', fridge_cat2:'❄️ الفريزر', fridge_cat3:'🗄️ المؤونة',
+    fridge_add_btn:'📷 + صور', fridge_video:'🎥 أو رفع فيديو',
+    fridge_prefs:'التفضيلات الغذائية', fridge_scan_btn:'🔍 مسح وإيجاد وصفات',
+    fridge_no_images:'📷 لا توجد صور – صوّر ثلاجتك أو فريزرك أو مؤونتك',
+    // Week menu
+    week_optional:'📷 اختياري – ارفع ما لديك في المنزل',
+    week_kcal_label:'حد السعرات/يوم', week_diet_label:'نوع النظام الغذائي', week_exclude_label:'الحساسية/تجنب',
+    week_gen_btn:'📅 توليد قائمتي الأسبوعية',
+    // Recipes
+    recipe_add_log:'+ إضافة إلى سجل الطعام', recipe_share:'↗ مشاركة الوصفة',
+    recipe_cook_btn:'📸 لقد طبخته! – صوّر وشارك',
   },
 };
-i18n.ar = {...i18n.sv}; // fallback
 
 let currentLang='sv';
 function setLang(lang){
@@ -3900,6 +4030,15 @@ function selectMedicine(name, dose, type) {
 
 function onMedInput(val) {
   if (!val) document.getElementById('med-search-results').style.display = 'none';
+}
+
+function getDietaryContext() {
+  const profile = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
+  const contexts = [];
+  if (profile.goal === 'halal') contexts.push('Användaren följer HALAL-kost: ALDRIG griskött, fläsk, alkohol eller icke-halal-produkter.');
+  if (profile.goal === 'lose') contexts.push('Mål: gå ner i vikt.');
+  if (profile.goal === 'gain') contexts.push('Mål: bygga muskler och gå upp i vikt.');
+  return contexts.join(' ');
 }
 
 function getMedicineContext() {
@@ -4427,11 +4566,13 @@ const FORBIDDEN = {
   laktosfri: ['mjölk','grädde','smör','ost','yoghurt','kvarg','créme fraiche','fil','kesella','ricotta','mozzarella','parmesan','feta','crème','skyr','glass','laktos','mejeriprodukter','mejeri'],
   vegetarisk: ['kött','nötkött','fläsk','fläskfilé','bacon','skinka','korv','lammkött','kalvkött','kyckling','kycklingfilé','kalkon','fisk','lax','torsk','räkor','skaldjur','tonfisk','makrill','sardiner'],
   vegansk:    ['mjölk','grädde','smör','ost','ägg','honung','yoghurt','kvarg','kött','kyckling','fisk','räkor','skaldjur','bacon','skinka','gelatin','mejeriprodukter'],
-  glutenfri:  ['vetemjöl','vete','råg','korn','spelt','pasta','makaroner','spaghetti','penne','bröd','rostat bröd','knäcke','bulgur','couscous','semolina','rågmjöl']
+  glutenfri:  ['vetemjöl','vete','råg','korn','spelt','pasta','makaroner','spaghetti','penne','bröd','rostat bröd','knäcke','bulgur','couscous','semolina','rågmjöl'],
+  halal:      ['fläsk','griskött','bacon','skinka','fläskfilé','fläskkorv','prosciutto','pancetta','lardo','chorizo','salami','pepperoni','speck','blodkorv','alkohol','vin','öl','sprit','gelatin','svin']
 };
 
 function validateDietaryCompliance(data, activePrefs) {
   const forbidden = [];
+  if (activePrefs.some(p => p.includes('Halal') || p.includes('halal'))) forbidden.push(...FORBIDDEN.halal);
   if (activePrefs.some(p => p.includes('Laktosfri'))) forbidden.push(...FORBIDDEN.laktosfri);
   if (activePrefs.some(p => p.includes('Vegetarisk'))) forbidden.push(...FORBIDDEN.vegetarisk);
   if (activePrefs.some(p => p.includes('Vegansk'))) { forbidden.push(...FORBIDDEN.vegansk); forbidden.push(...FORBIDDEN.vegetarisk); }
@@ -4650,6 +4791,7 @@ async function scanFridge() {
   const prefs = activePrefBtns.map(b => b.textContent.trim());
   
   const dietRules = [];
+  if (prefs.some(p => p.includes('Halal') || p.includes('halal'))) dietRules.push('HALAL: Använd ALDRIG griskött, fläsk, bacon, skinka, fläskfilé, blodkorv, salami, pepperoni, chorizo, gelatin från svin, alkohol eller produkter som innehåller alkohol. Använd ENBART halal-certifierat kött (nötkött, kyckling, lamm). Detta är ett religiöst krav – kontrollera VARJE ingrediens.');
   if (prefs.some(p => p.includes('Laktosfri'))) dietRules.push('LAKTOSFRI: Använd ALDRIG mjölk, grädde, smör, ost, yoghurt, kvarg eller andra mejeriprodukter. Ersätt med havremjölk, kokosmjölk, olivolja eller växtbaserade alternativ.');
   if (prefs.some(p => p.includes('Vegetarisk'))) dietRules.push('VEGETARISK: Använd ALDRIG kött, fisk, kyckling eller skaldjur.');
   if (prefs.some(p => p.includes('Vegansk'))) dietRules.push('VEGANSK: Använd ALDRIG kött, fisk, mejeriprodukter, ägg eller honung.');
@@ -4831,6 +4973,7 @@ async function generateWeekMenu() {
   if (diet.includes('Vegetarisk') || diet.includes('Vegansk')) dietRules.push('VEGETARISK: Använd ALDRIG kött, fisk, kyckling eller skaldjur.');
   if (diet.includes('Vegansk')) dietRules.push('VEGANSK: Använd ALDRIG ägg, honung eller djurprodukter.');
   if (diet.includes('Glutenfri')) dietRules.push('GLUTENFRI: Använd ALDRIG vete, råg, korn, vanligt bröd eller pasta.');
+  if (diet.includes('Halal')) dietRules.push('HALAL: Använd ALDRIG griskött, fläsk, bacon, skinka, fläskfilé, salami, pepperoni, chorizo, gelatin från svin eller alkohol. Använd ENBART halal-certifierat kött (nötkött, kyckling, lamm). Detta är ett ABSOLUT krav – kontrollera varje ingrediens noggrant.');
   if (diet.includes('High protein')) dietRules.push('HIGH PROTEIN: Varje måltid ska ha minst 25g protein.');
   if (excl) dietRules.push(`UNDVIK ALLTID: ${excl}`);
   const rules = dietRules.length > 0 ? `\n\nSTRIKTA KOSTREGLER – kontrollera VARJE ingrediens:\n${dietRules.join('\n')}` : '';
@@ -4965,7 +5108,7 @@ function quickSuggest(prompt) {
   typing.innerHTML='<div class="msg-av">🍽️</div><div class="msg-bubble">•••</div>';
   chat.appendChild(typing);
   chat.scrollTop=chat.scrollHeight;
-  fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:'Du är en vänlig matcoach för Vitalis Flow. Ge konkreta enkla matförslag med ingredienser och enkel tillagning. Håll svaren korta och inspirerande. Svara på svenska. Använd INTE # eller ## – skriv ren text med emojis.',messages:[{role:'user',content:prompt}]})})
+  fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:'Du är en vänlig matcoach för Vitalis Flow. Ge konkreta enkla matförslag. Svara på samma språk som användaren skriver på (svenska, engelska eller arabiska). Inga # eller ##.',messages:[{role:'user',content:prompt}]})})
   .then(r=>r.json()).then(data=>{
     typing.remove();
     const aiMsg=document.createElement('div');

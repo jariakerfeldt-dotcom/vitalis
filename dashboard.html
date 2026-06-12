@@ -3138,14 +3138,15 @@ function shareGeneratedWorkout() {
 
 // ── EXERCISE GIF SYSTEM ──
 const EXERCISE_DB = {
-  // Map Swedish exercise keywords to ExerciseDB/wger names
-  'knäböj': 'squat', 'squat': 'squat',
+  // ── SVENSKA ──
+  'knäböj': 'squat', 'squats': 'squat',
   'push-up': 'push-up', 'armhävning': 'push-up', 'armhävningar': 'push-up',
   'plankan': 'plank', 'plank': 'plank',
   'utfall': 'lunge', 'lunges': 'lunge',
   'situps': 'sit-up', 'sit-up': 'sit-up', 'sit-ups': 'sit-up',
   'burpee': 'burpee', 'burpees': 'burpee',
   'mountain climber': 'mountain-climber', 'mountain climbers': 'mountain-climber',
+  'bergklättrare': 'mountain-climber',
   'jumping jack': 'jumping-jack', 'jumping jacks': 'jumping-jack',
   'höga knän': 'high-knees', 'hopp': 'jumping-jack',
   'rygglyft': 'back-extension', 'marklyft': 'deadlift',
@@ -3156,6 +3157,47 @@ const EXERCISE_DB = {
   'sidoplanka': 'side-plank', 'sidoplankan': 'side-plank',
   'glute bridge': 'glute-bridge', 'höftlyft': 'glute-bridge',
   'russian twist': 'russian-twist',
+  'stol-squat': 'squat', 'väggarmhävning': 'push-up',
+  'enbensstående': 'single-leg-stand', 'roddning': 'bent-over-row',
+
+  // ── ENGLISH ──
+  'squat': 'squat', 'squats': 'squat',
+  'pushup': 'push-up', 'push up': 'push-up', 'push ups': 'push-up',
+  'plank': 'plank', 'side plank': 'side-plank',
+  'lunge': 'lunge', 'lunges': 'lunge', 'reverse lunge': 'lunge',
+  'sit up': 'sit-up', 'crunch': 'sit-up', 'crunches': 'sit-up',
+  'burpee': 'burpee', 'burpees': 'burpee',
+  'deadlift': 'deadlift', 'deadlifts': 'deadlift',
+  'row': 'bent-over-row', 'bent over row': 'bent-over-row',
+  'shoulder press': 'shoulder-press', 'overhead press': 'shoulder-press',
+  'bicep curl': 'bicep-curl', 'bicep curls': 'bicep-curl',
+  'tricep dip': 'tricep-dip', 'tricep extension': 'tricep-dip',
+  'pull up': 'pull-up', 'pull ups': 'pull-up', 'chin up': 'pull-up',
+  'calf raise': 'calf-raise', 'calf raises': 'calf-raise',
+  'glute bridge': 'glute-bridge', 'hip thrust': 'glute-bridge',
+  'russian twist': 'russian-twist',
+  'high knees': 'high-knees', 'jump': 'jumping-jack',
+  'leg raise': 'leg-raise', 'leg raises': 'leg-raise',
+  'back extension': 'back-extension',
+  'step up': 'lunge', 'step ups': 'lunge',
+  'wall sit': 'squat', 'box jump': 'burpee',
+
+  // ── ARABIC / عربية ──
+  'قرفصاء': 'squat', 'سكوات': 'squat',
+  'ضغط': 'push-up', 'تمرين الضغط': 'push-up',
+  'بلانك': 'plank', 'لوح': 'plank',
+  'طعنة': 'lunge', 'لانج': 'lunge',
+  'جلوس': 'sit-up', 'انبثاق': 'sit-up',
+  'بيربي': 'burpee', 'تمرين بيربي': 'burpee',
+  'رفع الساقين': 'leg-raise',
+  'تمرين المتسلق': 'mountain-climber',
+  'الميت ليفت': 'deadlift', 'رفع الأثقال': 'deadlift',
+  'تجعيد العضلة': 'bicep-curl', 'بايسبس': 'bicep-curl',
+  'عقلة': 'pull-up', 'سحب للأعلى': 'pull-up',
+  'رفع الكعب': 'calf-raise',
+  'جسر الأرداف': 'glute-bridge',
+  'لي روسي': 'russian-twist',
+  'ضغط الكتف': 'shoulder-press',
 };
 
 // Wger exercise database - maps to their open exercise IDs
@@ -3164,6 +3206,9 @@ const WGER_EXERCISES = {
   'sit-up': 42, 'burpee': 364, 'deadlift': 29, 'pull-up': 31,
   'shoulder-press': 78, 'bicep-curl': 13, 'calf-raise': 117,
   'glute-bridge': 291, 'side-plank': 344, 'russian-twist': 390,
+  'bent-over-row': 65, 'tricep-dip': 24, 'leg-raise': 226,
+  'back-extension': 114, 'high-knees': 364, 'mountain-climber': 364,
+  'jumping-jack': 364, 'single-leg-stand': 151,
 };
 
 function getExerciseGifUrl(exerciseName) {

@@ -1035,64 +1035,74 @@ select option:checked {
 
       <!-- AI WORKOUT GENERATOR -->
       <div class="card" style="margin-bottom:16px;position:relative;overflow:hidden">
-        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
           <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--soft-white)">🤖 Generera träningspass</div>
-          <span style="font-size:0.68rem;padding:2px 8px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:100px;color:var(--lime)">AI-anpassat</span>
+          <span style="font-size:0.68rem;padding:2px 8px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:100px;color:var(--gold)">AI-anpassat</span>
         </div>
-        <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:16px;line-height:1.6">AI skapar ett träningspass anpassat efter din ålder, vikt och mål från profilen.</div>
+        <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:14px">Välj snabbt eller berätta mer – AI anpassar passet efter dig.</div>
 
-        <!-- Intensity -->
-        <div style="margin-bottom:14px">
-          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">💪 Intensitet</div>
-          <div style="display:flex;gap:8px">
-            <button onclick="setWorkoutParam(this,'intensity','Lätt')" class="workout-param-btn" data-group="intensity"
-              style="flex:1;padding:10px;background:rgba(126,200,80,0.06);border:1.5px solid rgba(126,200,80,0.2);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s;text-align:center">
-              💚<div style="font-size:0.72rem;margin-top:3px">Lätt</div>
-            </button>
-            <button onclick="setWorkoutParam(this,'intensity','Måttlig')" class="workout-param-btn active" data-group="intensity"
-              style="flex:1;padding:10px;background:rgba(201,168,76,0.12);border:1.5px solid rgba(201,168,76,0.4);border-radius:12px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s;text-align:center">
-              🟡<div style="font-size:0.72rem;margin-top:3px;font-weight:600">Måttlig</div>
-            </button>
-            <button onclick="setWorkoutParam(this,'intensity','Intensiv')" class="workout-param-btn" data-group="intensity"
-              style="flex:1;padding:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s;text-align:center">
-              🔴<div style="font-size:0.72rem;margin-top:3px">Intensiv</div>
-            </button>
+        <!-- ROW 1: Intensity + Duration -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">💪 Intensitet</div>
+            <div style="display:flex;gap:5px">
+              <button onclick="setWorkoutParam(this,'intensity','Lätt')" class="workout-param-btn" data-group="intensity"
+                style="flex:1;padding:8px 4px;background:rgba(126,200,80,0.06);border:1.5px solid rgba(126,200,80,0.2);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.72rem;cursor:pointer;transition:all 0.2s;text-align:center">💚<br>Lätt</button>
+              <button onclick="setWorkoutParam(this,'intensity','Måttlig')" class="workout-param-btn active" data-group="intensity"
+                style="flex:1;padding:8px 4px;background:rgba(201,168,76,0.15);border:1.5px solid rgba(201,168,76,0.4);border-radius:10px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:0.72rem;cursor:pointer;transition:all 0.2s;text-align:center;font-weight:600">🟡<br>Måttlig</button>
+              <button onclick="setWorkoutParam(this,'intensity','Intensiv')" class="workout-param-btn" data-group="intensity"
+                style="flex:1;padding:8px 4px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.72rem;cursor:pointer;transition:all 0.2s;text-align:center">🔴<br>Intensiv</button>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">⏱ Tid</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+              <button onclick="setWorkoutParam(this,'duration','15')" class="workout-param-btn" data-group="duration"
+                style="padding:8px 4px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.72rem;cursor:pointer;transition:all 0.2s">15 min</button>
+              <button onclick="setWorkoutParam(this,'duration','30')" class="workout-param-btn active" data-group="duration"
+                style="padding:8px 4px;background:rgba(126,200,80,0.1);border:1.5px solid rgba(126,200,80,0.35);border-radius:10px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.72rem;cursor:pointer;transition:all 0.2s;font-weight:600">30 min</button>
+              <button onclick="setWorkoutParam(this,'duration','45')" class="workout-param-btn" data-group="duration"
+                style="padding:8px 4px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.72rem;cursor:pointer;transition:all 0.2s">45 min</button>
+              <button onclick="setWorkoutParam(this,'duration','60')" class="workout-param-btn" data-group="duration"
+                style="padding:8px 4px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.72rem;cursor:pointer;transition:all 0.2s">60 min</button>
+            </div>
           </div>
         </div>
 
-        <!-- Duration -->
-        <div style="margin-bottom:14px">
-          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⏱ Tid</div>
+        <!-- ROW 2: Location -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">📍 Plats</div>
           <div style="display:flex;gap:6px">
-            <button onclick="setWorkoutParam(this,'duration','15 min')" class="workout-param-btn" data-group="duration"
-              style="flex:1;padding:9px 6px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;text-align:center">15 min</button>
-            <button onclick="setWorkoutParam(this,'duration','30 min')" class="workout-param-btn active" data-group="duration"
-              style="flex:1;padding:9px 6px;background:rgba(126,200,80,0.1);border:1.5px solid rgba(126,200,80,0.35);border-radius:10px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;text-align:center;font-weight:600">30 min</button>
-            <button onclick="setWorkoutParam(this,'duration','45 min')" class="workout-param-btn" data-group="duration"
-              style="flex:1;padding:9px 6px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;text-align:center">45 min</button>
-            <button onclick="setWorkoutParam(this,'duration','60 min')" class="workout-param-btn" data-group="duration"
-              style="flex:1;padding:9px 6px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;transition:all 0.2s;text-align:center">60 min</button>
+            <button onclick="setWorkoutParam(this,'location','Inomhus')" class="workout-param-btn active" data-group="location"
+              style="flex:1;padding:9px;background:rgba(126,200,80,0.1);border:1.5px solid rgba(126,200,80,0.35);border-radius:10px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s;font-weight:600">🏠 Inomhus</button>
+            <button onclick="setWorkoutParam(this,'location','Utomhus')" class="workout-param-btn" data-group="location"
+              style="flex:1;padding:9px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s">🌳 Utomhus</button>
+            <button onclick="setWorkoutParam(this,'location','Gym')" class="workout-param-btn" data-group="location"
+              style="flex:1;padding:9px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s">🏋️ Gym</button>
           </div>
         </div>
 
-        <!-- Location -->
-        <div style="margin-bottom:16px">
-          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">📍 Plats</div>
-          <div style="display:flex;gap:8px">
-            <button onclick="setWorkoutParam(this,'location','Inomhus')" class="workout-param-btn active" data-group="location"
-              style="flex:1;padding:10px;background:rgba(126,200,80,0.1);border:1.5px solid rgba(126,200,80,0.35);border-radius:12px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s;font-weight:600">
-              🏠 Inomhus
-            </button>
-            <button onclick="setWorkoutParam(this,'location','Utomhus')" class="workout-param-btn" data-group="location"
-              style="flex:1;padding:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s">
-              🌳 Utomhus
-            </button>
-            <button onclick="setWorkoutParam(this,'location','Gym')" class="workout-param-btn" data-group="location"
-              style="flex:1;padding:10px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;transition:all 0.2s">
-              🏋️ Gym
-            </button>
+        <!-- ROW 3: Body focus (multi-select) -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">🎯 Fokus (välj flera)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px">
+            <button onclick="toggleWorkoutFocus(this,'Överkropp')" class="workout-focus-btn" style="padding:6px 11px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.74rem;cursor:pointer;transition:all 0.2s">💪 Överkropp</button>
+            <button onclick="toggleWorkoutFocus(this,'Underkropp')" class="workout-focus-btn" style="padding:6px 11px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.74rem;cursor:pointer;transition:all 0.2s">🦵 Underkropp</button>
+            <button onclick="toggleWorkoutFocus(this,'Core')" class="workout-focus-btn" style="padding:6px 11px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.74rem;cursor:pointer;transition:all 0.2s">🎯 Core</button>
+            <button onclick="toggleWorkoutFocus(this,'Helkropp')" class="workout-focus-btn active-focus" style="padding:6px 11px;background:rgba(126,200,80,0.12);border:1px solid rgba(126,200,80,0.4);border-radius:100px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.74rem;cursor:pointer;transition:all 0.2s;font-weight:600">🔄 Helkropp</button>
+            <button onclick="toggleWorkoutFocus(this,'Balans')" class="workout-focus-btn" style="padding:6px 11px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.74rem;cursor:pointer;transition:all 0.2s">⚖️ Balans</button>
+            <button onclick="toggleWorkoutFocus(this,'Flexibilitet')" class="workout-focus-btn" style="padding:6px 11px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.74rem;cursor:pointer;transition:all 0.2s">🧘 Flexibilitet</button>
+            <button onclick="toggleWorkoutFocus(this,'Kondition')" class="workout-focus-btn" style="padding:6px 11px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.74rem;cursor:pointer;transition:all 0.2s">🏃 Kondition</button>
           </div>
+        </div>
+
+        <!-- ROW 4: Extra info (optional) -->
+        <div style="margin-bottom:14px">
+          <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">💬 Berätta mer för AI-tränaren <span style="color:rgba(138,171,150,0.5);font-style:italic;text-transform:none">(valfritt)</span></div>
+          <textarea id="workout-extra-info" placeholder="T.ex. 'ont i vänster knä', 'vill bli bättre på push-ups', 'tränade ben igår', 'är trött idag'…"
+            style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none;resize:none;height:72px;line-height:1.5;transition:border-color 0.2s"
+            onfocus="this.style.borderColor='rgba(126,200,80,0.4)'" onblur="this.style.borderColor='var(--border)'"></textarea>
         </div>
 
         <!-- Generate button -->
@@ -1112,14 +1122,17 @@ select option:checked {
           <div id="workout-gen-status" style="font-size:0.82rem;color:var(--lime)">🤖 AI skapar ditt träningspass…</div>
         </div>
 
-        <!-- Workout Result -->
+        <!-- Result -->
         <div id="workout-gen-result" style="display:none;margin-top:14px;background:rgba(126,200,80,0.04);border:1px solid rgba(126,200,80,0.2);border-radius:14px;padding:16px;position:relative">
           <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);border-radius:14px 14px 0 0"></div>
-          <div style="font-size:0.7rem;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px">✅ Ditt träningspass</div>
-          <div id="workout-gen-content" style="font-size:0.85rem;color:var(--cream);line-height:1.9"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:0.7rem;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase">✅ Ditt träningspass</div>
+            <div id="workout-gen-kcal" style="font-size:0.78rem;color:var(--gold);font-weight:600"></div>
+          </div>
+          <div id="workout-gen-content" style="font-size:0.84rem;color:var(--cream);line-height:1.9"></div>
           <div style="display:flex;gap:8px;margin-top:14px">
-            <button onclick="logGeneratedWorkout()" style="flex:1;padding:11px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:700;cursor:pointer">+ Logga träning</button>
-            <button onclick="shareGeneratedWorkout()" style="flex:1;padding:11px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.86rem;cursor:pointer">↗ Dela</button>
+            <button onclick="logGeneratedWorkout()" style="flex:1;padding:11px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer">+ Logga träning</button>
+            <button onclick="shareGeneratedWorkout()" style="flex:1;padding:11px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;cursor:pointer">↗ Dela</button>
             <button onclick="document.getElementById('workout-gen-result').style.display='none'" style="padding:11px 14px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);cursor:pointer">✕</button>
           </div>
         </div>
@@ -3065,6 +3078,27 @@ function setWorkoutParam(btn, group, val) {
   }
 }
 
+let workoutFocus = ['Helkropp'];
+
+function toggleWorkoutFocus(btn, val) {
+  const idx = workoutFocus.indexOf(val);
+  if (idx === -1) {
+    workoutFocus.push(val);
+    btn.style.background='rgba(126,200,80,0.12)'; btn.style.borderColor='rgba(126,200,80,0.4)'; btn.style.color='var(--lime)'; btn.style.fontWeight='600';
+    btn.classList.add('active-focus');
+  } else {
+    workoutFocus.splice(idx, 1);
+    btn.style.background='rgba(255,255,255,0.04)'; btn.style.borderColor='var(--border)'; btn.style.color='var(--text-dim)'; btn.style.fontWeight='400';
+    btn.classList.remove('active-focus');
+  }
+  if (workoutFocus.length === 0) {
+    workoutFocus = ['Helkropp'];
+    document.querySelectorAll('.workout-focus-btn').forEach(b => {
+      if (b.textContent.includes('Helkropp')) { b.style.background='rgba(126,200,80,0.12)'; b.style.borderColor='rgba(126,200,80,0.4)'; b.style.color='var(--lime)'; b.style.fontWeight='600'; }
+    });
+  }
+}
+
 function logGeneratedWorkout() {
   const w = window._lastWorkout; if (!w) return;
   quickAddActivity('🏋️ ' + w.location + ' – ' + w.intensity + ' ' + w.duration + ' min', w.duration, w.kcal);
@@ -3072,39 +3106,51 @@ function logGeneratedWorkout() {
   showToast('💪 Träningspass loggat! ~' + w.kcal + ' kcal 🔥');
 }
 
-
 async function generateWorkout() {
   const profile = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
+  const extraInfo = document.getElementById('workout-extra-info')?.value?.trim() || '';
+
   document.getElementById('workout-gen-loading').style.display='block';
   document.getElementById('workout-gen-result').style.display='none';
+
   const statusEl = document.getElementById('workout-gen-status');
-  const steps = ['🤖 AI analyserar din profil…','💪 Anpassar övningar efter ditt mål…','⏱ Sätter ihop passet…','✅ Träningspass klart!'];
+  const focusStr = workoutFocus.join(', ');
+  const steps = ['🤖 Läser din profil…','🎯 Anpassar för '+focusStr+'…','⏱ Sätter ihop '+workoutDuration+' min pass…','✅ Träningspass klart!'];
   let step = 0;
   const iv = setInterval(() => { if(step<steps.length-1){step++;if(statusEl)statusEl.textContent=steps[step];}}, 1200);
+
   const kcalMap = {Lätt:{15:80,30:150,45:220,60:290},Måttlig:{15:120,30:230,45:340,60:450},Intensiv:{15:160,30:310,45:460,60:620}};
-  const estKcal = kcalMap[workoutIntensity]?.[workoutDuration]||300;
-  const profileCtx = [profile.fname?'Namn: '+profile.fname:'', profile.age?'Ålder: '+profile.age+' år':'', profile.weight?'Vikt: '+profile.weight+' kg':'', profile.height?'Längd: '+profile.height+' cm':'', profile.goal?'Mål: '+profile.goal:''].filter(Boolean).join('. ');
+  const estKcal = kcalMap[workoutIntensity]?.[workoutDuration] || 300;
+  const age = profile.birthyear ? new Date().getFullYear() - parseInt(profile.birthyear) : null;
+  const profileCtx = [
+    profile.fname ? 'Namn: '+profile.fname : '',
+    age ? 'Ålder: '+age+' år' : '',
+    profile.weight ? 'Vikt: '+profile.weight+' kg' : '',
+    profile.height ? 'Längd: '+profile.height+' cm' : '',
+    profile.goal ? 'Mål: '+profile.goal : ''
+  ].filter(Boolean).join('. ');
+  const extraStr = extraInfo ? '\n\nVIKTIGT från användaren: "'+extraInfo+'" – ta hänsyn till detta.' : '';
+
   try {
     const resp = await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:800,
-        system:'Du är en personlig tränare. Skapa träningspass på svenska. Inga # eller ## – använd emojis och radbrytningar.',
-        messages:[{role:'user',content:`Skapa ett ${workoutDuration}-minuters ${workoutIntensity.toLowerCase()} träningspass för ${workoutLocation.toLowerCase()}.
-${profileCtx?'Profil: '+profileCtx:''}
-
-Format:
-🎯 Mål: [vad passet tränar]
-
-⚡ Uppvärmning (5 min):
-- Övning 1
-
-💪 Huvudpass (${workoutDuration-10} min):
-- Övning + set/reps
-
-🧘 Nedvarvning (5 min):
-- Stretching
-
-🔥 ~${estKcal} kcal
-💡 Tips: [personligt tips]`}]})});
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:900,
+        system:'Du är en personlig tränare som skapar individuella träningspass. ALLTID på svenska. Inga # eller ##.',
+        messages:[{role:'user',content:
+          'Skapa ett INDIVIDUELLT '+workoutDuration+'-minuters träningspass.\n\n'+
+          'INSTÄLLNINGAR:\n'+
+          '- Intensitet: '+workoutIntensity+'\n'+
+          '- Plats: '+workoutLocation+'\n'+
+          '- Fokus: '+focusStr+'\n'+
+          (profileCtx?'- Profil: '+profileCtx+'\n':'')+
+          extraStr+'\n\n'+
+          'FORMAT:\n'+
+          '🎯 Dagens fokus: [förklara varför dessa övningar passar just denna person]\n\n'+
+          '⚡ Uppvärmning (5 min):\n- [2-3 övningar]\n\n'+
+          '💪 Huvudpass ('+(workoutDuration-10)+' min):\n- [4-6 övningar med set/reps/tid]\n\n'+
+          '🧘 Nedvarvning (5 min):\n- [stretching för tränade muskler]\n\n'+
+          '🔥 ~'+estKcal+' kcal\n'+
+          '💡 Personligt tips: [specifikt råd baserat på det användaren berättat]'
+        }]})});
     const data = await resp.json();
     clearInterval(iv);
     if(statusEl)statusEl.textContent='✅ Träningspass klart!';
@@ -3112,14 +3158,14 @@ Format:
     document.getElementById('workout-gen-content').innerHTML=text.replace(/\n/g,'<br>');
     document.getElementById('workout-gen-kcal').textContent='🔥 ~'+estKcal+' kcal';
     document.getElementById('workout-gen-result').style.display='block';
-    window._lastWorkout={text,kcal:estKcal,duration:workoutDuration,intensity:workoutIntensity,location:workoutLocation};
+    window._lastWorkout={text,kcal:estKcal,duration:workoutDuration,intensity:workoutIntensity,location:workoutLocation,focus:focusStr};
   } catch(e) {
     clearInterval(iv);
-    const fb=`🎯 Mål: Helkropp\n\n⚡ Uppvärmning (5 min):\n- Hopp på stället 60 sek\n- Höga knän 60 sek\n\n💪 Huvudpass:\n- Knäböj 3×15\n- Push-ups 3×12\n- Utfall 3×10/ben\n- Plankan 3×30 sek\n\n🧘 Nedvarvning:\n- Quad-stretch 30 sek/ben\n\n🔥 ~${estKcal} kcal`;
+    const fb='🎯 Fokus: '+focusStr+'\n\n⚡ Uppvärmning (5 min):\n- Hopp på stället 60 sek\n- Höga knän 60 sek\n\n💪 Huvudpass:\n- Knäböj 3×15\n- Push-ups 3×10\n- Plankan 3×30 sek\n\n🧘 Nedvarvning:\n- Stretcha 30 sek/muskel\n\n🔥 ~'+estKcal+' kcal';
     document.getElementById('workout-gen-content').innerHTML=fb.replace(/\n/g,'<br>');
     document.getElementById('workout-gen-kcal').textContent='🔥 ~'+estKcal+' kcal';
     document.getElementById('workout-gen-result').style.display='block';
-    window._lastWorkout={text:fb,kcal:estKcal,duration:workoutDuration,intensity:workoutIntensity,location:workoutLocation};
+    window._lastWorkout={text:fb,kcal:estKcal,duration:workoutDuration,intensity:workoutIntensity,location:workoutLocation,focus:focusStr};
   }
   document.getElementById('workout-gen-loading').style.display='none';
 }

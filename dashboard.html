@@ -3307,61 +3307,92 @@ function showExerciseGif(name, url) {
 async function loadExerciseGif(name, url) {
   const container = document.getElementById('gif-container');
   if (!container) return;
-  const A = {
-    'squat':{e:'🦵',c:'#7ec850',f:['🧍 Stå rak','↘ Böj knän 90°','↗ Res dig upp'],d:'Fötter höftbrett, rygg rak, knän över tårna'},
-    'push-up':{e:'💪',c:'#c9a84c',f:['📐 Plankposition','↘ Sänk bröstet mot golvet','↗ Pressa upp'],d:'Händerna axelbrett, kroppen rak som en planka'},
-    'plank':{e:'🎯',c:'#7ec850',f:['⬛ Ta position','💨 Andas lugnt','🔥 Engagera core'],d:'Armbågar under axlarna, höfterna i linje med kroppen'},
-    'lunge':{e:'🦵',c:'#c9a84c',f:['🧍 Stå rak','↘ Steg framåt och ned','↗ Tillbaka till start'],d:'Överkropp rak, bakre knäet nära golvet'},
-    'sit-up':{e:'🎯',c:'#7ec850',f:['🤸 Ligg ner, knän böjda','↗ Lyft överkroppen upp','↘ Sänk kontrollerat'],d:'Händerna bakom nacken, kontrollerad rörelse'},
-    'burpee':{e:'🔥',c:'#e05c5c',f:['🧍 Stå','🤸 Hoppa ned till planka','⬆ Hoppa upp med armarna!'],d:'Snabb helkroppsövning – knäböj, planka, hopp'},
-    'deadlift':{e:'🏋️',c:'#c9a84c',f:['🔽 Böj vid höften','⬆ Lyft med benen och höften','🧍 Stå helt upprätt'],d:'Rygg rak hela vägen, stången nära kroppen'},
-    'pull-up':{e:'💪',c:'#7ec850',f:['🙌 Häng i stången','⬆ Dra upp tills hakan är över','↘ Sänk kontrollerat'],d:'Axelbrett grepp, dra armbågarna nedåt och bakåt'},
-    'shoulder-press':{e:'🙌',c:'#c9a84c',f:['💪 Hantlar vid axlarna','⬆ Pressa rakt upp','↘ Sänk sakta'],d:'Stabil kärna, pressa rakt upp utan att böja ryggen'},
-    'bicep-curl':{e:'💪',c:'#7ec850',f:['⬇ Armar raka nedåt','⬆ Curl upp till axlarna','↘ Sänk långsamt'],d:'Armbågarna stilla vid sidan av kroppen'},
-    'calf-raise':{e:'🦶',c:'#7ec850',f:['👣 Stå plant','⬆ Upp på tårna','↘ Sänk sakta'],d:'Full rörelseomfång, håll balansen'},
-    'glute-bridge':{e:'🍑',c:'#c9a84c',f:['🤸 Ligg, knän böjda 90°','⬆ Lyft höfterna','↘ Sänk kontrollerat'],d:'Pressa med hälarna, kläm gluteus i toppositionen'},
-    'side-plank':{e:'🎯',c:'#7ec850',f:['↗ Ta sidoposition','⬛ Håll kroppen helt rak','💪 Engagera core'],d:'En underarm i marken, fötterna staplade'},
-    'russian-twist':{e:'🌀',c:'#c9a84c',f:['🧘 Luta tillbaka 45°','↔ Rotera till höger','↔ Rotera till vänster'],d:'Fötterna lyfta, rotera överkroppen kontrollerat'},
-    'bent-over-row':{e:'🏋️',c:'#7ec850',f:['🔽 Böj framåt 45°','⬆ Dra till magen','↘ Sänk kontrollerat'],d:'Rygg parallell med golvet, dra armbågarna bakåt'},
-    'mountain-climber':{e:'🏔️',c:'#e05c5c',f:['🤸 Plankposition','➡ Höger knä mot bröstet','⬅ Vänster knä mot bröstet'],d:'Snabb växling, höfterna nere hela tiden'},
-    'jumping-jack':{e:'⭐',c:'#7ec850',f:['🧍 Fötter ihop, armar ned','⭐ Armar upp och ben isär','🧍 Tillbaka till start'],d:'Koordination och kondition'},
-    'high-knees':{e:'🏃',c:'#c9a84c',f:['🏃 Joggposition','⬆ Höger knä till midjan','⬆ Vänster knä till midjan'],d:'Håll tempo, armarna arbetar aktivt'},
+
+  // Show loading spinner
+  container.innerHTML = `<div style="padding:40px;text-align:center">
+    <div style="display:flex;justify-content:center;gap:6px;margin-bottom:12px">
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0s infinite ease;display:inline-block"></span>
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.2s infinite ease;display:inline-block"></span>
+      <span style="width:10px;height:10px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.4s infinite ease;display:inline-block"></span>
+    </div>
+    <div style="font-size:0.8rem;color:var(--text-dim)">Hämtar övningsbild…</div>
+  </div>`;
+
+  // Map exercise names to ExerciseDB search terms
+  const searchMap = {
+    'squat':'squat', 'knäböj':'squat', 'push-up':'push-up', 'armhävning':'push-up',
+    'plank':'plank', 'plankan':'plank', 'lunge':'lunge', 'utfall':'lunge',
+    'sit-up':'sit up', 'situp':'sit up', 'burpee':'burpee',
+    'deadlift':'deadlift', 'marklyft':'deadlift',
+    'pull-up':'pull-up', 'pullup':'pull-up',
+    'shoulder press':'shoulder press', 'axelpress':'shoulder press',
+    'bicep curl':'bicep curl', 'bicep':'bicep curl',
+    'calf raise':'calf raise', 'tåhävning':'calf raise',
+    'glute bridge':'glute bridge', 'höftlyft':'glute bridge',
+    'side plank':'side plank', 'sidoplanka':'side plank',
+    'russian twist':'russian twist',
+    'bent over row':'bent over row', 'rodd':'bent over row',
+    'tricep dip':'tricep dip', 'mountain climber':'mountain climber',
+    'jumping jack':'jumping jack', 'high knees':'high knees',
+    'leg raise':'leg raise', 'benspress':'leg press',
+    'bröstspress':'bench press', 'bench press':'bench press',
+    'roddning':'seated cable row',
+    'enbensstående':'single leg squat',
+    'stol-squat':'squat', 'benboj':'squat',
   };
-  const nl = name.toLowerCase();
-  let anim = null;
-  for (const [k,v] of Object.entries(A)) { if (nl.includes(k.replace(/-/g,' '))) { anim=v; break; } }
-  if (!anim) { for (const [kw,dn] of Object.entries(EXERCISE_DB)) { if (nl.includes(kw) && A[dn]) { anim=A[dn]; break; } } }
-  if (anim) {
-    let s = 0;
-    container.innerHTML = `<div style="padding:20px;text-align:center">
-      <div style="font-size:4rem;margin-bottom:8px;animation:pulseDot 1.5s infinite">${anim.e}</div>
-      <div id="anim-step" style="font-size:1rem;color:var(--cream);font-weight:600;margin:10px 0;min-height:32px;transition:opacity 0.3s">${anim.f[0]}</div>
-      <div style="display:flex;justify-content:center;gap:8px;margin:8px 0">
-        ${anim.f.map((_,i) => `<div id="anim-dot-${i}" style="width:10px;height:10px;border-radius:50%;background:${i===0?anim.c:'rgba(255,255,255,0.15)'};transition:all 0.4s"></div>`).join('')}
-      </div>
-      <div style="padding:10px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;font-size:0.76rem;color:var(--text-dim);line-height:1.5;margin-top:8px">
-        💡 ${anim.d}
-      </div>
-    </div>`;
-    setInterval(() => {
-      s = (s+1) % anim.f.length;
-      const el = document.getElementById('anim-step'); if (!el) return;
-      el.style.opacity = '0';
-      setTimeout(() => { el.style.opacity='1'; el.textContent=anim.f[s]; }, 200);
-      anim.f.forEach((_,i) => { const d=document.getElementById('anim-dot-'+i); if(d) d.style.background=i===s?anim.c:'rgba(255,255,255,0.15)'; });
-    }, 1400);
-  } else {
-    const q = encodeURIComponent(name + ' exercise technique');
-    container.innerHTML = `<div style="padding:20px;text-align:center">
+
+  const nameLower = name.toLowerCase();
+  let searchTerm = name;
+  for (const [key, val] of Object.entries(searchMap)) {
+    if (nameLower.includes(key)) { searchTerm = val; break; }
+  }
+
+  try {
+    const resp = await fetch(
+      `https://exercisedb.p.rapidapi.com/exercises/name/${encodeURIComponent(searchTerm)}?limit=1&offset=0`,
+      {
+        headers: {
+          'X-RapidAPI-Key': 'bda887a7a2mshed401e7bd7f6664p1d440ejsn8b3d590485fd',
+          'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
+        }
+      }
+    );
+
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data?.[0]?.gifUrl) {
+        const ex = data[0];
+        container.innerHTML = `
+          <div style="text-align:center">
+            <img src="${ex.gifUrl}" alt="${name}"
+              style="width:100%;max-height:280px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,0.03)"
+              onerror="this.parentElement.innerHTML='<div style=padding:20px;text-align:center><div style=font-size:0.8rem;color:var(--text-dim)>Kunde inte ladda bild</div></div>'">
+            <div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+              ${ex.bodyPart ? `<span style="padding:3px 10px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:100px;font-size:0.7rem;color:var(--lime)">${ex.bodyPart}</span>` : ''}
+              ${ex.equipment ? `<span style="padding:3px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:100px;font-size:0.7rem;color:var(--text-dim)">${ex.equipment}</span>` : ''}
+              ${ex.target ? `<span style="padding:3px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:100px;font-size:0.7rem;color:var(--gold)">${ex.target}</span>` : ''}
+            </div>
+            ${ex.secondaryMuscles?.length ? `<div style="margin-top:6px;font-size:0.68rem;color:var(--text-dim)">Sekundära: ${ex.secondaryMuscles.slice(0,3).join(', ')}</div>` : ''}
+          </div>`;
+        return;
+      }
+    }
+  } catch(e) { console.log('ExerciseDB error:', e); }
+
+  // Fallback: YouTube
+  const q = encodeURIComponent(name + ' exercise technique form');
+  container.innerHTML = `
+    <div style="padding:20px;text-align:center">
       <div style="font-size:3rem;margin-bottom:12px">🏋️</div>
-      <div style="font-size:0.84rem;color:var(--cream);font-weight:600;margin-bottom:14px">${name}</div>
+      <div style="font-size:0.84rem;color:var(--cream);font-weight:600;margin-bottom:6px">${name}</div>
+      <div style="font-size:0.74rem;color:var(--text-dim);margin-bottom:16px">GIF ej tillgänglig – se video</div>
       <a href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener"
         style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:rgba(255,30,30,0.85);color:white;border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:600">
         ▶ Se på YouTube
       </a>
     </div>`;
-  }
 }
+
 function fallbackExerciseContent(name) {
   const q = encodeURIComponent(name + ' exercise technique');
   return `<div style="padding:16px;text-align:center"><a href="https://www.youtube.com/results?search_query=${q}" target="_blank" style="padding:11px 20px;background:rgba(255,30,30,0.85);color:white;border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:600">▶ YouTube</a></div>`;

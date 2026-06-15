@@ -48,7 +48,7 @@ exports.handler = async (event) => {
               headers,
               body: JSON.stringify([{
                 name: hit.value || exercise,
-                gifUrl: `https://wger.de${images[0].image}`,
+                gifUrl: images[0].image.startsWith('http') ? images[0].image : `https://wger.de${images[0].image}`,
                 bodyPart: hit.data?.category || '',
                 equipment: '',
                 target: hit.data?.muscles?.[0] || '',
@@ -86,7 +86,7 @@ exports.handler = async (event) => {
           headers,
           body: JSON.stringify([{
             name,
-            gifUrl: `https://wger.de${ex.images[0].image}`,
+            gifUrl: ex.images[0].image.startsWith('http') ? ex.images[0].image : `https://wger.de${ex.images[0].image}`,
             bodyPart: ex.category?.name || '',
             target: ex.muscles?.[0]?.name_en || '',
             secondaryMuscles: ex.muscles_secondary?.map(m => m.name_en) || [],

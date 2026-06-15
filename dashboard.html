@@ -2370,18 +2370,8 @@ async function handleAuth() {
       // Auto-login after register
       const { error: loginErr } = await sb.auth.signInWithPassword({ email, password });
       if (!loginErr) {
-        // Visa planval istället för att gå till dashboard direkt
-        setTimeout(() => {
-          const authBox = document.querySelector('#auth-modal > div');
-          if (authBox) {
-            // Göm formuläret
-            Array.from(authBox.children).forEach(c => { if(c.id !== 'auth-plan-step') c.style.display = 'none'; });
-          }
-          const planStep = document.getElementById('auth-plan-step');
-          if (planStep) planStep.style.display = 'block';
-          document.getElementById('auth-modal').style.display = 'flex';
-          document.body.style.overflow = 'hidden';
-        }, 800);
+        // Visa planval
+        setTimeout(() => showPlanStep(), 600);
         return;
       }
     } else {
@@ -2469,28 +2459,39 @@ async function confirmPlan() {
       plan_started: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }, { onConflict: 'device_id' });
+  } catch(e) { console.log('Plan save error:', e); }
 
-    // Spara lokalt
-    localStorage.setItem('vitalis_plan', selectedPlan.plan);
-    localStorage.setItem('vitalis_plan_price', selectedPlan.price);
+  // Spara lokalt
+  localStorage.setItem('vitalis_plan', selectedPlan.plan);
+  localStorage.setItem('vitalis_plan_price', selectedPlan.price);
 
-    // Uppdatera plan-badge i sidebar
-    updatePlanBadge(selectedPlan.plan);
+  // Uppdatera plan-badge i sidebar
+  updatePlanBadge(selectedPlan.plan);
 
-    // Dölj auth-modal och visa dashboard
-    hideAuthModal();
-
-    if (selectedPlan.plan !== 'gratis') {
-      showToast(`🎉 Välkommen till ${selectedPlan.plan.charAt(0).toUpperCase() + selectedPlan.plan.slice(1)}! 30 dagars uppsägningstid gäller.`);
-    } else {
-      showToast('🌿 Välkommen till Vitalis Flow!');
+  // Visa modal med välkomstanimation, sedan dölj
+  const modal = document.getElementById('auth-modal');
+  if (modal) {
+    const wrapper = modal.querySelector('div');
+    if (wrapper) {
+      // Visa välkomstmeddelande
+      Array.from(wrapper.children).forEach(c => c.style.display = 'none');
+      const welcome = document.createElement('div');
+      welcome.style.cssText = 'text-align:center;padding:40px 20px;animation:fadeUp 0.4s ease both';
+      const planLabel = {gratis:'Gratis',basic:'Basic',pro:'Pro',premium:'Premium'}[selectedPlan.plan] || 'Pro';
+      welcome.innerHTML = `
+        <div style="font-size:3rem;margin-bottom:16px">🌿</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--soft-white);margin-bottom:8px">Välkommen!</div>
+        <div style="font-size:0.9rem;color:var(--text-dim);margin-bottom:16px">Din ${planLabel}-plan är aktiverad</div>
+        <div style="display:inline-flex;align-items:center;gap:6px;padding:8px 20px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.3);border-radius:100px;font-size:0.84rem;color:var(--lime)">✦ ${planLabel}</div>`;
+      wrapper.appendChild(welcome);
     }
-  } catch(e) {
-    console.log('Plan save error:', e);
-    // Fortsätt ändå
-    localStorage.setItem('vitalis_plan', selectedPlan.plan);
-    hideAuthModal();
-    showToast('🌿 Välkommen till Vitalis Flow!');
+    setTimeout(() => {
+      hideAuthModal();
+      const msg = selectedPlan.plan !== 'gratis'
+        ? `🎉 Välkommen till ${({gratis:'Gratis',basic:'Basic',pro:'Pro',premium:'Premium'}[selectedPlan.plan])}! 30 dagars uppsägningstid gäller.`
+        : '🌿 Välkommen till Vitalis Flow!';
+      showToast(msg);
+    }, 1800);
   }
 }
 
@@ -2504,12 +2505,17 @@ function updatePlanBadge(plan) {
 }
 
 function showPlanStep() {
-  // Dölj steg 1, visa steg 2
-  const form = document.querySelector('#auth-modal > div > div:last-child');
-  if (form) form.style.display = 'none';
-  const planStep = document.getElementById('auth-plan-step');
-  if (planStep) planStep.style.display = 'block';
-  // Gömma logo-sektionen (redan visad)
+  const modal = document.getElementById('auth-modal');
+  if (!modal) return;
+  // Göm allt i modal-wrappern utom plan-steget
+  const wrapper = modal.querySelector('div');
+  if (wrapper) {
+    Array.from(wrapper.children).forEach(c => {
+      c.style.display = c.id === 'auth-plan-step' ? 'block' : 'none';
+    });
+  }
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
 
 async function handleSignOut() {

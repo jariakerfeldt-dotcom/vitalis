@@ -1164,28 +1164,138 @@ select option:checked {
         </div>
       </div>
 
-      <!-- ACTIVITY LOG -->
-      <div class="card" style="margin-bottom:16px">
-        <div class="card-title">Aktivitetslogg</div>
-        <div id="activity-list" style="text-align:center;padding:20px 0;color:var(--text-dim)">
-          <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">🏃</div>
-          <div style="font-size:0.84rem">Inga aktiviteter loggade ännu</div>
+      <!-- ACTIVITY LOG – ny version med statistik, övningslista & datum -->
+      <div class="card" style="margin-bottom:16px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+
+        <!-- Statistikraden -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+          <div style="text-align:center;padding:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px">
+            <div id="stat-sessions" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--lime)">0</div>
+            <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px">Pass/vecka</div>
+          </div>
+          <div style="text-align:center;padding:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px">
+            <div id="stat-total-min" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold)">0</div>
+            <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px">Min totalt</div>
+          </div>
+          <div style="text-align:center;padding:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px">
+            <div id="stat-total-kcal-act" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--cream)">0</div>
+            <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px">Kcal bränt</div>
+          </div>
         </div>
-        <div style="margin-top:14px;margin-bottom:12px">
-          <div style="font-size:0.68rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">⚡ Snabbval</div>
+
+        <!-- Träningsfrekvens-graf (7 dagar) -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">📊 Träningsfrekvens – 7 dagar</div>
+          <div id="activity-freq-chart" style="display:flex;align-items:flex-end;gap:6px;height:60px"></div>
+          <div id="top-exercises" style="margin-top:10px;font-size:0.72rem;color:var(--text-dim)"></div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin-bottom:14px"></div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--soft-white);margin-bottom:12px">+ Logga träning</div>
+
+        <!-- Datumväljare -->
+        <div id="act-date-row"
+          style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;margin-bottom:10px;transition:all 0.2s"
+          onclick="document.getElementById('act-date').showPicker&&document.getElementById('act-date').showPicker()"
+          onmouseover="this.style.borderColor='rgba(126,200,80,0.45)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span style="font-size:1rem">📅</span>
+          <span id="act-date-display" style="flex:1;font-size:0.84rem;color:var(--cream);font-family:'DM Sans',sans-serif">Idag</span>
+          <span style="font-size:0.72rem;color:var(--lime);font-weight:600">VÄLJ DATUM ▼</span>
+        </div>
+        <input type="date" id="act-date" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" onchange="updateActDateDisplay(this.value)">
+
+        <!-- Övningslista – välj från lista -->
+        <div style="margin-bottom:10px">
+          <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Välj övning</div>
+          <select id="act-exercise-select" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none;margin-bottom:8px">
+            <option value="">-- Välj övning ur lista --</option>
+            <optgroup label="🏃 Kondition">
+              <option value="🚶 Promenad|30|150">🚶 Promenad</option>
+              <option value="🏃 Löpning|45|400">🏃 Löpning</option>
+              <option value="🚴 Cykling|60|350">🚴 Cykling</option>
+              <option value="🏊 Simning|45|380">🏊 Simning</option>
+              <option value="⛹️ Lagsport|60|420">⛹️ Lagsport</option>
+              <option value="🧘 Yoga|30|120">🧘 Yoga</option>
+              <option value="🤸 Crossfit|45|500">🤸 Crossfit</option>
+              <option value="🥊 Boxning|45|480">🥊 Boxning</option>
+              <option value="⛷️ Skidåkning|60|400">⛷️ Skidåkning</option>
+            </optgroup>
+            <optgroup label="💪 Styrka – Överkropp">
+              <option value="💪 Bänkpress|0|0">💪 Bänkpress</option>
+              <option value="💪 Armhävningar|0|0">💪 Armhävningar</option>
+              <option value="💪 Pull-ups|0|0">💪 Pull-ups</option>
+              <option value="💪 Axelpress|0|0">💪 Axelpress</option>
+              <option value="💪 Bicepscurl|0|0">💪 Bicepscurl</option>
+              <option value="💪 Triceps dips|0|0">💪 Triceps dips</option>
+              <option value="💪 Rodd|0|0">💪 Rodd</option>
+            </optgroup>
+            <optgroup label="🦵 Styrka – Underkropp">
+              <option value="🦵 Knäböj|0|0">🦵 Knäböj</option>
+              <option value="🦵 Marklyft|0|0">🦵 Marklyft</option>
+              <option value="🦵 Utfall|0|0">🦵 Utfall</option>
+              <option value="🦵 Benspress|0|0">🦵 Benspress</option>
+              <option value="🦵 Tåhävningar|0|0">🦵 Tåhävningar</option>
+              <option value="🦵 Höftlyft|0|0">🦵 Höftlyft</option>
+            </optgroup>
+            <optgroup label="🎯 Core">
+              <option value="🎯 Plankan|0|0">🎯 Plankan</option>
+              <option value="🎯 Sit-ups|0|0">🎯 Sit-ups</option>
+              <option value="🎯 Russian twist|0|0">🎯 Russian twist</option>
+              <option value="🎯 Mountain climbers|0|0">🎯 Mountain climbers</option>
+            </optgroup>
+            <option value="custom">✏️ Annan (skriv nedan)</option>
+          </select>
+
+          <!-- Set/reps/minuter-rad -->
+          <div id="act-details-row" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+            <div>
+              <div style="font-size:0.62rem;color:var(--text-dim);margin-bottom:4px">Set</div>
+              <input type="number" id="act-sets" placeholder="3" min="1" max="20"
+                style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none">
+            </div>
+            <div>
+              <div style="font-size:0.62rem;color:var(--text-dim);margin-bottom:4px">Reps / Sek</div>
+              <input type="number" id="act-reps" placeholder="10" min="1"
+                style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none">
+            </div>
+            <div>
+              <div style="font-size:0.62rem;color:var(--text-dim);margin-bottom:4px">Minuter</div>
+              <input type="number" id="act-minutes" placeholder="30" min="1"
+                style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none">
+            </div>
+          </div>
+
+          <!-- Fritext för custom/extra -->
+          <input type="text" id="activity-input" placeholder="Fritext (t.ex. 'löpning i skogen', 'tennis 45 min')..."
+            style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none;margin-bottom:8px"
+            onkeydown="if(event.key==='Enter')addActivity()">
+
+          <button onclick="addActivity()"
+            style="width:100%;padding:12px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s"
+            onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">
+            + Logga träning
+          </button>
+        </div>
+
+        <!-- Snabbval -->
+        <div style="margin-top:10px">
+          <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">⚡ Snabbval</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             <button onclick="quickAddActivity('🚶 Promenad',30,150)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🚶 Promenad</button>
             <button onclick="quickAddActivity('🏃 Löpning',45,400)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏃 Löpning</button>
             <button onclick="quickAddActivity('🚴 Cykling',60,350)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🚴 Cykling</button>
-            <button onclick="quickAddActivity('🏋️ Styrketräning',45,300)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏋️ Styrketräning</button>
+            <button onclick="quickAddActivity('🏋️ Styrketräning',45,300)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏋️ Styrka</button>
             <button onclick="quickAddActivity('🧘 Yoga',30,120)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🧘 Yoga</button>
             <button onclick="quickAddActivity('🏊 Simning',45,380)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏊 Simning</button>
-            <button onclick="quickAddActivity('⛹️ Lagsport',60,420)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">⛹️ Lagsport</button>
           </div>
         </div>
-        <div class="add-row">
-          <input type="text" id="activity-input" placeholder="Annan aktivitet (t.ex. tennis 45 min)..." onkeydown="if(event.key==='Enter')addActivity()">
-          <button onclick="addActivity()">+ Logga</button>
+
+        <div style="height:1px;background:var(--border);margin:14px 0"></div>
+        <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Loggade pass</div>
+        <div id="activity-list" style="text-align:center;padding:20px 0;color:var(--text-dim)">
+          <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">🏃</div>
+          <div style="font-size:0.84rem">Inga aktiviteter loggade ännu</div>
         </div>
       </div>
 
@@ -2238,6 +2348,8 @@ async function migrateLocalStorageToSupabase() {
 (function(){
   const el = document.getElementById('food-date');
   if(el) el.value = new Date().toISOString().split('T')[0];
+  const el2 = document.getElementById('act-date');
+  if(el2) el2.value = new Date().toISOString().split('T')[0];
 })();
 
 // ── FOOD DATE HELPERS ──
@@ -3104,6 +3216,8 @@ function updateFoodStats(){
 
 // Init chart on load
 renderWeeklyChart();
+updateActivityStats();
+renderActivityFreqChart();
 document.getElementById('food-input').addEventListener('keydown',e=>{if(e.key==='Enter')addFood();});
 
 // ── SHARE SYSTEM ──
@@ -3747,6 +3861,196 @@ function shareWorkout() {
   if(s)s.textContent=w.duration+' min · ~'+w.kcal+' kcal';
   currentCookPhotoB64=null;
   openShareModal('activity');
+}
+
+// ── ACTIVITY DATE HELPERS ──
+function getActDate() {
+  const val = document.getElementById('act-date')?.value;
+  return val || new Date().toISOString().split('T')[0];
+}
+
+function updateActDateDisplay(val) {
+  const display = document.getElementById('act-date-display');
+  if (!display) return;
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const yest = yesterday.toISOString().split('T')[0];
+  let label;
+  if (!val || val === today) { label = 'Idag'; display.style.color = 'var(--cream)'; }
+  else if (val === yest) { label = 'Igår'; display.style.color = 'var(--gold)'; }
+  else {
+    const d = new Date(val + 'T12:00:00');
+    label = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+    label = label.charAt(0).toUpperCase() + label.slice(1);
+    display.style.color = 'var(--gold)';
+  }
+  display.textContent = label;
+}
+
+// ── ACTIVITY LOG STORAGE ──
+function getActivityLog() {
+  try { return JSON.parse(localStorage.getItem('vitalis_activity_log') || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveActivityLog(log) {
+  try { localStorage.setItem('vitalis_activity_log', JSON.stringify(log.slice(0, 500))); }
+  catch(e) {}
+}
+
+function addActivityToLog(entry) {
+  const log = getActivityLog();
+  log.unshift(entry);
+  saveActivityLog(log);
+  updateActivityStats();
+  renderActivityFreqChart();
+}
+
+// ── ACTIVITY STATISTICS ──
+function updateActivityStats() {
+  const log = getActivityLog();
+  const now = new Date();
+  const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+
+  // Sessions this week
+  const weekSessions = log.filter(e => new Date(e.date) >= weekAgo).length;
+  // Total minutes
+  const totalMin = log.reduce((s, e) => s + (e.minutes || 0), 0);
+  // Total kcal
+  const totalKcalAct = log.reduce((s, e) => s + (e.kcal || 0), 0);
+
+  const sesEl = document.getElementById('stat-sessions');
+  const minEl = document.getElementById('stat-total-min');
+  const kcalEl = document.getElementById('stat-total-kcal-act');
+  if (sesEl) { sesEl.textContent = weekSessions; sesEl.style.color = weekSessions >= 3 ? 'var(--lime)' : 'var(--gold)'; }
+  if (minEl) minEl.textContent = totalMin;
+  if (kcalEl) kcalEl.textContent = totalKcalAct;
+
+  // Update main metrics
+  const kcalMetric = document.getElementById('activity-kcal-total');
+  const minMetric = document.getElementById('activity-min-total');
+  if (kcalMetric) kcalMetric.innerHTML = totalKcalAct + '<span class="unit"> kcal</span>';
+  if (minMetric) minMetric.innerHTML = totalMin + '<span class="unit"> min</span>';
+
+  // Top exercises
+  const counts = {};
+  log.forEach(e => { counts[e.name] = (counts[e.name] || 0) + 1; });
+  const top = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 3);
+  const topEl = document.getElementById('top-exercises');
+  if (topEl && top.length) {
+    topEl.innerHTML = '🏆 Mest gjorda: ' + top.map(([n,c]) => `<span style="color:var(--lime)">${n.split(' ').slice(0,2).join(' ')}</span> (${c}x)`).join(' · ');
+  }
+}
+
+function renderActivityFreqChart() {
+  const chart = document.getElementById('activity-freq-chart');
+  if (!chart) return;
+  const log = getActivityLog();
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  const labels = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
+  const today = new Date().getDay(); // 0=sun
+  const orderedLabels = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    orderedLabels.push(['Sön','Mån','Tis','Ons','Tor','Fre','Lör'][d.getDay()]);
+  }
+
+  chart.innerHTML = days.map((date, i) => {
+    const sessions = log.filter(e => e.date === date);
+    const count = sessions.length;
+    const minutes = sessions.reduce((s,e) => s + (e.minutes||0), 0);
+    const isToday = i === 6;
+    const h = count > 0 ? Math.max(10, Math.min(count * 18, 54)) : 6;
+    const bg = count > 0
+      ? (isToday ? 'background:linear-gradient(to top,var(--leaf-green),var(--lime))' : 'background:linear-gradient(to top,var(--leaf-green),rgba(126,200,80,0.7))')
+      : 'background:rgba(126,200,80,0.06);border:1px dashed rgba(126,200,80,0.15)';
+    const tooltip = count > 0 ? `title="${count} pass · ${minutes} min"` : '';
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;justify-content:flex-end" ${tooltip}>
+      ${count > 0 ? `<span style="font-size:0.55rem;color:var(--text-dim)">${count}</span>` : ''}
+      <div style="width:100%;border-radius:5px 5px 0 0;height:${h}px;${bg};transition:height 0.5s ease"></div>
+      <span style="font-size:0.6rem;color:${isToday ? 'var(--lime)' : 'var(--text-dim)'}">${orderedLabels[i]}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── UPDATED addActivity ──
+function addActivity(){
+  const select = document.getElementById('act-exercise-select');
+  const input = document.getElementById('activity-input');
+  const sets = parseInt(document.getElementById('act-sets')?.value) || 0;
+  const reps = parseInt(document.getElementById('act-reps')?.value) || 0;
+  const minutes = parseInt(document.getElementById('act-minutes')?.value) || 0;
+  const actDate = getActDate();
+  const today = new Date().toISOString().split('T')[0];
+
+  let name = '', defaultMin = 0, defaultKcal = 0;
+
+  if (select?.value && select.value !== '' && select.value !== 'custom') {
+    const parts = select.value.split('|');
+    name = parts[0];
+    defaultMin = parseInt(parts[1]) || 0;
+    defaultKcal = parseInt(parts[2]) || 0;
+  }
+
+  const freeText = input?.value?.trim();
+  if (!name && !freeText) { showToast('Välj övning eller skriv i fritext!'); return; }
+  if (!name) name = freeText;
+  else if (freeText) name += ' + ' + freeText;
+
+  const finalMin = minutes || defaultMin;
+  const finalKcal = defaultKcal || (finalMin ? Math.round(finalMin * 6.5) : (sets * reps ? Math.round(sets * reps * 0.5) : 50));
+
+  // Detaljlabel
+  let detail = '';
+  if (sets && reps) detail = `${sets} set × ${reps} reps`;
+  else if (sets) detail = `${sets} set`;
+  if (finalMin) detail += (detail ? ' · ' : '') + `${finalMin} min`;
+
+  const entry = {
+    name, sets, reps, minutes: finalMin, kcal: finalKcal,
+    detail, date: actDate,
+    logged: new Date().toISOString()
+  };
+
+  addActivityToLog(entry);
+  dbAddActivity(name, finalMin, finalKcal, 'manual');
+
+  // Visa i listan om det är idag
+  const list = document.getElementById('activity-list');
+  if (list.querySelector('[style*="opacity:0.25"]') || list.querySelector('[style*="2rem;opacity:0.25"]')) list.innerHTML = '';
+
+  const icons = {'🚶':'🚶','🏃':'🏃','🚴':'🚴','🏊':'🏊','🧘':'🧘','💪':'💪','🦵':'🦵','🎯':'🎯','🤸':'🤸','🥊':'🥊','🏋️':'🏋️','⛹️':'⛹️','⛷️':'⛷️'};
+  const icon = Object.keys(icons).find(k => name.startsWith(k)) || '🏋️';
+  const item = document.createElement('div');
+  item.className = 'activity-item';
+  const dateLabel = actDate !== today ? `<span style="font-size:0.65rem;color:var(--gold);margin-left:4px">${new Date(actDate+'T12:00:00').toLocaleDateString('sv-SE',{day:'numeric',month:'short'})}</span>` : '';
+  item.innerHTML = `
+    <div class="activity-icon">${icon}</div>
+    <div class="activity-text">
+      <div class="title">${name}${dateLabel}</div>
+      <div class="time">${detail || 'Loggad'}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="activity-val" style="color:var(--lime)">${finalKcal > 0 ? finalKcal+' kcal' : (detail||'✓')}</div>
+      <button onclick="deleteEntry(this)" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:2px 6px" onmouseover="this.style.color='#e05c5c'" onmouseout="this.style.color='var(--text-dim)'">✕</button>
+    </div>`;
+  item.style.opacity = '0';
+  list.appendChild(item);
+  setTimeout(() => { item.style.transition='opacity 0.3s'; item.style.opacity='1'; }, 10);
+
+  // Reset
+  if (select) select.value = '';
+  if (input) input.value = '';
+  if (document.getElementById('act-sets')) document.getElementById('act-sets').value = '';
+  if (document.getElementById('act-reps')) document.getElementById('act-reps').value = '';
+  if (document.getElementById('act-minutes')) document.getElementById('act-minutes').value = '';
+
+  const msg = actDate !== today ? `✓ ${name} sparat för ${document.getElementById('act-date-display')?.textContent}` : `💪 ${name} loggad ✓`;
+  showToast(msg);
 }
 
 function quickAddActivity(name, minutes, kcal) {

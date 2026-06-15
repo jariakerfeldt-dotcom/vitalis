@@ -570,6 +570,93 @@ select option:checked {
         </button>
       </div>
     </div>
+
+    <!-- STEG 2: Välj plan (visas efter registrering) -->
+    <div id="auth-plan-step" style="display:none;width:100%;max-width:480px">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:0.78rem;color:var(--lime);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Steg 2 av 2</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--soft-white)">Välj din plan</div>
+        <div style="font-size:0.8rem;color:var(--text-dim);margin-top:4px">30 dagars uppsägningstid · Avsluta när som helst</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+
+        <!-- Gratis -->
+        <div onclick="selectPlan('gratis',0)" id="plan-gratis"
+          style="padding:16px 18px;background:rgba(255,255,255,0.03);border:2px solid var(--border);border-radius:16px;cursor:pointer;transition:all 0.2s"
+          onmouseover="this.style.borderColor='rgba(126,200,80,0.4)'" onmouseout="if(!this.classList.contains('selected'))this.style.borderColor='var(--border)'">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:0.92rem;color:var(--cream);font-weight:600">Gratis</div>
+              <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px">Matlogg · Sömnlogg · AI-coach (5/dag)</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--text-dim)">0 kr</div>
+              <div style="font-size:0.65rem;color:var(--text-dim)">för alltid</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Basic -->
+        <div onclick="selectPlan('basic',49)" id="plan-basic"
+          style="padding:16px 18px;background:rgba(255,255,255,0.03);border:2px solid var(--border);border-radius:16px;cursor:pointer;transition:all 0.2s"
+          onmouseover="this.style.borderColor='rgba(126,200,80,0.4)'" onmouseout="if(!this.classList.contains('selected'))this.style.borderColor='var(--border)'">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:0.92rem;color:var(--cream);font-weight:600">Basic</div>
+              <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px">Allt i Gratis · Träningsgenerator · Veckomeny</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--lime)">49 kr</div>
+              <div style="font-size:0.65rem;color:var(--text-dim)">per månad</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pro -->
+        <div onclick="selectPlan('pro',99)" id="plan-pro"
+          style="padding:16px 18px;background:rgba(126,200,80,0.06);border:2px solid rgba(126,200,80,0.4);border-radius:16px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden"
+          onmouseover="this.style.borderColor='rgba(126,200,80,0.7)'" onmouseout="if(!this.classList.contains('selected'))this.style.borderColor='rgba(126,200,80,0.4)'">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+          <span style="position:absolute;top:10px;right:12px;font-size:0.62rem;padding:2px 8px;background:var(--lime);color:var(--deep-green);border-radius:100px;font-weight:700">POPULÄRAST</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-right:80px">
+            <div>
+              <div style="font-size:0.92rem;color:var(--lime);font-weight:600">Pro</div>
+              <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px">Allt i Basic · AI-fotoskanning · Kylskåpsscanning · Obegränsad AI</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;margin-left:12px">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--lime)">99 kr</div>
+              <div style="font-size:0.65rem;color:var(--text-dim)">per månad</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Premium -->
+        <div onclick="selectPlan('premium',149)" id="plan-premium"
+          style="padding:16px 18px;background:rgba(201,168,76,0.06);border:2px solid rgba(201,168,76,0.3);border-radius:16px;cursor:pointer;transition:all 0.2s"
+          onmouseover="this.style.borderColor='rgba(201,168,76,0.6)'" onmouseout="if(!this.classList.contains('selected'))this.style.borderColor='rgba(201,168,76,0.3)'">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:0.92rem;color:var(--gold);font-weight:600">Premium</div>
+              <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px">Allt i Pro · Prioriterad support · Vitalis Flow Band-rabatt</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold)">149 kr</div>
+              <div style="font-size:0.65rem;color:var(--text-dim)">per månad</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:0.72rem;color:var(--text-dim);text-align:center;margin-bottom:14px">
+        🔒 30 dagars uppsägningstid · Inga bindningstider · Avsluta enkelt i profilen
+      </div>
+
+      <button id="plan-confirm-btn" onclick="confirmPlan()" disabled
+        style="width:100%;padding:14px;background:rgba(255,255,255,0.08);color:var(--text-dim);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:not-allowed;transition:all 0.3s">
+        Välj en plan för att fortsätta
+      </button>
+    </div>
   </div>
 </div>
 
@@ -584,7 +671,7 @@ select option:checked {
     <div class="user-avatar" id="nav-avatar">?</div>
     <div class="user-info">
       <div class="user-name" id="nav-name" style="color:var(--text-dim);font-style:italic">Inte inloggad</div>
-      <div class="user-plan">✦ Wellness Pro</div>
+      <div class="user-plan" id="nav-plan-badge">✦ Wellness Pro</div>
     </div>
   </div>
 
@@ -2279,9 +2366,24 @@ async function handleAuth() {
         options: { data: { name: name || email.split('@')[0] } }
       });
       if (error) throw error;
-      showAuthError('✅ Konto skapat! Loggar in...', true);
+      showAuthError('✅ Konto skapat! Välj din plan...', true);
       // Auto-login after register
-      await sb.auth.signInWithPassword({ email, password });
+      const { error: loginErr } = await sb.auth.signInWithPassword({ email, password });
+      if (!loginErr) {
+        // Visa planval istället för att gå till dashboard direkt
+        setTimeout(() => {
+          const authBox = document.querySelector('#auth-modal > div');
+          if (authBox) {
+            // Göm formuläret
+            Array.from(authBox.children).forEach(c => { if(c.id !== 'auth-plan-step') c.style.display = 'none'; });
+          }
+          const planStep = document.getElementById('auth-plan-step');
+          if (planStep) planStep.style.display = 'block';
+          document.getElementById('auth-modal').style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }, 800);
+        return;
+      }
     } else {
       const { error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
@@ -2316,6 +2418,98 @@ async function handleForgotPassword() {
   });
   if (error) showAuthError(error.message);
   else showAuthError('✅ Återställningslänk skickad till ' + email, true);
+}
+
+// ── PLAN SELECTION ──
+let selectedPlan = null;
+
+function selectPlan(plan, price) {
+  selectedPlan = { plan, price };
+  // Reset all
+  ['gratis','basic','pro','premium'].forEach(p => {
+    const el = document.getElementById('plan-' + p);
+    if (!el) return;
+    el.classList.remove('selected');
+    if (p === 'pro') el.style.borderColor = 'rgba(126,200,80,0.4)';
+    else if (p === 'premium') el.style.borderColor = 'rgba(201,168,76,0.3)';
+    else el.style.borderColor = 'var(--border)';
+  });
+  // Highlight selected
+  const sel = document.getElementById('plan-' + plan);
+  if (sel) {
+    sel.classList.add('selected');
+    sel.style.borderColor = plan === 'premium' ? 'var(--gold)' : 'var(--lime)';
+    sel.style.background = plan === 'premium' ? 'rgba(201,168,76,0.12)' : 'rgba(126,200,80,0.1)';
+  }
+  // Enable confirm button
+  const btn = document.getElementById('plan-confirm-btn');
+  if (btn) {
+    btn.disabled = false;
+    btn.style.cursor = 'pointer';
+    const labels = { gratis:'Fortsätt gratis →', basic:'Välj Basic – 49 kr/mån →', pro:'Välj Pro – 99 kr/mån →', premium:'Välj Premium – 149 kr/mån →' };
+    btn.textContent = labels[plan];
+    btn.style.background = plan === 'premium' ? 'var(--gold)' : 'var(--lime)';
+    btn.style.color = 'var(--deep-green)';
+    btn.onmouseover = () => btn.style.opacity = '0.9';
+    btn.onmouseout = () => btn.style.opacity = '1';
+  }
+}
+
+async function confirmPlan() {
+  if (!selectedPlan || !currentUser) return;
+  const btn = document.getElementById('plan-confirm-btn');
+  if (btn) { btn.textContent = '⏳ Sparar...'; btn.disabled = true; }
+
+  try {
+    // Spara plan i Supabase profil
+    await sb.from('profiles').upsert({
+      device_id: currentUser.id,
+      plan: selectedPlan.plan,
+      plan_price: selectedPlan.price,
+      plan_started: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'device_id' });
+
+    // Spara lokalt
+    localStorage.setItem('vitalis_plan', selectedPlan.plan);
+    localStorage.setItem('vitalis_plan_price', selectedPlan.price);
+
+    // Uppdatera plan-badge i sidebar
+    updatePlanBadge(selectedPlan.plan);
+
+    // Dölj auth-modal och visa dashboard
+    hideAuthModal();
+
+    if (selectedPlan.plan !== 'gratis') {
+      showToast(`🎉 Välkommen till ${selectedPlan.plan.charAt(0).toUpperCase() + selectedPlan.plan.slice(1)}! 30 dagars uppsägningstid gäller.`);
+    } else {
+      showToast('🌿 Välkommen till Vitalis Flow!');
+    }
+  } catch(e) {
+    console.log('Plan save error:', e);
+    // Fortsätt ändå
+    localStorage.setItem('vitalis_plan', selectedPlan.plan);
+    hideAuthModal();
+    showToast('🌿 Välkommen till Vitalis Flow!');
+  }
+}
+
+function updatePlanBadge(plan) {
+  const badge = document.getElementById('nav-plan-badge');
+  if (!badge) return;
+  const labels = { gratis:'Gratis', basic:'✦ Basic', pro:'✦ Wellness Pro', premium:'✦ Premium' };
+  const colors = { gratis:'var(--text-dim)', basic:'var(--lime)', pro:'var(--gold)', premium:'var(--gold)' };
+  badge.textContent = labels[plan] || '✦ Wellness Pro';
+  badge.style.color = colors[plan] || 'var(--gold)';
+}
+
+function showPlanStep() {
+  // Dölj steg 1, visa steg 2
+  const form = document.querySelector('#auth-modal > div > div:last-child');
+  if (form) form.style.display = 'none';
+  const planStep = document.getElementById('auth-plan-step');
+  if (planStep) planStep.style.display = 'block';
+  // Gömma logo-sektionen (redan visad)
 }
 
 async function handleSignOut() {

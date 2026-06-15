@@ -2586,7 +2586,7 @@ async function dbAddFood(name, kcal, source='manual') {
     const { data, error } = await sb.from('food_logs').insert({
       device_id: DEVICE_ID,
       name, kcal, source,
-      log_date: new Date().toISOString().split('T')[0]
+      log_date: getLocalDateStr()
     }).select('id');
     if (error) { console.log('Supabase food error:', error); return null; }
     return { data };
@@ -2624,7 +2624,7 @@ async function dbAddSleep(hours, quality, label) {
     await sb.from('sleep_logs').insert({
       device_id: DEVICE_ID,
       hours, quality, label,
-      log_date: new Date().toISOString().split('T')[0]
+      log_date: getLocalDateStr()
     });
   } catch(e) { console.log('Supabase sleep save:', e); }
 }
@@ -2645,7 +2645,7 @@ async function dbAddActivity(name, minutes, kcal, type='manual') {
       device_id: DEVICE_ID,
       name, minutes, kcal,
       activity_type: type,
-      log_date: new Date().toISOString().split('T')[0]
+      log_date: getLocalDateStr()
     });
   } catch(e) { console.log('Supabase activity save:', e); }
 }
@@ -2848,16 +2848,20 @@ async function initSupabase() {
 // ── INIT FOOD DATE ──
 (function(){
   const el = document.getElementById('food-date');
-  if(el) el.value = new Date().toISOString().split('T')[0];
+  if(el) el.value = getLocalDateStr();
   const el2 = document.getElementById('act-date');
-  if(el2) el2.value = new Date().toISOString().split('T')[0];
+  if(el2) el2.value = getLocalDateStr();
 })();
 
 // ── FOOD DATE HELPERS ──
+function getLocalDateStr(date) {
+  const d = date || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
 function getFoodDate() {
   const val = document.getElementById('food-date')?.value;
-  const today = new Date().toISOString().split('T')[0];
-  return val || today;
+  return val || getLocalDateStr();
 }
 
 function getFoodDateLabel() {
@@ -3211,7 +3215,7 @@ function openMealDetailShare(item) {
 
 function quickAddFood(name, kcal) {
   const selectedDate = getFoodDate();
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateStr();
   const isToday = selectedDate === today;
   if (isToday) totalKcal += kcal;
   else { dbAddFoodForDate(name, kcal, 'quick', selectedDate); showToast(`✓ ${name} sparat för ${getFoodDateLabel()}`); return; }
@@ -3350,7 +3354,7 @@ function addFood(){
   const val = input.value.trim(); if(!val) return;
   const kcal = Math.floor(Math.random()*420)+80;
   const selectedDate = getFoodDate();
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateStr();
   const isToday = selectedDate === today;
 
   // Bara lägg till i UI om det är idag

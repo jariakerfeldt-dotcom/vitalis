@@ -834,10 +834,24 @@ select option:checked {
             </div>
           </div>
 
-          <!-- 2. Manual text -->
-          <div class="add-row" style="margin-bottom:12px">
-            <input type="text" id="food-input" placeholder="Skriv måltid manuellt..." data-i18n-ph="food_ph">
-            <button onclick="addFood()">+ Lägg till</button>
+          <!-- 2. Manual text + datum -->
+          <div style="margin-bottom:12px">
+            <!-- Datumväljare -->
+            <div id="food-date-row"
+              style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;margin-bottom:8px;transition:all 0.2s"
+              onclick="document.getElementById('food-date').focus();document.getElementById('food-date').showPicker&&document.getElementById('food-date').showPicker()"
+              onmouseover="this.style.borderColor='rgba(126,200,80,0.45)'" onmouseout="this.style.borderColor='var(--border)'">
+              <span style="font-size:1rem">📅</span>
+              <span id="food-date-display" style="flex:1;font-size:0.84rem;color:var(--cream);font-family:'DM Sans',sans-serif">Idag</span>
+              <span style="font-size:0.72rem;color:var(--lime);font-weight:600">VÄLJ DATUM ▼</span>
+            </div>
+            <input type="date" id="food-date" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
+              onchange="updateFoodDateDisplay(this.value)">
+            <!-- Textinput + knapp -->
+            <div class="add-row">
+              <input type="text" id="food-input" placeholder="Skriv måltid manuellt..." data-i18n-ph="food_ph">
+              <button onclick="addFood()">+ Lägg till</button>
+            </div>
           </div>
 
           <!-- 3. AI Photo – single unified area -->
@@ -1984,6 +1998,17 @@ async function dbDeleteFood(id) {
   try { await sb.from('food_logs').delete().eq('id', id); } catch(e) {}
 }
 
+async function dbAddFoodForDate(name, kcal, source, logDate) {
+  try {
+    await sb.from('food_logs').insert({
+      device_id: DEVICE_ID,
+      name, kcal, source,
+      log_date: logDate,
+      logged_at: new Date(logDate + 'T12:00:00').toISOString()
+    });
+  } catch(e) { console.log('Supabase food (past date) save:', e); }
+}
+
 // ── DB: SÖMNLOGG ──
 async function dbAddSleep(hours, quality, label) {
   try {
@@ -2208,6 +2233,70 @@ async function migrateLocalStorageToSupabase() {
   }, 3000);
   console.log('🌿 Vitalis Flow: Supabase ansluten ✓');
 })();
+
+// ── INIT FOOD DATE ──
+(function(){
+  const el = document.getElementById('food-date');
+  if(el) el.value = new Date().toISOString().split('T')[0];
+})();
+
+// ── FOOD DATE HELPERS ──
+function getFoodDate() {
+  const val = document.getElementById('food-date')?.value;
+  const today = new Date().toISOString().split('T')[0];
+  return val || today;
+}
+
+function getFoodDateLabel() {
+  const val = document.getElementById('food-date')?.value;
+  if (!val) return 'Idag';
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const yest = yesterday.toISOString().split('T')[0];
+  if (val === today) return 'Idag';
+  if (val === yest) return 'Igår';
+  const d = new Date(val + 'T12:00:00');
+  return d.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric', month:'short'});
+}
+
+function updateFoodDateDisplay(val) {
+  const display = document.getElementById('food-date-display');
+  if (!display) return;
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const yest = yesterday.toISOString().split('T')[0];
+  let label;
+  if (!val || val === today) label = 'Idag';
+  else if (val === yest) label = 'Igår';
+  else {
+    const d = new Date(val + 'T12:00:00');
+    label = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+    label = label.charAt(0).toUpperCase() + label.slice(1);
+  }
+  display.textContent = label;
+  display.style.color = (val && val !== today) ? 'var(--gold)' : 'var(--cream)';
+  // Show/hide past-day notice
+  updateFoodDateNotice(val);
+}
+
+function updateFoodDateNotice(val) {
+  const today = new Date().toISOString().split('T')[0];
+  let notice = document.getElementById('food-date-notice');
+  if (val && val !== today) {
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.id = 'food-date-notice';
+      notice.style.cssText = 'margin-bottom:8px;padding:8px 12px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);border-radius:10px;font-size:0.76rem;color:var(--gold);display:flex;align-items:center;gap:8px';
+      const row = document.getElementById('food-date-row');
+      if (row) row.insertAdjacentElement('afterend', notice);
+    }
+    const d = new Date(val + 'T12:00:00');
+    const label = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+    notice.innerHTML = `📅 Loggar mat för <strong>${label}</strong> – sparas på rätt datum`;
+  } else if (notice) {
+    notice.remove();
+  }
+}
 
 // ── GLOBAL VARIABLES ──
 let totalKcal = 0;
@@ -2508,7 +2597,11 @@ function openMealDetailShare(item) {
 }
 
 function quickAddFood(name, kcal) {
-  totalKcal += kcal;
+  const selectedDate = getFoodDate();
+  const today = new Date().toISOString().split('T')[0];
+  const isToday = selectedDate === today;
+  if (isToday) totalKcal += kcal;
+  else { dbAddFoodForDate(name, kcal, 'quick', selectedDate); showToast(`✓ ${name} sparat för ${getFoodDateLabel()}`); return; }
   const now = new Date();
   const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
   const item = document.createElement('div');
@@ -2643,28 +2736,45 @@ function addFood(){
   const input = document.getElementById('food-input');
   const val = input.value.trim(); if(!val) return;
   const kcal = Math.floor(Math.random()*420)+80;
-  totalKcal += kcal;
+  const selectedDate = getFoodDate();
+  const today = new Date().toISOString().split('T')[0];
+  const isToday = selectedDate === today;
+
+  // Bara lägg till i UI om det är idag
+  if (isToday) totalKcal += kcal;
+
   const now = new Date();
   const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
   const emojis = ['🍽','🥘','🍱','🥙','🍛','🥗','🍜'];
   const em = emojis[Math.floor(Math.random()*emojis.length)];
-  const item = document.createElement('div');
-  item.className='food-item';
-  item.setAttribute('data-kcal', kcal);
-  item.setAttribute('data-name', val);
-  item.setAttribute('data-time', time);
-  item.style.cursor = 'pointer';
-  item.innerHTML = makeFoodItemHTML(em + ' ' + val, kcal, time, '');
-  item.style.opacity='0'; item.style.transform='translateY(-8px)';
-  const empty = document.getElementById('food-empty-state');
-  if(empty) empty.style.display='none';
-  document.getElementById('food-list').appendChild(item);
-  setTimeout(()=>{item.style.transition='all 0.3s';item.style.opacity='1';item.style.transform='none';},10);
-  input.value=''; updateFoodStats(); showToast('Måltid tillagd ✓');
-  // Supabase synk
-  dbAddFood(em + ' ' + val, kcal, 'manual').then(result => {
-    if (result && result.data && result.data[0]) item.setAttribute('data-sb-id', result.data[0].id);
-  });
+  const dateLabel = getFoodDateLabel();
+
+  if (isToday) {
+    // Visa i listan direkt
+    const item = document.createElement('div');
+    item.className='food-item';
+    item.setAttribute('data-kcal', kcal);
+    item.setAttribute('data-name', val);
+    item.setAttribute('data-time', time);
+    item.style.cursor = 'pointer';
+    item.innerHTML = makeFoodItemHTML(em + ' ' + val, kcal, time, '');
+    item.style.opacity='0'; item.style.transform='translateY(-8px)';
+    const empty = document.getElementById('food-empty-state');
+    if(empty) empty.style.display='none';
+    document.getElementById('food-list').appendChild(item);
+    setTimeout(()=>{item.style.transition='all 0.3s';item.style.opacity='1';item.style.transform='none';},10);
+    updateFoodStats();
+    // Supabase synk
+    dbAddFood(em + ' ' + val, kcal, 'manual').then(result => {
+      if (result && result.data && result.data[0]) item.setAttribute('data-sb-id', result.data[0].id);
+    });
+  } else {
+    // Annat datum – spara bara till Supabase, visa bekräftelse
+    dbAddFoodForDate(em + ' ' + val, kcal, 'manual', selectedDate);
+  }
+
+  input.value='';
+  showToast(isToday ? 'Måltid tillagd ✓' : `✓ Sparat för ${dateLabel}`);
 }
 function deleteFood(btn){
   const item = btn.closest('.food-item');

@@ -127,7 +127,7 @@ nav.sidebar-nav{
 
 /* Mobile burger */
 .burger{
-  display:none;position:fixed;top:16px;left:16px;z-index:300;
+  display:none;position:fixed;top:max(16px, env(safe-area-inset-top));left:16px;z-index:300;
   background:var(--mid-green);border:1px solid var(--border);
   border-radius:10px;padding:8px 10px;cursor:pointer;font-size:1.2rem;
 }
@@ -456,7 +456,7 @@ select option:checked {
   .sidebar.open{transform:translateX(0);}
   .main{margin-left:0;}
   .burger{display:flex;align-items:center;}
-  .topbar{padding:16px 16px 0;padding-top:64px;flex-direction:column;gap:8px;}
+  .topbar{padding:16px 16px 0;padding-top:max(72px, calc(env(safe-area-inset-top) + 56px));flex-direction:column;gap:8px;}
   .content{padding:12px 14px 60px;}
   .grid-4{grid-template-columns:repeat(2,1fr);}
   .grid-2,.grid-3{grid-template-columns:1fr;}
@@ -472,6 +472,13 @@ select option:checked {
 @media(max-width:420px){
   .grid-4{grid-template-columns:1fr 1fr;}
   .metric-big .val{font-size:1.5rem;}
+  .workout-row1{grid-template-columns:1fr !important;}
+}
+@media(max-width:800px){
+  /* Streak pill i topbar – kompakt på mobil */
+  .streak-pill{font-size:0.7rem;padding:5px 10px;}
+  /* Synk-label */
+  #sync-status{display:none !important;}
 }
 </style>
 </head>
@@ -1041,14 +1048,14 @@ select option:checked {
       <!-- AI WORKOUT GENERATOR -->
       <div class="card" style="margin-bottom:16px;position:relative;overflow:hidden">
         <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;flex-wrap:wrap">
           <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--soft-white)">🤖 Generera träningspass</div>
-          <span style="font-size:0.68rem;padding:2px 8px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:100px;color:var(--gold)">AI-anpassat</span>
+          <span style="font-size:0.68rem;padding:2px 8px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:100px;color:var(--gold);white-space:nowrap;flex-shrink:0">AI-anpassat</span>
         </div>
         <div style="font-size:0.76rem;color:var(--text-dim);margin-bottom:14px">Välj snabbt eller berätta mer – AI anpassar passet efter dig.</div>
 
         <!-- ROW 1: Intensity + Duration -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px" class="workout-row1">
           <div>
             <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">💪 Intensitet</div>
             <div style="display:flex;gap:5px">
@@ -3608,111 +3615,55 @@ async function loadExerciseGif(name, url) {
   const container = document.getElementById('gif-container');
   if (!container) return;
 
-  // Show loading spinner
-  container.innerHTML = `<div style="padding:40px;text-align:center">
+  container.innerHTML = `<div style="padding:30px;text-align:center">
     <div style="display:flex;justify-content:center;gap:6px;margin-bottom:12px">
-      <span style="width:10px;height:10px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0s infinite ease;display:inline-block"></span>
-      <span style="width:10px;height:10px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.2s infinite ease;display:inline-block"></span>
-      <span style="width:10px;height:10px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.4s infinite ease;display:inline-block"></span>
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0s infinite ease;display:inline-block"></span>
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.2s infinite ease;display:inline-block"></span>
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.4s infinite ease;display:inline-block"></span>
     </div>
-    <div style="font-size:0.8rem;color:var(--text-dim)">Hämtar övningsbild…</div>
+    <div style="font-size:0.8rem;color:var(--text-dim)">Söker video…</div>
   </div>`;
 
-  const searchMap = {
-    // Squats & legs
-    'squat':'squat', 'knäböj':'squat', 'goblet':'squat', 'bulgarian':'squat',
-    'benspress':'leg press', 'benboj':'squat', 'stol-squat':'squat', 'wall squat':'squat',
-    'leg press':'leg press', 'leg extension':'leg extension', 'leg curl':'leg curl',
-    // Push
-    'push-up':'push-up', 'armhävning':'push-up', 'pushup':'push-up',
-    'väggarmhävning':'push-up', 'bröstspress':'bench press', 'bench press':'bench press',
-    'chest press':'bench press', 'dips':'tricep dip', 'dippar':'tricep dip',
-    // Pull
-    'pull-up':'pull-up', 'pullup':'pull-up', 'chin-up':'pull-up',
-    'rodd':'bent over row', 'roddning':'bent over row', 'bent over row':'bent over row',
-    'lat pulldown':'lat pulldown', 'cable row':'seated cable row',
-    // Core
-    'plank':'plank', 'plankan':'plank', 'sidoplanka':'side plank',
-    'sit-up':'sit up', 'situp':'sit up', 'crunch':'crunch', 'crunches':'crunch',
-    'russian twist':'russian twist', 'leg raise':'leg raise', 'mountain climber':'mountain climber',
-    'bergklättrare':'mountain climber', 'hollow':'hollow body hold',
-    // Hinge
-    'deadlift':'deadlift', 'marklyft':'deadlift', 'romanian':'romanian deadlift',
-    'hip hinge':'deadlift', 'good morning':'good morning',
-    // Lunge
-    'lunge':'lunge', 'utfall':'lunge', 'bulgarian split':'bulgarian split squat',
-    'step up':'step-up', 'steguppgång':'step-up',
-    // Shoulders
-    'shoulder press':'shoulder press', 'axelpress':'shoulder press',
-    'overhead press':'overhead press', 'lateral raise':'lateral raise',
-    'sidohöjning':'lateral raise', 'front raise':'front raise',
-    // Arms
-    'bicep':'bicep curl', 'curl':'bicep curl', 'hammer curl':'hammer curl',
-    'tricep':'tricep dip', 'skull crusher':'skull crusher',
-    // Glutes & hamstrings
-    'glute bridge':'glute bridge', 'höftlyft':'glute bridge',
-    'hip thrust':'hip thrust', 'kickback':'donkey kickback',
-    // Calves
-    'calf raise':'calf raise', 'tåhävning':'calf raise',
-    // Cardio
-    'burpee':'burpee', 'jumping jack':'jumping jack', 'high knees':'high knees',
-    'höga knän':'high knees', 'box jump':'box jump', 'jump rope':'jump rope',
-    'battle rope':'battle rope',
-    // Kettlebell
-    'kettlebell':'kettlebell swing', 'swing':'kettlebell swing',
-    'turkish':'turkish get-up', 'clean':'clean',
-    // Other
-    'farmer':'farmer walk', 'carry':'farmer walk',
-    'face pull':'face pull', 'cable fly':'cable fly',
-  };
-
-  const nameLower = name.toLowerCase();
-  let searchTerm = null;
-
-  // Try progressively longer keyword matches
-  for (const [key, val] of Object.entries(searchMap)) {
-    if (nameLower.includes(key)) { searchTerm = val; break; }
-  }
-
-  // Fallback: use first meaningful word(s) of exercise name
-  if (!searchTerm) {
-    const words = nameLower.replace(/[^a-zåäöA-ZÅÄÖ\s]/g,'').trim().split(' ');
-    searchTerm = words.slice(0,2).join(' ');
-  }
-
+  // Sök YouTube video ID via vår AI-funktion
   try {
-    const resp = await fetch(
-      `/.netlify/functions/exercisedb?exercise=${encodeURIComponent(searchTerm)}`
-    );
+    const searchQuery = name + ' exercise how to form tutorial';
+    const resp = await fetch('/.netlify/functions/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 100,
+        messages: [{ role: 'user', content: `What is the best YouTube video ID (just the 11-character ID, nothing else) for a tutorial on how to do: "${name}". Reply with ONLY the YouTube video ID, nothing else. Example: dQw4w9WgXcQ` }]
+      })
+    });
+    const data = await resp.json();
+    const videoId = data?.content?.[0]?.text?.trim().replace(/[^a-zA-Z0-9_-]/g,'').slice(0,11);
 
-    if (resp.ok) {
-      const data = await resp.json();
-      if (data?.[0]?.gifUrl) {
-        const ex = data[0];
-        container.innerHTML = `
-          <div style="text-align:center">
-            <img src="${ex.gifUrl}" alt="${name}"
-              style="width:100%;max-height:280px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,0.03)"
-              onerror="this.parentElement.innerHTML='<div style=padding:20px;text-align:center><div style=font-size:0.8rem;color:var(--text-dim)>Kunde inte ladda bild</div></div>'">
-            <div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
-              ${ex.bodyPart ? `<span style="padding:3px 10px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.2);border-radius:100px;font-size:0.7rem;color:var(--lime)">${ex.bodyPart}</span>` : ''}
-              ${ex.equipment ? `<span style="padding:3px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:100px;font-size:0.7rem;color:var(--text-dim)">${ex.equipment}</span>` : ''}
-              ${ex.target ? `<span style="padding:3px 10px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:100px;font-size:0.7rem;color:var(--gold)">${ex.target}</span>` : ''}
-            </div>
-            ${ex.secondaryMuscles?.length ? `<div style="margin-top:6px;font-size:0.68rem;color:var(--text-dim)">Sekundära: ${ex.secondaryMuscles.slice(0,3).join(', ')}</div>` : ''}
-          </div>`;
-        return;
-      }
+    if (videoId && videoId.length === 11) {
+      container.innerHTML = `
+        <div style="position:relative;border-radius:12px;overflow:hidden;background:#000">
+          <iframe
+            src="https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1"
+            style="width:100%;height:220px;border:none;display:block"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            loading="lazy">
+          </iframe>
+        </div>
+        <div style="margin-top:8px;font-size:0.7rem;color:var(--text-dim);text-align:center">
+          🎬 ${name}
+        </div>`;
+      return;
     }
-  } catch(e) { console.log('ExerciseDB error:', e); }
+  } catch(e) { console.log('Video search error:', e); }
 
-  // Fallback: YouTube
-  const q = encodeURIComponent(name + ' exercise technique form');
+  // Fallback: YouTube search-länk
+  const q = encodeURIComponent(name + ' exercise tutorial form');
   container.innerHTML = `
     <div style="padding:20px;text-align:center">
-      <div style="font-size:3rem;margin-bottom:12px">🏋️</div>
+      <div style="font-size:3rem;margin-bottom:12px">🎬</div>
       <div style="font-size:0.84rem;color:var(--cream);font-weight:600;margin-bottom:6px">${name}</div>
-      <div style="font-size:0.74rem;color:var(--text-dim);margin-bottom:16px">GIF ej tillgänglig – se video</div>
+      <div style="font-size:0.74rem;color:var(--text-dim);margin-bottom:16px">Tryck för att se teknikvideo</div>
       <a href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener"
         style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:rgba(255,30,30,0.85);color:white;border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:600">
         ▶ Se på YouTube

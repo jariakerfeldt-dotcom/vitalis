@@ -1,6 +1,6 @@
 // netlify/functions/exercisedb.js
-// Primär: wger.de (gratis, öppen källkod, riktiga övningsbilder)
-// Returnerar övningsbild + metadata
+// Statisk mappning av övningar → wger.de bildlänkar (alltid rätt bild)
+// wger exercise base IDs: https://wger.de/en/exercise/overview/
 
 exports.handler = async (event) => {
   const headers = {
@@ -12,93 +12,122 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers, body: 'Method Not Allowed' };
   }
 
-  const exercise = event.queryStringParameters?.exercise;
+  const exercise = (event.queryStringParameters?.exercise || '').toLowerCase().trim();
   if (!exercise) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing exercise parameter' }) };
   }
 
-  // ── 1. wger.de sökning ──
-  try {
-    // Sök övning
-    const searchResp = await fetch(
-      `https://wger.de/api/v2/exercise/search/?term=${encodeURIComponent(exercise)}&language=english&format=json`,
-      { headers: { 'Accept': 'application/json', 'User-Agent': 'VitalisFlow/1.0' } }
-    );
+  // ── Statisk mappning: sökterm → wger exercise base ID ──
+  // wger bilder: https://wger.de/api/v2/exerciseimage/?exercise_base=ID
+  const EXERCISE_MAP = {
+    // Knäböj / Squat
+    'squat': 8, 'squats': 8, 'knäböj': 8, 'bodyweight squat': 8,
+    'front squat': 8, 'goblet squat': 8, 'wall squat': 8,
+    // Push-up / Armhävning  
+    'push-up': 192, 'push up': 192, 'pushup': 192,
+    'armhävning': 192, 'armhävningar': 192, 'väggarmhävning': 192,
+    // Plank
+    'plank': 151, 'plankan': 151, 'side plank': 344, 'sidoplanka': 344,
+    // Lunge / Utfall
+    'lunge': 68, 'lunges': 68, 'utfall': 68, 'reverse lunge': 68,
+    // Sit-up / Crunch
+    'sit up': 42, 'sit-up': 42, 'crunch': 42, 'crunches': 42,
+    'situps': 42, 'magövning': 42,
+    // Deadlift / Marklyft
+    'deadlift': 29, 'marklyft': 29, 'romanian deadlift': 29,
+    // Pull-up / Chins
+    'pull-up': 31, 'pull up': 31, 'pullup': 31, 'chin up': 31,
+    'chins': 31, 'pullups': 31,
+    // Shoulder press / Axelpress
+    'shoulder press': 78, 'axelpress': 78, 'overhead press': 78,
+    // Bicep curl
+    'bicep curl': 13, 'biceps': 13, 'curl': 13, 'hammer curl': 13,
+    // Tricep dip
+    'tricep dip': 24, 'triceps': 24, 'dips': 24, 'dippar': 24,
+    // Calf raise / Tåhävning
+    'calf raise': 117, 'tåhävning': 117, 'tåhävningar': 117,
+    // Glute bridge / Höftlyft
+    'glute bridge': 291, 'höftlyft': 291, 'hip thrust': 291,
+    // Russian twist
+    'russian twist': 390,
+    // Leg raise
+    'leg raise': 226, 'leg raises': 226,
+    // Back extension / Rygglyft
+    'back extension': 114, 'rygglyft': 114,
+    // Burpee
+    'burpee': 364, 'burpees': 364,
+    // Mountain climber / Bergklättrare
+    'mountain climber': 363, 'bergklättrare': 363,
+    // Jumping jack
+    'jumping jack': 365, 'jumping jacks': 365,
+    // High knees / Höga knän
+    'high knees': 366, 'höga knän': 366,
+    // Bench press / Bänkpress
+    'bench press': 192, 'bänkpress': 192, 'bröstpress': 192,
+    // Bent over row / Rodd
+    'bent over row': 65, 'rodd': 65, 'roddning': 65,
+    // Step up
+    'step up': 68, 'steguppgång': 68,
+    // Kettlebell swing
+    'kettlebell': 367, 'swing': 367,
+    // Cycling / Crosstrainer
+    'cycling': 8, 'crosstrainer': 151, 'rowing': 65,
+    'löpning': 366, 'jogging': 366,
+  };
 
-    if (searchResp.ok) {
-      const searchData = await searchResp.json();
-      const hit = searchData?.suggestions?.[0];
+  // Hitta bästa match
+  let baseId = null;
+  let matchedName = null;
 
-      if (hit?.data?.id) {
-        const exerciseBaseId = hit.data.base_id || hit.data.id;
-
-        // Hämta bilder
-        const imgResp = await fetch(
-          `https://wger.de/api/v2/exerciseimage/?exercise_base=${exerciseBaseId}&format=json`,
-          { headers: { 'Accept': 'application/json', 'User-Agent': 'VitalisFlow/1.0' } }
-        );
-
-        if (imgResp.ok) {
-          const imgData = await imgResp.json();
-          const images = imgData?.results || [];
-
-          if (images.length > 0) {
-            return {
-              statusCode: 200,
-              headers,
-              body: JSON.stringify([{
-                name: hit.value || exercise,
-                gifUrl: images[0].image.startsWith('http') ? images[0].image : `https://wger.de${images[0].image}`,
-                bodyPart: hit.data?.category || '',
-                equipment: '',
-                target: hit.data?.muscles?.[0] || '',
-                secondaryMuscles: [],
-                source: 'wger'
-              }])
-            };
-          }
-        }
+  // Exakt match först
+  for (const [key, id] of Object.entries(EXERCISE_MAP)) {
+    if (exercise === key) { baseId = id; matchedName = key; break; }
+  }
+  // Partiell match
+  if (!baseId) {
+    for (const [key, id] of Object.entries(EXERCISE_MAP)) {
+      if (exercise.includes(key) || key.includes(exercise)) {
+        baseId = id; matchedName = key; break;
       }
     }
-  } catch(e) {
-    console.log('wger error:', e.message);
   }
 
-  // ── 2. wger exerciseinfo (bredare sökning) ──
-  try {
-    const infoResp = await fetch(
-      `https://wger.de/api/v2/exerciseinfo/?format=json&language=2&limit=20`,
-      { headers: { 'Accept': 'application/json', 'User-Agent': 'VitalisFlow/1.0' } }
-    );
-
-    if (infoResp.ok) {
-      const infoData = await infoResp.json();
-      const ex = (infoData?.results || []).find(e =>
-        e.translations?.some(t =>
-          t.name?.toLowerCase().includes(exercise.toLowerCase())
-        )
+  if (baseId) {
+    try {
+      const imgResp = await fetch(
+        `https://wger.de/api/v2/exerciseimage/?exercise_base=${baseId}&format=json`,
+        { headers: { 'Accept': 'application/json', 'User-Agent': 'VitalisFlow/1.0' } }
       );
 
-      if (ex?.images?.length > 0) {
-        const name = ex.translations?.find(t => t.language === 2)?.name || exercise;
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify([{
-            name,
-            gifUrl: ex.images[0].image.startsWith('http') ? ex.images[0].image : `https://wger.de${ex.images[0].image}`,
-            bodyPart: ex.category?.name || '',
-            target: ex.muscles?.[0]?.name_en || '',
-            secondaryMuscles: ex.muscles_secondary?.map(m => m.name_en) || [],
-            source: 'wger'
-          }])
-        };
+      if (imgResp.ok) {
+        const imgData = await imgResp.json();
+        const images = imgData?.results || [];
+
+        if (images.length > 0) {
+          const imgUrl = images[0].image.startsWith('http')
+            ? images[0].image
+            : `https://wger.de${images[0].image}`;
+
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify([{
+              name: exercise,
+              gifUrl: imgUrl,
+              bodyPart: '',
+              equipment: '',
+              target: matchedName,
+              secondaryMuscles: [],
+              source: 'wger'
+            }])
+          };
+        }
       }
+    } catch(e) {
+      console.log('wger image fetch error:', e.message);
     }
-  } catch(e) {
-    console.log('wger info error:', e.message);
   }
 
-  // ── 3. Ingen bild hittad ──
+  // Ingen bild hittad – frontend visar YouTube
   return { statusCode: 200, headers, body: JSON.stringify([]) };
 };

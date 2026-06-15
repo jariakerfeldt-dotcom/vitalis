@@ -524,12 +524,36 @@ select option:checked {
           onkeydown="if(event.key==='Enter')handleAuth()">
       </div>
 
-      <div style="margin-bottom:20px">
+      <div style="margin-bottom:14px">
         <label style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:6px">Lösenord</label>
-        <input type="password" id="auth-password" placeholder="Minst 6 tecken"
-          style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none"
-          onfocus="this.style.borderColor='rgba(126,200,80,0.5)'" onblur="this.style.borderColor='var(--border)'"
-          onkeydown="if(event.key==='Enter')handleAuth()">
+        <div style="position:relative">
+          <input type="password" id="auth-password" placeholder="Minst 6 tecken"
+            style="width:100%;padding:12px 44px 12px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none"
+            onfocus="this.style.borderColor='rgba(126,200,80,0.5)'" onblur="this.style.borderColor='var(--border)'"
+            onkeydown="if(event.key==='Enter')handleAuth()">
+          <button type="button" onclick="togglePwdVisibility('auth-password','eye1')"
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:1rem;padding:4px;line-height:1"
+            title="Visa/dölj lösenord">
+            <span id="eye1">👁️</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bekräfta lösenord – visas bara vid registrering -->
+      <div id="auth-confirm-pwd" style="display:none;margin-bottom:20px">
+        <label style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:6px">Bekräfta lösenord</label>
+        <div style="position:relative">
+          <input type="password" id="auth-password2" placeholder="Upprepa lösenordet"
+            style="width:100%;padding:12px 44px 12px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none"
+            onfocus="this.style.borderColor='rgba(126,200,80,0.5)'" onblur="this.style.borderColor='var(--border)'"
+            onkeydown="if(event.key==='Enter')handleAuth()" oninput="checkPwdMatch()">
+          <button type="button" onclick="togglePwdVisibility('auth-password2','eye2')"
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:1rem;padding:4px;line-height:1"
+            title="Visa/dölj lösenord">
+            <span id="eye2">👁️</span>
+          </button>
+        </div>
+        <div id="pwd-match-msg" style="font-size:0.72rem;margin-top:5px;display:none"></div>
       </div>
 
       <div id="auth-error" style="display:none;margin-bottom:14px;padding:10px 14px;background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);border-radius:10px;font-size:0.8rem;color:#e05c5c"></div>
@@ -2176,26 +2200,59 @@ function updateAuthUI(user) {
 
 let authMode = 'login';
 
+function togglePwdVisibility(inputId, eyeId) {
+  const input = document.getElementById(inputId);
+  const eye = document.getElementById(eyeId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (eye) eye.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    if (eye) eye.textContent = '👁️';
+  }
+}
+
+function checkPwdMatch() {
+  const p1 = document.getElementById('auth-password')?.value;
+  const p2 = document.getElementById('auth-password2')?.value;
+  const msg = document.getElementById('pwd-match-msg');
+  if (!msg || !p2) return;
+  msg.style.display = 'block';
+  if (p1 === p2) {
+    msg.textContent = '✓ Lösenorden matchar';
+    msg.style.color = 'var(--lime)';
+  } else {
+    msg.textContent = '✗ Lösenorden matchar inte';
+    msg.style.color = '#e05c5c';
+  }
+}
+
 function switchAuthTab(mode) {
   authMode = mode;
   const loginBtn = document.getElementById('auth-tab-login');
   const regBtn = document.getElementById('auth-tab-register');
   const nameField = document.getElementById('auth-register-name');
+  const confirmPwd = document.getElementById('auth-confirm-pwd');
   const submitBtn = document.getElementById('auth-submit-btn');
   const forgotEl = document.getElementById('auth-forgot');
+  const matchMsg = document.getElementById('pwd-match-msg');
   if (mode === 'login') {
     loginBtn.style.background = 'var(--leaf-green)'; loginBtn.style.color = 'var(--cream)'; loginBtn.style.fontWeight = '600';
     regBtn.style.background = 'none'; regBtn.style.color = 'var(--text-dim)'; regBtn.style.fontWeight = '500';
     if (nameField) nameField.style.display = 'none';
+    if (confirmPwd) confirmPwd.style.display = 'none';
     if (submitBtn) submitBtn.textContent = 'Logga in';
     if (forgotEl) forgotEl.style.display = 'block';
   } else {
     regBtn.style.background = 'var(--leaf-green)'; regBtn.style.color = 'var(--cream)'; regBtn.style.fontWeight = '600';
     loginBtn.style.background = 'none'; loginBtn.style.color = 'var(--text-dim)'; loginBtn.style.fontWeight = '500';
     if (nameField) nameField.style.display = 'block';
+    if (confirmPwd) confirmPwd.style.display = 'block';
     if (submitBtn) submitBtn.textContent = 'Skapa konto';
     if (forgotEl) forgotEl.style.display = 'none';
   }
+  if (matchMsg) matchMsg.style.display = 'none';
   document.getElementById('auth-error').style.display = 'none';
 }
 
@@ -2208,6 +2265,10 @@ async function handleAuth() {
 
   if (!email || !password) { showAuthError('Fyll i e-post och lösenord'); return; }
   if (password.length < 6) { showAuthError('Lösenordet måste vara minst 6 tecken'); return; }
+  if (authMode === 'register') {
+    const password2 = document.getElementById('auth-password2')?.value;
+    if (password !== password2) { showAuthError('Lösenorden matchar inte – kontrollera och försök igen'); return; }
+  }
 
   btn.textContent = '⏳ Vänta...'; btn.disabled = true;
 

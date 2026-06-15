@@ -3621,49 +3621,76 @@ async function loadExerciseGif(name, url) {
       <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.2s infinite ease;display:inline-block"></span>
       <span style="width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulseDot 1.2s 0.4s infinite ease;display:inline-block"></span>
     </div>
-    <div style="font-size:0.8rem;color:var(--text-dim)">Söker video…</div>
+    <div style="font-size:0.8rem;color:var(--text-dim)">Hämtar övningsbild…</div>
   </div>`;
 
-  // Sök YouTube video ID via vår AI-funktion
-  try {
-    const searchQuery = name + ' exercise how to form tutorial';
-    const resp = await fetch('/.netlify/functions/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 100,
-        messages: [{ role: 'user', content: `What is the best YouTube video ID (just the 11-character ID, nothing else) for a tutorial on how to do: "${name}". Reply with ONLY the YouTube video ID, nothing else. Example: dQw4w9WgXcQ` }]
-      })
-    });
-    const data = await resp.json();
-    const videoId = data?.content?.[0]?.text?.trim().replace(/[^a-zA-Z0-9_-]/g,'').slice(0,11);
-
-    if (videoId && videoId.length === 11) {
-      container.innerHTML = `
-        <div style="position:relative;border-radius:12px;overflow:hidden;background:#000">
-          <iframe
-            src="https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1"
-            style="width:100%;height:220px;border:none;display:block"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            loading="lazy">
-          </iframe>
-        </div>
-        <div style="margin-top:8px;font-size:0.7rem;color:var(--text-dim);text-align:center">
-          🎬 ${name}
-        </div>`;
-      return;
+  // Bygg söktermer – prova flera kandidater
+  function buildCandidates(rawName) {
+    const n = rawName.toLowerCase();
+    const map = {
+      'knäböj':'squat','benböj':'squat','squat':'squat',
+      'armhävning':'push up','armhävningar':'push up','push-up':'push up','pushup':'push up',
+      'plankan':'plank','planka':'plank','sidoplanka':'side plank',
+      'utfall':'lunge','utfallssteg':'lunge','lunge':'lunge',
+      'marklyft':'deadlift','deadlift':'deadlift',
+      'höftlyft':'glute bridge','glute bridge':'glute bridge',
+      'axelpress':'shoulder press','shoulder press':'shoulder press',
+      'bicepscurl':'bicep curl','biceps':'bicep curl','curl':'bicep curl',
+      'triceps':'tricep dip','dips':'tricep dip','dippar':'tricep dip',
+      'rygglyft':'back extension','rygg':'back extension',
+      'situps':'sit up','sit-ups':'sit up','magövning':'crunch','crunch':'crunch',
+      'burpees':'burpee','burpee':'burpee',
+      'bergklättrare':'mountain climber','mountain climber':'mountain climber',
+      'höga knän':'high knees','high knees':'high knees',
+      'tåhävning':'calf raise','calf raise':'calf raise',
+      'rodd':'rowing','roddning':'rowing','rowing':'rowing',
+      'pullups':'pull up','pull-ups':'pull up','pull-up':'pull up','chins':'pull up',
+      'crosstrainer':'cycling','elliptisk':'cycling','cykling':'cycling',
+      'löpning':'running','jogging':'jogging','sprint':'running',
+      'kettlebell':'kettlebell swing','swing':'kettlebell swing',
+      'yoga':'yoga stretch','stretch':'stretching','stretching':'stretching',
+      'balans':'balance exercise','core':'core exercise','bål':'core exercise',
+      'hopp':'jump squat','jumping jack':'jumping jacks',
+    };
+    const candidates = [];
+    for (const [sv, en] of Object.entries(map)) {
+      if (n.includes(sv)) candidates.push(en + ' exercise workout');
     }
-  } catch(e) { console.log('Video search error:', e); }
+    const stopwords = ['eller','och','med','för','på','av','lätt','tung','snabb','långsam','alternativt','enkel','svår','lång','kort','hög','låg','set','reps','sek','min','x'];
+    const words = n.replace(/[^a-zåäö\s]/g,'').split(/\s+/).filter(w => w.length > 2 && !stopwords.includes(w));
+    if (words[0]) candidates.push(words[0] + ' exercise');
+    candidates.push(rawName.split(' ').slice(0,2).join(' ') + ' workout');
+    return [...new Set(candidates)].filter(Boolean).slice(0, 4);
+  }
 
-  // Fallback: YouTube search-länk
-  const q = encodeURIComponent(name + ' exercise tutorial form');
+  const candidates = buildCandidates(name);
+
+  for (const term of candidates) {
+    try {
+      const resp = await fetch(`/.netlify/functions/exercisedb?exercise=${encodeURIComponent(term)}`);
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      if (data?.[0]?.gifUrl) {
+        const gif = data[0];
+        container.innerHTML = `
+          <div style="text-align:center">
+            <img src="${gif.gifUrl}" alt="${name}"
+              style="width:100%;max-height:280px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,0.03)"
+              onerror="this.parentElement.innerHTML='<div style=padding:20px;text-align:center><div style=font-size:2rem;margin-bottom:8px>🏋️</div><div style=font-size:0.8rem;color:#8aab96>Bild ej tillgänglig</div></div>'">
+            ${gif.target ? `<div style="margin-top:8px;font-size:0.7rem;color:var(--text-dim)">Tränar: ${gif.target}</div>` : ''}
+          </div>`;
+        return;
+      }
+    } catch(e) { console.log('GIF attempt failed:', term); }
+  }
+
+  // Fallback: YouTube-söklink
+  const q = encodeURIComponent(name + ' exercise tutorial');
   container.innerHTML = `
     <div style="padding:20px;text-align:center">
-      <div style="font-size:3rem;margin-bottom:12px">🎬</div>
+      <div style="font-size:3rem;margin-bottom:12px">🏋️</div>
       <div style="font-size:0.84rem;color:var(--cream);font-weight:600;margin-bottom:6px">${name}</div>
-      <div style="font-size:0.74rem;color:var(--text-dim);margin-bottom:16px">Tryck för att se teknikvideo</div>
+      <div style="font-size:0.74rem;color:var(--text-dim);margin-bottom:16px">GIF ej tillgänglig – se video</div>
       <a href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener"
         style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:rgba(255,30,30,0.85);color:white;border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:600">
         ▶ Se på YouTube

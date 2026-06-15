@@ -2366,14 +2366,34 @@ async function handleAuth() {
         options: { data: { name: name || email.split('@')[0] } }
       });
       if (error) throw error;
-      showAuthError('✅ Konto skapat! Välj din plan...', true);
-      // Auto-login after register
-      const { error: loginErr } = await sb.auth.signInWithPassword({ email, password });
-      if (!loginErr) {
-        // Visa planval
-        setTimeout(() => showPlanStep(), 600);
-        return;
+      // Visa verifieringsmeddelande
+      const btn2 = document.getElementById('auth-submit-btn');
+      if (btn2) { btn2.textContent = authMode === 'login' ? 'Logga in' : 'Skapa konto'; btn2.disabled = false; }
+
+      const wrapper = document.getElementById('auth-modal')?.querySelector('div');
+      if (wrapper) {
+        Array.from(wrapper.children).forEach(c => c.style.display = 'none');
+        const verifyMsg = document.createElement('div');
+        verifyMsg.style.cssText = 'text-align:center;padding:40px 20px;max-width:400px;animation:fadeUp 0.4s ease both';
+        verifyMsg.innerHTML = `
+          <div style="width:72px;height:72px;background:rgba(126,200,80,0.1);border:2px solid var(--lime);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 20px">📧</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--soft-white);margin-bottom:10px">Kontrollera din e-post</div>
+          <div style="font-size:0.88rem;color:var(--text-dim);line-height:1.7;margin-bottom:20px">
+            Vi har skickat ett <strong style="color:var(--cream)">verifieringsmail</strong> till<br>
+            <strong style="color:var(--lime)">${email}</strong><br><br>
+            Klicka på länken i mailet för att aktivera ditt konto och komma vidare till planvalet.
+          </div>
+          <div style="padding:14px 18px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:12px;font-size:0.78rem;color:var(--gold);margin-bottom:20px">
+            ⏱ Länken är giltig i 24 timmar. Kolla även skräppost-mappen.
+          </div>
+          <button onclick="switchAuthTab('login');location.reload()" style="padding:11px 28px;background:var(--lime);color:var(--deep-green);border:none;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:700;cursor:pointer">Logga in efter verifiering →</button>
+          <div style="margin-top:14px;font-size:0.76rem;color:var(--text-dim)">
+            Inget mail? 
+            <button onclick="resendVerification('${email}')" style="background:none;border:none;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.76rem;cursor:pointer;text-decoration:underline">Skicka igen</button>
+          </div>`;
+        wrapper.appendChild(verifyMsg);
       }
+      return;
     } else {
       const { error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
@@ -2398,6 +2418,15 @@ function showAuthError(msg, isSuccess = false) {
   el.style.background = isSuccess ? 'rgba(126,200,80,0.1)' : 'rgba(224,92,92,0.1)';
   el.style.borderColor = isSuccess ? 'rgba(126,200,80,0.3)' : 'rgba(224,92,92,0.3)';
   el.style.color = isSuccess ? 'var(--lime)' : '#e05c5c';
+}
+
+async function resendVerification(email) {
+  try {
+    await sb.auth.resend({ type: 'signup', email });
+    showToast('✅ Nytt verifieringsmail skickat!');
+  } catch(e) {
+    showToast('Kunde inte skicka – försök igen om en stund');
+  }
 }
 
 async function handleForgotPassword() {

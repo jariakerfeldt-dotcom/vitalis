@@ -484,6 +484,71 @@ select option:checked {
 </head>
 <body>
 
+<!-- LOGIN MODAL -->
+<div id="auth-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:var(--deep-green);align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:400px">
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:var(--soft-white)">Vita<span style="color:var(--lime)">lis Flow</span></div>
+      <div style="font-size:0.82rem;color:var(--text-dim);margin-top:4px">Din personliga hälsocoach</div>
+    </div>
+
+    <!-- Tabs: Logga in / Registrera -->
+    <div style="display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:24px">
+      <button id="auth-tab-login" onclick="switchAuthTab('login')"
+        style="flex:1;padding:9px;border-radius:8px;background:var(--leaf-green);border:none;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:600;cursor:pointer;transition:all 0.2s">
+        Logga in
+      </button>
+      <button id="auth-tab-register" onclick="switchAuthTab('register')"
+        style="flex:1;padding:9px;border-radius:8px;background:none;border:none;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:500;cursor:pointer;transition:all 0.2s">
+        Skapa konto
+      </button>
+    </div>
+
+    <!-- Form -->
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:28px;backdrop-filter:blur(10px);position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+
+      <div id="auth-register-name" style="display:none;margin-bottom:14px">
+        <label style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:6px">Namn</label>
+        <input type="text" id="auth-name" placeholder="Ditt namn"
+          style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none"
+          onfocus="this.style.borderColor='rgba(126,200,80,0.5)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:6px">E-post</label>
+        <input type="email" id="auth-email" placeholder="din@email.se"
+          style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none"
+          onfocus="this.style.borderColor='rgba(126,200,80,0.5)'" onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')handleAuth()">
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:6px">Lösenord</label>
+        <input type="password" id="auth-password" placeholder="Minst 6 tecken"
+          style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none"
+          onfocus="this.style.borderColor='rgba(126,200,80,0.5)'" onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')handleAuth()">
+      </div>
+
+      <div id="auth-error" style="display:none;margin-bottom:14px;padding:10px 14px;background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);border-radius:10px;font-size:0.8rem;color:#e05c5c"></div>
+
+      <button id="auth-submit-btn" onclick="handleAuth()"
+        style="width:100%;padding:14px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s"
+        onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='var(--lime)'">
+        Logga in
+      </button>
+
+      <div id="auth-forgot" style="text-align:center;margin-top:14px">
+        <button onclick="handleForgotPassword()" style="background:none;border:none;color:var(--text-dim);font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline">
+          Glömt lösenordet?
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- BURGER -->
 <div class="burger" onclick="toggleSidebar()">☰</div>
 
@@ -543,7 +608,7 @@ select option:checked {
       <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
       <button class="lang-btn" onclick="setLang('ar')" id="lang-ar">AR</button>
     </div>
-    <button class="sidebar-logout" onclick="window.location.href='index.html'" data-i18n="nav_logout">Logga ut</button>
+    <button class="sidebar-logout" onclick="handleSignOut()" data-i18n="nav_logout">Logga ut</button>
   </div>
 </div>
 
@@ -2052,16 +2117,153 @@ const SUPABASE_URL = 'https://kzzvrwybrycokorgkobw.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6enZyd3licnljb2tvcmdrb2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNzY3NjcsImV4cCI6MjA5Njg1Mjc2N30.PS3TyH9qPKfE5H7ZlOGR2TtQsCi9BvX7FU3Oll14lgg';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Unikt enhets-ID (ersätter inloggning tills vidare)
-function getDeviceId() {
-  let id = localStorage.getItem('vitalis_device_id');
-  if (!id) {
-    id = 'dev_' + Math.random().toString(36).substr(2,9) + '_' + Date.now();
-    localStorage.setItem('vitalis_device_id', id);
+// ── AUTH STATE ──
+let currentUser = null;
+let DEVICE_ID = localStorage.getItem('vitalis_device_id') || 'anon';
+
+// Lyssna på auth-ändringar
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    DEVICE_ID = session.user.id; // Använd user.id som device_id
+    localStorage.setItem('vitalis_device_id', DEVICE_ID);
+    hideAuthModal();
+    updateAuthUI(session.user);
+  } else {
+    currentUser = null;
+    showAuthModal();
   }
-  return id;
+});
+
+// Kolla om redan inloggad
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    DEVICE_ID = session.user.id;
+    localStorage.setItem('vitalis_device_id', DEVICE_ID);
+    hideAuthModal();
+    updateAuthUI(session.user);
+  } else {
+    showAuthModal();
+  }
+})();
+
+function showAuthModal() {
+  const m = document.getElementById('auth-modal');
+  if (m) m.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
-const DEVICE_ID = getDeviceId();
+
+function hideAuthModal() {
+  const m = document.getElementById('auth-modal');
+  if (m) m.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function updateAuthUI(user) {
+  const email = user.email || '';
+  const name = user.user_metadata?.name || email.split('@')[0] || 'du';
+  // Sidebar
+  const navName = document.getElementById('nav-name');
+  const navAv = document.getElementById('nav-avatar');
+  if (navName) { navName.textContent = name; navName.style.fontStyle='normal'; navName.style.color='var(--cream)'; }
+  if (navAv) navAv.textContent = name.charAt(0).toUpperCase();
+  // Greeting
+  const greet = document.getElementById('greeting-name');
+  if (greet) greet.textContent = name;
+}
+
+let authMode = 'login';
+
+function switchAuthTab(mode) {
+  authMode = mode;
+  const loginBtn = document.getElementById('auth-tab-login');
+  const regBtn = document.getElementById('auth-tab-register');
+  const nameField = document.getElementById('auth-register-name');
+  const submitBtn = document.getElementById('auth-submit-btn');
+  const forgotEl = document.getElementById('auth-forgot');
+  if (mode === 'login') {
+    loginBtn.style.background = 'var(--leaf-green)'; loginBtn.style.color = 'var(--cream)'; loginBtn.style.fontWeight = '600';
+    regBtn.style.background = 'none'; regBtn.style.color = 'var(--text-dim)'; regBtn.style.fontWeight = '500';
+    if (nameField) nameField.style.display = 'none';
+    if (submitBtn) submitBtn.textContent = 'Logga in';
+    if (forgotEl) forgotEl.style.display = 'block';
+  } else {
+    regBtn.style.background = 'var(--leaf-green)'; regBtn.style.color = 'var(--cream)'; regBtn.style.fontWeight = '600';
+    loginBtn.style.background = 'none'; loginBtn.style.color = 'var(--text-dim)'; loginBtn.style.fontWeight = '500';
+    if (nameField) nameField.style.display = 'block';
+    if (submitBtn) submitBtn.textContent = 'Skapa konto';
+    if (forgotEl) forgotEl.style.display = 'none';
+  }
+  document.getElementById('auth-error').style.display = 'none';
+}
+
+async function handleAuth() {
+  const email = document.getElementById('auth-email')?.value?.trim();
+  const password = document.getElementById('auth-password')?.value;
+  const name = document.getElementById('auth-name')?.value?.trim();
+  const errEl = document.getElementById('auth-error');
+  const btn = document.getElementById('auth-submit-btn');
+
+  if (!email || !password) { showAuthError('Fyll i e-post och lösenord'); return; }
+  if (password.length < 6) { showAuthError('Lösenordet måste vara minst 6 tecken'); return; }
+
+  btn.textContent = '⏳ Vänta...'; btn.disabled = true;
+
+  try {
+    if (authMode === 'register') {
+      const { error } = await sb.auth.signUp({
+        email, password,
+        options: { data: { name: name || email.split('@')[0] } }
+      });
+      if (error) throw error;
+      showAuthError('✅ Konto skapat! Loggar in...', true);
+      // Auto-login after register
+      await sb.auth.signInWithPassword({ email, password });
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    }
+  } catch(e) {
+    const msgs = {
+      'Invalid login credentials': 'Fel e-post eller lösenord',
+      'Email not confirmed': 'Bekräfta din e-post först',
+      'User already registered': 'E-posten finns redan – logga in istället',
+      'Password should be at least 6 characters': 'Lösenordet måste vara minst 6 tecken'
+    };
+    showAuthError(msgs[e.message] || e.message);
+    btn.textContent = authMode === 'login' ? 'Logga in' : 'Skapa konto';
+    btn.disabled = false;
+  }
+}
+
+function showAuthError(msg, isSuccess = false) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = isSuccess ? 'rgba(126,200,80,0.1)' : 'rgba(224,92,92,0.1)';
+  el.style.borderColor = isSuccess ? 'rgba(126,200,80,0.3)' : 'rgba(224,92,92,0.3)';
+  el.style.color = isSuccess ? 'var(--lime)' : '#e05c5c';
+}
+
+async function handleForgotPassword() {
+  const email = document.getElementById('auth-email')?.value?.trim();
+  if (!email) { showAuthError('Ange din e-postadress ovan'); return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://vitalisflow.se/dashboard.html'
+  });
+  if (error) showAuthError(error.message);
+  else showAuthError('✅ Återställningslänk skickad till ' + email, true);
+}
+
+async function handleSignOut() {
+  await sb.auth.signOut();
+  localStorage.removeItem('vitalis_device_id');
+  localStorage.removeItem('vitalis_sb_migrated');
+  showAuthModal();
+  showToast('Du är utloggad 👋');
+}
 
 // ── DB: PROFIL ──
 async function dbSaveProfile(profile) {

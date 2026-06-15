@@ -2236,12 +2236,16 @@ let DEVICE_ID = localStorage.getItem('vitalis_device_id') || 'anon';
 sb.auth.onAuthStateChange(async (event, session) => {
   if (session?.user) {
     currentUser = session.user;
-    DEVICE_ID = session.user.id; // Använd user.id som device_id
+    DEVICE_ID = session.user.id;
     localStorage.setItem('vitalis_device_id', DEVICE_ID);
     hideAuthModal();
     updateAuthUI(session.user);
+    if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+      initSupabase();
+    }
   } else {
     currentUser = null;
+    DEVICE_ID = 'anon';
     showAuthModal();
   }
 });
@@ -2255,6 +2259,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
     localStorage.setItem('vitalis_device_id', DEVICE_ID);
     hideAuthModal();
     updateAuthUI(session.user);
+    initSupabase();
   } else {
     showAuthModal();
   }
@@ -2569,7 +2574,8 @@ async function dbSaveProfile(profile) {
 
 async function dbLoadProfile() {
   try {
-    const { data } = await sb.from('profiles').select('*').eq('device_id', DEVICE_ID).single();
+    const { data, error } = await sb.from('profiles').select('*').eq('device_id', DEVICE_ID).maybeSingle();
+    if (error) { console.log('dbLoadProfile error:', error); return null; }
     return data;
   } catch(e) { return null; }
 }
@@ -2577,12 +2583,13 @@ async function dbLoadProfile() {
 // ── DB: MATLOGG ──
 async function dbAddFood(name, kcal, source='manual') {
   try {
-    const result = await sb.from('food_logs').insert({
+    const { data, error } = await sb.from('food_logs').insert({
       device_id: DEVICE_ID,
       name, kcal, source,
       log_date: new Date().toISOString().split('T')[0]
-    }).select();
-    return result;
+    }).select('id');
+    if (error) { console.log('Supabase food error:', error); return null; }
+    return { data };
   } catch(e) { console.log('Supabase food save:', e); return null; }
 }
 
@@ -2699,7 +2706,8 @@ async function dbSaveStreak(streak, lastDate) {
 
 async function dbLoadStreak() {
   try {
-    const { data } = await sb.from('streaks').select('*').eq('device_id', DEVICE_ID).single();
+    const { data, error } = await sb.from('streaks').select('*').eq('device_id', DEVICE_ID).maybeSingle();
+    if (error) { console.log('dbLoadStreak error:', error); return null; }
     return data;
   } catch(e) { return null; }
 }
@@ -2742,8 +2750,9 @@ async function migrateLocalStorageToSupabase() {
   console.log('✅ Migration klar!');
 }
 
-// Kör migration + ladda data vid start
-(async function initSupabase() {
+// Kör migration + ladda data vid start - körs bara när användaren är inloggad
+async function initSupabase() {
+  if (!currentUser && !DEVICE_ID) return;
   await migrateLocalStorageToSupabase();
 
   // Ladda profil från Supabase
@@ -2834,7 +2843,7 @@ async function migrateLocalStorageToSupabase() {
     if (st) st.style.display = 'none';
   }, 3000);
   console.log('🌿 Vitalis Flow: Supabase ansluten ✓');
-})();
+}
 
 // ── INIT FOOD DATE ──
 (function(){

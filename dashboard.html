@@ -1182,11 +1182,10 @@ select option:checked {
                 style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
                 Igår
               </button>
-              <button onclick="document.getElementById('food-date-picker').showPicker?document.getElementById('food-date-picker').showPicker():document.getElementById('food-date-picker').click()"
-                style="padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
+              <label for="food-date-picker" style="padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;display:inline-block">
                 📆 Välj datum
-              </button>
-              <input type="date" id="food-date-picker" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" onchange="setFoodDateBtn('custom',this.value)">
+              </label>
+              <input type="date" id="food-date-picker" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0" onchange="setFoodDateBtn('custom',this.value)">
             </div>
             <input type="hidden" id="food-date" value="">
             <!-- Textinput + knapp -->
@@ -1345,11 +1344,10 @@ select option:checked {
                 style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
                 Igår
               </button>
-              <button onclick="document.getElementById('sleep-date-picker').showPicker?document.getElementById('sleep-date-picker').showPicker():document.getElementById('sleep-date-picker').click()"
-                style="padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
+              <label for="sleep-date-picker" style="padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;display:inline-block">
                 📆 Välj datum
-              </button>
-              <input type="date" id="sleep-date-picker" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" onchange="setSleepDateBtn('custom',this.value)">
+              </label>
+              <input type="date" id="sleep-date-picker" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0" onchange="setSleepDateBtn('custom',this.value)">
             </div>
             <input type="hidden" id="sleep-date" value="">
             <!-- Timmar + kvalitet -->
@@ -1568,11 +1566,10 @@ select option:checked {
             style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
             Igår
           </button>
-          <button onclick="document.getElementById('act-date-picker').showPicker?document.getElementById('act-date-picker').showPicker():document.getElementById('act-date-picker').click()"
-            style="padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
+          <label for="act-date-picker" style="padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer;display:inline-block">
             📆 Välj datum
-          </button>
-          <input type="date" id="act-date-picker" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" onchange="setActDateBtn('custom',this.value)">
+          </label>
+          <input type="date" id="act-date-picker" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0" onchange="setActDateBtn('custom',this.value)">
         </div>
         <input type="hidden" id="act-date" value="">
 

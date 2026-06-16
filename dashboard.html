@@ -2464,18 +2464,30 @@ function hideAuthModal() {
 
 function updateAuthUI(user) {
   const email = user.email || '';
-  const name = user.user_metadata?.name || email.split('@')[0] || 'du';
+  const meta = user.user_metadata?.name || '';
+  const parts = meta.split(' ');
+  const fname = parts[0] || email.split('@')[0] || 'du';
+  const lname = parts.slice(1).join(' ') || '';
+  const displayName = meta || fname;
+
   // Sidebar
   const navName = document.getElementById('nav-name');
   const navAv = document.getElementById('nav-avatar');
-  if (navName) { navName.textContent = name; navName.style.fontStyle='normal'; navName.style.color='var(--cream)'; }
-  if (navAv) navAv.textContent = name.charAt(0).toUpperCase();
+  if (navName) { navName.textContent = displayName; navName.style.fontStyle='normal'; navName.style.color='var(--cream)'; }
+  if (navAv) navAv.textContent = fname.charAt(0).toUpperCase();
   // Greeting
   const greet = document.getElementById('greeting-name');
-  if (greet) greet.textContent = name;
-  // Pre-fill email in profile if empty
+  if (greet) greet.textContent = fname;
+  // Pre-fill profile fields from auth
   const pfEmail = document.getElementById('pf-email');
   if (pfEmail && !pfEmail.value) pfEmail.value = email;
+  const pfFname = document.getElementById('pf-fname');
+  if (pfFname && !pfFname.value && fname) pfFname.value = fname;
+  const pfLname = document.getElementById('pf-lname');
+  if (pfLname && !pfLname.value && lname) pfLname.value = lname;
+  // Update plan badge from localStorage
+  const savedPlan = localStorage.getItem('vitalis_plan') || 'gratis';
+  updatePlanBadge(savedPlan);
 }
 
 let authMode = 'login';
@@ -2634,23 +2646,46 @@ function closeWelcomeModal() {
 
 function goToProfileFromWelcome() {
   closeWelcomeModal();
-  showTab('profile');
-  // Liten fördröjning sen scrolla upp
-  setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+  setTimeout(() => {
+    showTab('profile');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Highlight first empty field
+    setTimeout(() => {
+      const fname = document.getElementById('pf-fname');
+      if (fname && !fname.value) fname.focus();
+    }, 300);
+  }, 100);
 }
 
 async function checkFirstLogin() {
-  // Kolla om användaren redan sett välkomstmodalen
-  if (localStorage.getItem('vitalis_welcomed')) return;
   try {
-    const { data } = await sb.from('profiles').select('welcomed').eq('device_id', DEVICE_ID).maybeSingle();
-    if (data?.welcomed) {
+    const { data } = await sb.from('profiles').select('welcomed, fname, weight').eq('device_id', DEVICE_ID).maybeSingle();
+    
+    // Profilen är komplett om welcomed=true och fname finns
+    if (data?.welcomed && data?.fname) {
       localStorage.setItem('vitalis_welcomed', '1');
       return;
     }
-  } catch(e) {}
-  // Visa välkomstmodal efter kort fördröjning
-  setTimeout(() => showWelcomeModal(), 1000);
+    
+    // Ny användare eller ofullständig profil
+    if (!data?.welcomed) {
+      setTimeout(() => showWelcomeModal(), 800);
+      return;
+    }
+    
+    // Har stängt modal men inte fyllt i profil – visa subtil påminnelse
+    if (data?.welcomed && !data?.fname) {
+      localStorage.setItem('vitalis_welcomed', '1');
+      setTimeout(() => {
+        showToast('💡 Fyll i din profil för bättre upplevelse');
+      }, 1500);
+    }
+  } catch(e) {
+    // Om profil saknas helt – visa modal
+    if (!localStorage.getItem('vitalis_welcomed')) {
+      setTimeout(() => showWelcomeModal(), 800);
+    }
+  }
 }
 
 async function resendVerification(email) {
@@ -2761,10 +2796,10 @@ async function confirmPlan() {
 function updatePlanBadge(plan) {
   const badge = document.getElementById('nav-plan-badge');
   if (!badge) return;
-  const labels = { gratis:'Gratis', basic:'✦ Basic', pro:'✦ Wellness Pro', premium:'✦ Premium' };
+  const labels = { gratis:'Gratis', basic:'✦ Basic', pro:'✦ Pro', premium:'✦ Premium' };
   const colors = { gratis:'var(--text-dim)', basic:'var(--lime)', pro:'var(--gold)', premium:'var(--gold)' };
-  badge.textContent = labels[plan] || '✦ Wellness Pro';
-  badge.style.color = colors[plan] || 'var(--gold)';
+  badge.textContent = labels[plan] || 'Gratis';
+  badge.style.color = colors[plan] || 'var(--text-dim)';
 }
 
 function showPlanStep() {
@@ -2989,17 +3024,21 @@ async function initSupabase() {
   if (sbProfile) {
     const profileData = {
       fname: sbProfile.fname||'', lname: sbProfile.lname||'',
-      email: sbProfile.email||'', phone: sbProfile.phone||'',
-      weight: sbProfile.weight||'', height: sbProfile.height||'',
-      birthyear: sbProfile.birthyear||'', gender: sbProfile.gender||'',
-      activity: sbProfile.activity||'', goal: sbProfile.goal||'',
-      target_weight: sbProfile.target_weight||''
+      email: sbProfile.email||currentUser?.email||'',
+      phone: sbProfile.phone||'', weight: sbProfile.weight||'',
+      height: sbProfile.height||'', birthyear: sbProfile.birthyear||'',
+      gender: sbProfile.gender||'', activity: sbProfile.activity||'',
+      goal: sbProfile.goal||'', target_weight: sbProfile.target_weight||''
     };
-    // Spara till localStorage
     localStorage.setItem('vitalis_profile', JSON.stringify(profileData));
     if (sbProfile.start_weight) localStorage.setItem('vitalis_start_weight', sbProfile.start_weight);
     if (sbProfile.weight_updated_at) localStorage.setItem('vitalis_weight_updated', sbProfile.weight_updated_at);
-    // Ladda in i UI – kritiskt för ny enhet/mobil
+    // Uppdatera plan-badge från Supabase
+    if (sbProfile.plan) {
+      localStorage.setItem('vitalis_plan', sbProfile.plan);
+      updatePlanBadge(sbProfile.plan);
+    }
+    // Ladda in i UI
     setTimeout(() => {
       loadProfile();
       updateOverview();
@@ -3007,6 +3046,10 @@ async function initSupabase() {
       calcDailyNeeds();
       updateGoalProgress();
     }, 200);
+  } else {
+    // Ny användare – sätt plan från localStorage
+    const savedPlan = localStorage.getItem('vitalis_plan') || 'gratis';
+    updatePlanBadge(savedPlan);
   }
 
   // Ladda mediciner

@@ -2785,30 +2785,36 @@ function goToProfileFromWelcome() {
 }
 
 async function checkFirstLogin() {
+  // Kolla localStorage först för snabb respons
+  if (localStorage.getItem('vitalis_welcomed') === '1') return;
+
   try {
     const { data } = await sb.from('profiles').select('welcomed, fname, weight').eq('device_id', DEVICE_ID).maybeSingle();
-    
-    // Profilen är komplett om welcomed=true och fname finns
-    if (data?.welcomed && data?.fname) {
+
+    // Profilen är tillräcklig om fname ELLER weight finns – oavsett welcomed-flaggan
+    const profileLooksFilled = !!(data?.fname || data?.weight);
+
+    if (profileLooksFilled) {
+      // Synka welcomed=true om det inte redan är satt
+      if (!data?.welcomed) {
+        sb.from('profiles').upsert({ device_id: DEVICE_ID, welcomed: true, updated_at: new Date().toISOString() }, { onConflict: 'device_id' }).catch(()=>{});
+      }
       localStorage.setItem('vitalis_welcomed', '1');
       return;
     }
-    
-    // Ny användare eller ofullständig profil
+
+    // Ingen profil alls eller ofullständig – visa välkomstmodal
     if (!data?.welcomed) {
       setTimeout(() => showWelcomeModal(), 800);
       return;
     }
-    
-    // Har stängt modal men inte fyllt i profil – visa subtil påminnelse
-    if (data?.welcomed && !data?.fname) {
-      localStorage.setItem('vitalis_welcomed', '1');
-      setTimeout(() => {
-        showToast('💡 Fyll i din profil för bättre upplevelse');
-      }, 1500);
-    }
+
+    // welcomed=true men ingen fname/weight – subtil påminnelse
+    localStorage.setItem('vitalis_welcomed', '1');
+    setTimeout(() => showToast('💡 Fyll i din profil för bättre upplevelse'), 1500);
+
   } catch(e) {
-    // Om profil saknas helt – visa modal
+    // Fallback – visa modal bara om localStorage inte säger annat
     if (!localStorage.getItem('vitalis_welcomed')) {
       setTimeout(() => showWelcomeModal(), 800);
     }
@@ -5477,6 +5483,13 @@ function saveProfile() {
     localStorage.setItem('vitalis_profile', JSON.stringify(profile));
     localStorage.setItem('vitalis_weight_updated', new Date().toISOString());
   } catch(e){}
+  // Markera som välkomnad i Supabase när profilen sparas med namn
+  if (profile.fname && currentUser) {
+    localStorage.setItem('vitalis_welcomed', '1');
+    sb.from('profiles').upsert({
+      device_id: currentUser.id, welcomed: true, updated_at: new Date().toISOString()
+    }, { onConflict: 'device_id' }).catch(()=>{});
+  }
   updateProfileUI(profile);
   updateOverview();
   calcDailyNeeds();

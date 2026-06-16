@@ -636,7 +636,9 @@ async function step2() {
     goTo(3);
 
   } catch(e) {
-    toast('Något gick fel – försök igen');
+    console.error('Registration catch error:', e);
+    const msg = e?.message || e?.toString() || 'Okänt fel';
+    toast('❌ ' + msg);
     btn.textContent = 'Välj ' + planNames[chosenPlan] + ' – Slutför →';
     btn.disabled = false;
   }

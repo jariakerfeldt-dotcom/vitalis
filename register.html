@@ -241,7 +241,8 @@ input.err { border-color: var(--err) !important; }
 .support-link a { color: var(--lime); text-decoration: none; }
 
 /* Toast */
-.toast { position: fixed; bottom: 90px; left: 16px; right: 16px; transform: translateY(10px); background: var(--leaf); color: var(--white); padding: 12px 18px; border-radius: 14px; font-size: 0.84rem; border: 1px solid var(--lime); opacity: 0; transition: all 0.3s; z-index: 999; pointer-events: none; text-align: center; }
+.toast { position: fixed; bottom: 90px; left: 16px; right: 16px; transform: none; background: var(--leaf); color: var(--white); padding: 12px 18px; border-radius: 14px; font-size: 0.84rem; border: 1px solid rgba(126,200,80,0.4); opacity: 0; transition: opacity 0.3s; z-index: 999; pointer-events: none; text-align: center; word-break: break-word; }
+.toast.show { opacity: 1; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 @media (max-width: 400px) {
@@ -352,11 +353,11 @@ input.err { border-color: var(--err) !important; }
 
   <!-- STEG 2: PLANER -->
   <div class="panel" id="panel-2">
-    <div class="plans-header">
+    <div class="plans-header" style="text-align:center;padding:0 4px;margin-bottom:20px">
       <div class="eyebrow" style="display:inline-block">Steg 2 av 2</div>
       <h1 class="title" style="margin-top:6px">Välj din <em>hälsoplan</em></h1>
       <p style="font-size:0.82rem;color:var(--dim);margin-top:6px;line-height:1.6">
-        Uppgradera när som helst · <strong style="color:var(--lime)">30 dagars uppsägningstid</strong>
+        Uppgradera när som helst<br><strong style="color:var(--lime)">30 dagars uppsägningstid</strong>
       </p>
     </div>
 
@@ -692,8 +693,10 @@ function resetEmailError() {
 
 function toast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3500);
 }
 </script>
 </body>

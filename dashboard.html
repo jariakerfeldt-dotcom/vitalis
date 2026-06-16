@@ -440,6 +440,45 @@ select option:checked {
 }
 .upgrade-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(201,168,76,0.3);}
 
+/* ── PLAN MODAL ── */
+#plan-modal{display:none;position:fixed;inset:0;z-index:950;background:rgba(10,25,16,0.88);backdrop-filter:blur(10px);align-items:flex-end;justify-content:center;padding:0}
+#plan-modal.open{display:flex}
+.plan-modal-box{width:100%;max-width:520px;background:var(--mid-green);border:1px solid var(--border);border-radius:24px 24px 0 0;padding:28px 20px 40px;max-height:90vh;overflow-y:auto;animation:slideUpPm 0.35s ease both}
+@media(min-width:600px){#plan-modal{align-items:center;padding:20px}.plan-modal-box{border-radius:24px;max-height:85vh}}
+@keyframes slideUpPm{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.pm-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.pm-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--soft-white)}
+.pm-close{background:none;border:none;color:var(--text-dim);font-size:1.4rem;cursor:pointer;padding:4px 8px;line-height:1}
+.pm-current-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.25);border-radius:100px;font-size:0.75rem;color:var(--lime);margin-bottom:16px}
+.pm-plan-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,255,255,0.03);border:2px solid var(--border);border-radius:14px;cursor:pointer;transition:all 0.2s;margin-bottom:8px;gap:12px}
+.pm-plan-row:hover{border-color:rgba(126,200,80,0.35);background:rgba(126,200,80,0.04)}
+.pm-plan-row.pm-selected{border-color:var(--lime);background:rgba(126,200,80,0.08)}
+.pm-plan-row.pm-selected-gold{border-color:var(--gold);background:rgba(201,168,76,0.08)}
+.pm-plan-row.pm-current-plan{opacity:0.4;cursor:default;pointer-events:none}
+.pm-pl-left{flex:1;min-width:0}
+.pm-pl-name{font-size:0.9rem;font-weight:600;color:var(--cream)}
+.pm-pl-desc{font-size:0.7rem;color:var(--text-dim);margin-top:2px;line-height:1.4}
+.pm-pl-price{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--lime);white-space:nowrap;flex-shrink:0}
+.pm-pl-price.gold{color:var(--gold)}
+.pm-pl-price.dim{color:var(--text-dim)}
+.pm-chk{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;transition:all 0.2s;color:transparent}
+.pm-plan-row.pm-selected .pm-chk{background:var(--lime);border-color:var(--lime);color:var(--deep-green)}
+.pm-plan-row.pm-selected-gold .pm-chk{background:var(--gold);border-color:var(--gold);color:var(--deep-green)}
+#pm-confirm-box{display:none;margin-top:4px;padding:16px;background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.25);border-radius:14px}
+#pm-confirm-box.show{display:block;animation:pmFadeIn 0.25s ease both}
+@keyframes pmFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.pm-confirm-title{font-size:0.82rem;font-weight:600;color:var(--cream);margin-bottom:6px}
+.pm-confirm-detail{font-size:0.75rem;color:var(--text-dim);line-height:1.6;margin-bottom:12px}
+.pm-confirm-detail strong{color:var(--gold)}
+.pm-confirm-check{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:12px}
+.pm-confirm-check input[type=checkbox]{width:16px;height:16px;margin-top:2px;accent-color:var(--lime);flex-shrink:0;cursor:pointer}
+.pm-confirm-check label{font-size:0.75rem;color:var(--text-dim);line-height:1.5;cursor:pointer}
+.pm-confirm-check label strong{color:var(--cream)}
+#pm-submit-btn{width:100%;padding:14px;background:rgba(255,255,255,0.07);color:var(--text-dim);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:not-allowed;transition:all 0.25s;margin-top:4px}
+#pm-submit-btn.ready{background:var(--lime);color:var(--deep-green);cursor:pointer}
+#pm-submit-btn.ready-gold{background:var(--gold);color:var(--deep-green);cursor:pointer}
+.pm-note{text-align:center;font-size:0.7rem;color:rgba(138,171,150,0.5);margin-top:10px;line-height:1.5}
+
 /* Toast */
 .toast{
   position:fixed;bottom:28px;left:50%;
@@ -701,6 +740,80 @@ select option:checked {
       style="background:none;border:none;color:var(--text-dim);font-size:0.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline">
       Hoppa över – gå till dashboard
     </button>
+  </div>
+</div>
+
+
+<!-- PLAN MODAL – Hantera / byta plan -->
+<div id="plan-modal" onclick="if(event.target===this)closePlanModal()">
+  <div class="plan-modal-box">
+    <div class="pm-top">
+      <div class="pm-title">Hantera plan</div>
+      <button class="pm-close" onclick="closePlanModal()">✕</button>
+    </div>
+    <div class="pm-current-badge">✦ Nuvarande plan: <span id="pm-current-label">Gratis</span></div>
+
+    <div id="pm-plan-list">
+      <!-- Gratis -->
+      <div class="pm-plan-row" id="pm-row-gratis" onclick="pmSelectPlan('gratis',0)">
+        <div class="pm-chk" id="pm-chk-gratis">✓</div>
+        <div class="pm-pl-left">
+          <div class="pm-pl-name">Gratis</div>
+          <div class="pm-pl-desc">Matlogg (5/dag) · Sömnlogg · BMI-kalkyl</div>
+        </div>
+        <div class="pm-pl-price dim">0 kr</div>
+      </div>
+      <!-- Basic -->
+      <div class="pm-plan-row" id="pm-row-basic" onclick="pmSelectPlan('basic',49)">
+        <div class="pm-chk" id="pm-chk-basic">✓</div>
+        <div class="pm-pl-left">
+          <div class="pm-pl-name">Basic</div>
+          <div class="pm-pl-desc">Obegränsad matlogg · Träningsgenerator · AI-coach (10/dag)</div>
+        </div>
+        <div class="pm-pl-price">49 kr<span style="font-size:0.65rem;color:var(--text-dim)">/mån</span></div>
+      </div>
+      <!-- Pro -->
+      <div class="pm-plan-row" id="pm-row-pro" onclick="pmSelectPlan('pro',99)" style="border-color:rgba(126,200,80,0.3);position:relative">
+        <div style="position:absolute;top:-1px;left:16px;font-size:0.6rem;padding:2px 8px;background:var(--lime);color:var(--deep-green);border-radius:0 0 6px 6px;font-weight:700;letter-spacing:0.05em">POPULÄRAST</div>
+        <div class="pm-chk" id="pm-chk-pro">✓</div>
+        <div class="pm-pl-left">
+          <div class="pm-pl-name" style="color:var(--lime)">Pro</div>
+          <div class="pm-pl-desc">Allt i Basic · Obegränsad AI · Fotoskanning · Kylskåpsscanning</div>
+        </div>
+        <div class="pm-pl-price">99 kr<span style="font-size:0.65rem;color:var(--text-dim)">/mån</span></div>
+      </div>
+      <!-- Premium -->
+      <div class="pm-plan-row" id="pm-row-premium" onclick="pmSelectPlan('premium',149)">
+        <div class="pm-chk" id="pm-chk-premium">✓</div>
+        <div class="pm-pl-left">
+          <div class="pm-pl-name" style="color:var(--gold)">Premium</div>
+          <div class="pm-pl-desc">Allt i Pro · Prioriterad support · Personlig träningsplan · Band-rabatt</div>
+        </div>
+        <div class="pm-pl-price gold">149 kr<span style="font-size:0.65rem;color:var(--text-dim)">/mån</span></div>
+      </div>
+    </div>
+
+    <!-- Bekräftelseruta – visas när betald plan väljs -->
+    <div id="pm-confirm-box">
+      <div class="pm-confirm-title">📋 Bekräfta uppgradering</div>
+      <div class="pm-confirm-detail" id="pm-confirm-detail">
+        Du håller på att uppgradera till <strong id="pm-confirm-plan-name">Pro</strong> för <strong id="pm-confirm-price">99 kr/mån</strong>.<br>
+        Faktureras månadsvis. 30 dagars uppsägningstid gäller.
+      </div>
+      <div class="pm-confirm-check">
+        <input type="checkbox" id="pm-cost-check" onchange="pmCheckChanged()">
+        <label for="pm-cost-check">Jag förstår att <strong id="pm-cost-label">99 kr</strong> debiteras per månad och godkänner villkoren. Jag kan avsluta när som helst med 30 dagars uppsägningstid.</label>
+      </div>
+      <button id="pm-submit-btn" disabled onclick="pmConfirmUpgrade()">Välj en plan ovan</button>
+      <div class="pm-note">🔒 Säker betalning · Inga dolda avgifter · Avsluta enkelt i profilen</div>
+    </div>
+
+    <!-- Nedgradera-länk -->
+    <div id="pm-downgrade-box" style="display:none;margin-top:12px;text-align:center">
+      <button onclick="pmConfirmDowngrade()" style="background:none;border:none;color:var(--text-dim);font-size:0.75rem;cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif">
+        Byt till gratisplan (alla betalfunktioner avslutas)
+      </button>
+    </div>
   </div>
 </div>
 
@@ -2136,7 +2249,7 @@ select option:checked {
           <div class="t1" id="plan-name-big">Gratis</div>
           <div class="t2" id="plan-info-text">Du är på gratisplanen. Uppgradera för fler funktioner.</div>
         </div>
-        <button class="upgrade-btn" data-i18n="up_btn">Hantera plan</button>
+        <button class="upgrade-btn" onclick="openPlanModal()">Hantera plan</button>
       </div>
 
       <div class="grid-2">
@@ -2805,6 +2918,133 @@ async function confirmPlan() {
       showToast(msg);
     }, 1800);
   }
+}
+
+// ── PLAN MODAL ──
+let pmSelected = null;
+
+function openPlanModal() {
+  const currentPlan = localStorage.getItem('vitalis_plan') || 'gratis';
+  const labels = { gratis:'Gratis', basic:'Basic', pro:'Pro', premium:'Premium' };
+  // Sätt nuvarande plan-label
+  const lbl = document.getElementById('pm-current-label');
+  if (lbl) lbl.textContent = labels[currentPlan] || 'Gratis';
+  // Markera nuvarande plan som disabled
+  ['gratis','basic','pro','premium'].forEach(p => {
+    const row = document.getElementById('pm-row-' + p);
+    if (!row) return;
+    row.classList.remove('pm-selected','pm-selected-gold','pm-current-plan');
+    const chk = document.getElementById('pm-chk-' + p);
+    if (chk) chk.style.color = 'transparent';
+    if (p === currentPlan) row.classList.add('pm-current-plan');
+  });
+  // Visa nedgradera-länk om man är på betald plan
+  const downBox = document.getElementById('pm-downgrade-box');
+  if (downBox) downBox.style.display = currentPlan !== 'gratis' ? 'block' : 'none';
+  // Dölj bekräftelserutan
+  const confirmBox = document.getElementById('pm-confirm-box');
+  if (confirmBox) confirmBox.classList.remove('show');
+  const submitBtn = document.getElementById('pm-submit-btn');
+  if (submitBtn) { submitBtn.className = ''; submitBtn.disabled = true; submitBtn.textContent = 'Välj en plan ovan'; }
+  const costCheck = document.getElementById('pm-cost-check');
+  if (costCheck) costCheck.checked = false;
+  pmSelected = null;
+  document.getElementById('plan-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePlanModal() {
+  document.getElementById('plan-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function pmSelectPlan(plan, price) {
+  pmSelected = { plan, price };
+  const planLabels = { gratis:'Gratis', basic:'Basic', pro:'Pro', premium:'Premium' };
+  // Reset alla rader
+  ['gratis','basic','pro','premium'].forEach(p => {
+    const row = document.getElementById('pm-row-' + p);
+    if (row) { row.classList.remove('pm-selected','pm-selected-gold'); }
+    const chk = document.getElementById('pm-chk-' + p);
+    if (chk) chk.style.color = 'transparent';
+  });
+  // Markera vald
+  const selRow = document.getElementById('pm-row-' + plan);
+  const selChk = document.getElementById('pm-chk-' + plan);
+  if (selRow) selRow.classList.add(plan === 'premium' ? 'pm-selected-gold' : 'pm-selected');
+  if (selChk) selChk.style.color = '';
+  // Bekräftelseruta
+  const confirmBox = document.getElementById('pm-confirm-box');
+  const costCheck = document.getElementById('pm-cost-check');
+  if (costCheck) costCheck.checked = false;
+  if (price > 0) {
+    document.getElementById('pm-confirm-plan-name').textContent = planLabels[plan];
+    document.getElementById('pm-confirm-price').textContent = price + ' kr/mån';
+    document.getElementById('pm-cost-label').textContent = price + ' kr';
+    if (confirmBox) confirmBox.classList.add('show');
+    const submitBtn = document.getElementById('pm-submit-btn');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.className = ''; submitBtn.textContent = 'Godkänn kostnaden ovan för att fortsätta'; }
+  } else {
+    // Gratis – ingen bekräftelse behövs
+    if (confirmBox) confirmBox.classList.remove('show');
+    const submitBtn = document.getElementById('pm-submit-btn');
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.className = 'ready'; submitBtn.textContent = 'Byt till Gratis →'; }
+  }
+}
+
+function pmCheckChanged() {
+  const checked = document.getElementById('pm-cost-check')?.checked;
+  const submitBtn = document.getElementById('pm-submit-btn');
+  if (!submitBtn || !pmSelected) return;
+  const planLabels = { basic:'Basic', pro:'Pro', premium:'Premium' };
+  if (checked) {
+    submitBtn.disabled = false;
+    submitBtn.className = pmSelected.plan === 'premium' ? 'ready-gold' : 'ready';
+    submitBtn.textContent = `Uppgradera till ${planLabels[pmSelected.plan]} – ${pmSelected.price} kr/mån →`;
+  } else {
+    submitBtn.disabled = true;
+    submitBtn.className = '';
+    submitBtn.textContent = 'Godkänn kostnaden ovan för att fortsätta';
+  }
+}
+
+async function pmConfirmUpgrade() {
+  if (!pmSelected || !currentUser) return;
+  const submitBtn = document.getElementById('pm-submit-btn');
+  if (submitBtn) { submitBtn.textContent = '⏳ Sparar...'; submitBtn.disabled = true; }
+  try {
+    await sb.from('profiles').upsert({
+      device_id: currentUser.id,
+      plan: pmSelected.plan,
+      plan_price: pmSelected.price,
+      plan_started: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'device_id' });
+  } catch(e) { console.log('Plan save error:', e); }
+  localStorage.setItem('vitalis_plan', pmSelected.plan);
+  localStorage.setItem('vitalis_plan_price', String(pmSelected.price));
+  updatePlanBadge(pmSelected.plan);
+  closePlanModal();
+  const planLabels = { gratis:'Gratis', basic:'Basic', pro:'Pro', premium:'Premium' };
+  showToast(`🎉 Välkommen till ${planLabels[pmSelected.plan]}! 30 dagars uppsägningstid gäller.`);
+}
+
+async function pmConfirmDowngrade() {
+  if (!currentUser) return;
+  if (!confirm('Är du säker? Du förlorar tillgång till alla betalfunktioner.')) return;
+  try {
+    await sb.from('profiles').upsert({
+      device_id: currentUser.id,
+      plan: 'gratis',
+      plan_price: 0,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'device_id' });
+  } catch(e) { console.log('Downgrade error:', e); }
+  localStorage.setItem('vitalis_plan', 'gratis');
+  localStorage.removeItem('vitalis_plan_price');
+  updatePlanBadge('gratis');
+  closePlanModal();
+  showToast('Plan ändrad till Gratis 🌿');
 }
 
 function updatePlanBadge(plan) {

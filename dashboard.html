@@ -1012,17 +1012,23 @@ select option:checked {
 
           <!-- 2. Manual text + datum -->
           <div style="margin-bottom:12px">
-            <!-- Datumväljare -->
-            <div id="food-date-row"
-              style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;margin-bottom:8px;transition:all 0.2s"
-              onclick="document.getElementById('food-date').focus();document.getElementById('food-date').showPicker&&document.getElementById('food-date').showPicker()"
-              onmouseover="this.style.borderColor='rgba(126,200,80,0.45)'" onmouseout="this.style.borderColor='var(--border)'">
-              <span style="font-size:1rem">📅</span>
-              <span id="food-date-display" style="flex:1;font-size:0.84rem;color:var(--cream);font-family:'DM Sans',sans-serif">Idag</span>
-              <span style="font-size:0.72rem;color:var(--lime);font-weight:600">VÄLJ DATUM ▼</span>
+            <!-- Datumväljare – knappar, ingen cache -->
+            <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+              <button id="food-date-today" onclick="setFoodDateBtn('today')"
+                style="flex:1;padding:8px 12px;background:rgba(126,200,80,0.15);border:1.5px solid rgba(126,200,80,0.4);border-radius:10px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer">
+                📅 Idag
+              </button>
+              <button id="food-date-yesterday" onclick="setFoodDateBtn('yesterday')"
+                style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
+                Igår
+              </button>
+              <button onclick="document.getElementById('food-date-picker').showPicker?document.getElementById('food-date-picker').showPicker():document.getElementById('food-date-picker').click()"
+                style="padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
+                📆 Välj datum
+              </button>
+              <input type="date" id="food-date-picker" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" onchange="setFoodDateBtn('custom',this.value)">
             </div>
-            <input type="date" id="food-date" autocomplete="off" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
-              onchange="updateFoodDateDisplay(this.value)">
+            <input type="hidden" id="food-date" value="">
             <!-- Textinput + knapp -->
             <div class="add-row">
               <input type="text" id="food-input" placeholder="Skriv måltid manuellt..." data-i18n-ph="food_ph">
@@ -1098,6 +1104,15 @@ select option:checked {
         </div>
       </div>
 
+      <!-- MATHISTORIK -->
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="card-title" style="margin-bottom:0">📋 Mathistorik</div>
+          <button onclick="toggleHistorySection()" id="history-toggle" style="font-size:0.72rem;color:var(--lime);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif">Visa ▼</button>
+        </div>
+        <div id="food-history-list" style="display:none"></div>
+      </div>
+
       <div class="card">
         <div class="card-title" data-i18n="f_weekly">Veckoöversikt – kalorier</div>
         <div id="weekly-chart" style="display:flex;align-items:flex-end;gap:8px;height:90px;margin:16px 0 8px">
@@ -1161,18 +1176,22 @@ select option:checked {
           <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Logga manuellt</div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <!-- Datum – klickbar rad med dold input -->
-            <div id="sleep-date-row"
-              style="display:flex;align-items:center;gap:12px;padding:13px 16px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all 0.2s;user-select:none"
-              onclick="document.getElementById('sleep-date').focus();document.getElementById('sleep-date').click();document.getElementById('sleep-date').showPicker&&document.getElementById('sleep-date').showPicker()"
-              onmouseover="this.style.borderColor='rgba(126,200,80,0.45)';this.style.background='rgba(255,255,255,0.08)'"
-              onmouseout="this.style.borderColor='var(--border)';this.style.background='rgba(255,255,255,0.05)'">
-              <span style="font-size:1.2rem">📅</span>
-              <span id="sleep-date-display" style="flex:1;font-size:0.88rem;font-weight:500;color:var(--cream);font-family:'DM Sans',sans-serif">Idag – <span id="sleep-date-label" style="color:var(--lime)"></span></span>
-              <span style="font-size:0.75rem;color:var(--lime);font-weight:600;letter-spacing:0.05em">VÄLJ DATUM ▼</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button id="sleep-date-today" onclick="setSleepDateBtn('today')"
+                style="flex:1;padding:8px 12px;background:rgba(126,200,80,0.15);border:1.5px solid rgba(126,200,80,0.4);border-radius:10px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer">
+                🌙 Idag
+              </button>
+              <button id="sleep-date-yesterday" onclick="setSleepDateBtn('yesterday')"
+                style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
+                Igår
+              </button>
+              <button onclick="document.getElementById('sleep-date-picker').showPicker?document.getElementById('sleep-date-picker').showPicker():document.getElementById('sleep-date-picker').click()"
+                style="padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
+                📆 Välj datum
+              </button>
+              <input type="date" id="sleep-date-picker" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" onchange="setSleepDateBtn('custom',this.value)">
             </div>
-            <input type="date" id="sleep-date"
-              style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
-              onchange="updateSleepDateDisplay(this.value)">
+            <input type="hidden" id="sleep-date" value="">
             <!-- Timmar + kvalitet -->
             <div style="display:flex;gap:8px">
               <input type="number" id="sleep-hours" placeholder="Timmar (t.ex. 7.5)" step="0.5" min="0" max="24"
@@ -1194,6 +1213,15 @@ select option:checked {
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- SÖMNHISTORIK -->
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="card-title" style="margin-bottom:0">🌙 Sömnhistorik</div>
+          <button onclick="toggleSleepHistory()" id="sleep-history-toggle" style="font-size:0.72rem;color:var(--lime);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif">Visa ▼</button>
+        </div>
+        <div id="sleep-history-list" style="display:none"></div>
       </div>
     </div>
 
@@ -1370,16 +1398,23 @@ select option:checked {
         <div style="height:1px;background:var(--border);margin-bottom:14px"></div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--soft-white);margin-bottom:12px">+ Logga träning</div>
 
-        <!-- Datumväljare -->
-        <div id="act-date-row"
-          style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;margin-bottom:10px;transition:all 0.2s"
-          onclick="document.getElementById('act-date').showPicker&&document.getElementById('act-date').showPicker()"
-          onmouseover="this.style.borderColor='rgba(126,200,80,0.45)'" onmouseout="this.style.borderColor='var(--border)'">
-          <span style="font-size:1rem">📅</span>
-          <span id="act-date-display" style="flex:1;font-size:0.84rem;color:var(--cream);font-family:'DM Sans',sans-serif">Idag</span>
-          <span style="font-size:0.72rem;color:var(--lime);font-weight:600">VÄLJ DATUM ▼</span>
+        <!-- Datumväljare – knappar -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <button id="act-date-today" onclick="setActDateBtn('today')"
+            style="flex:1;padding:8px 12px;background:rgba(126,200,80,0.15);border:1.5px solid rgba(126,200,80,0.4);border-radius:10px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer">
+            💪 Idag
+          </button>
+          <button id="act-date-yesterday" onclick="setActDateBtn('yesterday')"
+            style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
+            Igår
+          </button>
+          <button onclick="document.getElementById('act-date-picker').showPicker?document.getElementById('act-date-picker').showPicker():document.getElementById('act-date-picker').click()"
+            style="padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.78rem;cursor:pointer">
+            📆 Välj datum
+          </button>
+          <input type="date" id="act-date-picker" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" onchange="setActDateBtn('custom',this.value)">
         </div>
-        <input type="date" id="act-date" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" onchange="updateActDateDisplay(this.value)">
+        <input type="hidden" id="act-date" value="">
 
         <!-- Övningslista – välj från lista -->
         <div style="margin-bottom:10px">
@@ -1468,11 +1503,20 @@ select option:checked {
         </div>
 
         <div style="height:1px;background:var(--border);margin:14px 0"></div>
-        <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Loggade pass</div>
+        <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Loggade pass – idag</div>
         <div id="activity-list" style="text-align:center;padding:20px 0;color:var(--text-dim)">
           <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">🏃</div>
           <div style="font-size:0.84rem">Inga aktiviteter loggade ännu</div>
         </div>
+      </div>
+
+      <!-- AKTIVITETSHISTORIK -->
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="card-title" style="margin-bottom:0">🏋️ Träningshistorik</div>
+          <button onclick="toggleActHistory()" id="act-history-toggle" style="font-size:0.72rem;color:var(--lime);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif">Visa ▼</button>
+        </div>
+        <div id="act-history-list" style="display:none"></div>
       </div>
 
 
@@ -2858,16 +2902,45 @@ async function initSupabase() {
 
 // ── INIT FOOD DATE ──
 (function(){
-  // Sätt alltid dagens datum – aldrig spara gammalt datum
   const todayStr = getLocalDateStr();
   const el = document.getElementById('food-date');
-  if(el) { el.value = todayStr; }
+  if(el) el.value = todayStr;
   const el2 = document.getElementById('act-date');
-  if(el2) { el2.value = todayStr; }
-  // Uppdatera display-texterna
-  updateFoodDateDisplay(todayStr);
+  if(el2) el2.value = todayStr;
   updateActDateDisplay(todayStr);
 })();
+
+// ── FOOD DATE BUTTONS ──
+function setFoodDateBtn(mode, customVal) {
+  const today = getLocalDateStr();
+  const d2 = new Date(); d2.setDate(d2.getDate()-1);
+  const yesterday = getLocalDateStr(d2);
+  let date = today;
+  if (mode === 'yesterday') date = yesterday;
+  if (mode === 'custom' && customVal) date = customVal;
+  const hidden = document.getElementById('food-date');
+  if (hidden) hidden.value = date;
+  // Button styles
+  const btnT = document.getElementById('food-date-today');
+  const btnY = document.getElementById('food-date-yesterday');
+  const activeS = 'rgba(126,200,80,0.15)';
+  const inactS = 'rgba(255,255,255,0.04)';
+  if (btnT) { btnT.style.background = mode==='today'?activeS:inactS; btnT.style.color = mode==='today'?'var(--lime)':'var(--text-dim)'; btnT.style.borderColor = mode==='today'?'rgba(126,200,80,0.4)':'var(--border)'; }
+  if (btnY) { btnY.style.background = mode==='yesterday'?activeS:inactS; btnY.style.color = mode==='yesterday'?'var(--lime)':'var(--text-dim)'; btnY.style.borderColor = mode==='yesterday'?'rgba(126,200,80,0.4)':'var(--border)'; }
+  // Notice
+  let notice = document.getElementById('food-date-notice');
+  if (date !== today) {
+    const label = new Date(date+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'});
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.id = 'food-date-notice';
+      notice.style.cssText = 'margin-bottom:8px;padding:8px 12px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);border-radius:10px;font-size:0.76rem;color:var(--gold)';
+      const row = document.getElementById('food-date-today')?.closest('div');
+      if (row) row.insertAdjacentElement('afterend', notice);
+    }
+    notice.innerHTML = '📅 Loggar mat för <strong>' + label + '</strong>';
+  } else { if (notice) notice.remove(); }
+}
 
 // ── FOOD DATE HELPERS ──
 function getLocalDateStr(date) {
@@ -3164,21 +3237,10 @@ function showTab(tab) {
   const navItem = document.querySelector('.nav-item[onclick*="\''+tab+'\'"]');
   if(navItem) navItem.classList.add('active');
   if(window.innerWidth<=800) document.getElementById('sidebar').classList.remove('open');
-  // Återställ alltid datum till idag när mat/aktivitet-flik visas
-  if (tab === 'food') {
-    const fd = document.getElementById('food-date');
-    const ts = getLocalDateStr();
-    if (fd) fd.value = ts;
-    updateFoodDateDisplay(ts);
-    const notice = document.getElementById('food-date-notice');
-    if (notice) notice.remove();
-  }
-  if (tab === 'activity') {
-    const ad = document.getElementById('act-date');
-    const ts = getLocalDateStr();
-    if (ad) ad.value = ts;
-    updateActDateDisplay(ts);
-  }
+  // Återställ alltid datum till idag vid flikbyte
+  if (tab === 'food') { setFoodDateBtn('today'); }
+  if (tab === 'sleep') { setSleepDateBtn('today'); }
+  if (tab === 'activity') { setActDateBtn('today'); }
 }
 
 // ── SIDEBAR MOBILE ──
@@ -5474,6 +5536,185 @@ document.addEventListener('click', function(e) {
   const m = document.getElementById('lock-modal');
   if (e.target === m) closeLock();
 });
+
+// ── SÖMNHISTORIK & AKTIVITETSHISTORIK DATUMKNAPPAR ──
+function setSleepDateBtn(mode, customVal) {
+  const today = getLocalDateStr();
+  const d2 = new Date(); d2.setDate(d2.getDate()-1);
+  const yesterday = getLocalDateStr(d2);
+  let date = today;
+  if (mode === 'yesterday') date = yesterday;
+  if (mode === 'custom' && customVal) date = customVal;
+  const hidden = document.getElementById('sleep-date');
+  if (hidden) hidden.value = date;
+  const btnT = document.getElementById('sleep-date-today');
+  const btnY = document.getElementById('sleep-date-yesterday');
+  if (btnT) { btnT.style.background = mode==='today'?'rgba(126,200,80,0.15)':'rgba(255,255,255,0.04)'; btnT.style.color = mode==='today'?'var(--lime)':'var(--text-dim)'; btnT.style.borderColor = mode==='today'?'rgba(126,200,80,0.4)':'var(--border)'; }
+  if (btnY) { btnY.style.background = mode==='yesterday'?'rgba(126,200,80,0.15)':'rgba(255,255,255,0.04)'; btnY.style.color = mode==='yesterday'?'var(--lime)':'var(--text-dim)'; btnY.style.borderColor = mode==='yesterday'?'rgba(126,200,80,0.4)':'var(--border)'; }
+}
+
+function setActDateBtn(mode, customVal) {
+  const today = getLocalDateStr();
+  const d2 = new Date(); d2.setDate(d2.getDate()-1);
+  const yesterday = getLocalDateStr(d2);
+  let date = today;
+  if (mode === 'yesterday') date = yesterday;
+  if (mode === 'custom' && customVal) date = customVal;
+  const hidden = document.getElementById('act-date');
+  if (hidden) hidden.value = date;
+  const btnT = document.getElementById('act-date-today');
+  const btnY = document.getElementById('act-date-yesterday');
+  if (btnT) { btnT.style.background = mode==='today'?'rgba(126,200,80,0.15)':'rgba(255,255,255,0.04)'; btnT.style.color = mode==='today'?'var(--lime)':'var(--text-dim)'; btnT.style.borderColor = mode==='today'?'rgba(126,200,80,0.4)':'var(--border)'; }
+  if (btnY) { btnY.style.background = mode==='yesterday'?'rgba(126,200,80,0.15)':'rgba(255,255,255,0.04)'; btnY.style.color = mode==='yesterday'?'var(--lime)':'var(--text-dim)'; btnY.style.borderColor = mode==='yesterday'?'rgba(126,200,80,0.4)':'var(--border)'; }
+}
+
+// Återställ alla datum-knappar till idag vid flikbyte
+function resetDateButtons() {
+  setSleepDateBtn('today');
+  setActDateBtn('today');
+  setFoodDateBtn('today');
+}
+
+// Anropa resetDateButtons vid flikbyte
+const _origShowTab = showTab;
+
+// ── SÖMNHISTORIK ──
+async function toggleSleepHistory() {
+  const list = document.getElementById('sleep-history-list');
+  const btn = document.getElementById('sleep-history-toggle');
+  if (!list) return;
+  const isHidden = list.style.display === 'none';
+  list.style.display = isHidden ? 'block' : 'none';
+  if (btn) btn.textContent = isHidden ? 'Dölj ▲' : 'Visa ▼';
+  if (isHidden) await renderSleepHistory();
+}
+
+async function renderSleepHistory() {
+  const list = document.getElementById('sleep-history-list');
+  if (!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:0.82rem">Laddar…</div>';
+  try {
+    const { data, error } = await sb.from('sleep_logs').select('*').eq('device_id', DEVICE_ID).order('log_date', {ascending:false}).limit(30);
+    if (error || !data?.length) { list.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:0.82rem">Ingen sömnhistorik ännu</div>'; return; }
+    const qualityIcon = {bra:'😊',okej:'🙂',dalig:'😴',orolig:'😰'};
+    list.innerHTML = data.map(e => {
+      const d = new Date(e.log_date+'T12:00:00');
+      const label = d.toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short'});
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:5px">
+        <span style="font-size:0.78rem;color:var(--text-dim)">${label}</span>
+        <span style="font-size:0.78rem;color:var(--cream)">${e.hours}h ${qualityIcon[e.quality]||''}</span>
+        <span style="font-size:0.74rem;color:var(--lime)">${e.hours >= 7 ? 'Bra' : e.hours >= 6 ? 'Okej' : 'Lite kort'}</span>
+      </div>`;
+    }).join('');
+  } catch(e) { list.innerHTML = '<div style="padding:12px;color:var(--text-dim);font-size:0.82rem">Kunde inte ladda</div>'; }
+}
+
+// ── AKTIVITETSHISTORIK ──
+async function toggleActHistory() {
+  const list = document.getElementById('act-history-list');
+  const btn = document.getElementById('act-history-toggle');
+  if (!list) return;
+  const isHidden = list.style.display === 'none';
+  list.style.display = isHidden ? 'block' : 'none';
+  if (btn) btn.textContent = isHidden ? 'Dölj ▲' : 'Visa ▼';
+  if (isHidden) await renderActHistory();
+}
+
+async function renderActHistory() {
+  const list = document.getElementById('act-history-list');
+  if (!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:0.82rem">Laddar…</div>';
+  try {
+    const { data, error } = await sb.from('activity_logs').select('*').eq('device_id', DEVICE_ID).order('log_date', {ascending:false}).limit(50);
+    if (error || !data?.length) { list.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:0.82rem">Ingen träningshistorik ännu</div>'; return; }
+    const byDate = {};
+    data.forEach(e => { if (!byDate[e.log_date]) byDate[e.log_date] = []; byDate[e.log_date].push(e); });
+    list.innerHTML = Object.keys(byDate).slice(0,14).map(date => {
+      const entries = byDate[date];
+      const d = new Date(date+'T12:00:00');
+      const label = d.toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'short'});
+      const totalMin = entries.reduce((s,e)=>s+(e.minutes||0),0);
+      const totalKcal = entries.reduce((s,e)=>s+(e.kcal||0),0);
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:0.78rem;font-weight:600;color:var(--cream)">${label}</span>
+          <span style="font-size:0.74rem;color:var(--lime)">${totalMin} min · ${totalKcal} kcal</span>
+        </div>
+        ${entries.map(e=>`<div style="display:flex;justify-content:space-between;padding:6px 10px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:3px">
+          <span style="font-size:0.78rem;color:var(--cream)">${e.name}</span>
+          <span style="font-size:0.74rem;color:var(--text-dim)">${e.minutes?e.minutes+'min':''}${e.sets?(' · '+e.sets+'×'+(e.reps||'')):''}${e.kcal?' · '+e.kcal+'kcal':''}</span>
+        </div>`).join('')}
+        <div style="height:1px;background:var(--border);margin-top:6px"></div>
+      </div>`;
+    }).join('');
+  } catch(e) { list.innerHTML = '<div style="padding:12px;color:var(--text-dim);font-size:0.82rem">Kunde inte ladda</div>'; }
+}
+
+// ── MATHISTORIK ──
+async function toggleHistorySection() {
+  const list = document.getElementById('food-history-list');
+  const btn = document.getElementById('history-toggle');
+  if (!list) return;
+  const isHidden = list.style.display === 'none';
+  list.style.display = isHidden ? 'block' : 'none';
+  if (btn) btn.textContent = isHidden ? 'Dölj ▲' : 'Visa ▼';
+  if (isHidden) await renderFoodHistory();
+}
+
+async function renderFoodHistory() {
+  const list = document.getElementById('food-history-list');
+  if (!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:0.82rem">Laddar historik…</div>';
+
+  try {
+    // Hämta sista 14 dagars mat från Supabase
+    const { data, error } = await sb.from('food_logs')
+      .select('*')
+      .eq('device_id', DEVICE_ID)
+      .order('log_date', { ascending: false })
+      .order('logged_at', { ascending: false })
+      .limit(200);
+
+    if (error || !data?.length) {
+      list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:0.82rem">Ingen historik ännu</div>';
+      return;
+    }
+
+    // Gruppera per datum
+    const byDate = {};
+    data.forEach(entry => {
+      if (!byDate[entry.log_date]) byDate[entry.log_date] = [];
+      byDate[entry.log_date].push(entry);
+    });
+
+    const today = getLocalDateStr();
+    let html = '';
+    Object.keys(byDate).slice(0, 14).forEach(date => {
+      const entries = byDate[date];
+      const totalKcalDay = entries.reduce((s, e) => s + (e.kcal || 0), 0);
+      const isToday = date === today;
+      const d = new Date(date + 'T12:00:00');
+      const dateLabel = isToday ? 'Idag' : d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+
+      html += `<div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-size:0.78rem;font-weight:600;color:${isToday?'var(--lime)':'var(--cream)'}">${dateLabel}</div>
+          <div style="font-size:0.76rem;color:var(--lime);font-weight:600">${totalKcalDay} kcal</div>
+        </div>
+        ${entries.map(e => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:4px">
+            <span style="font-size:0.78rem;color:var(--cream)">${e.name}</span>
+            <span style="font-size:0.74rem;color:var(--text-dim)">${e.kcal} kcal</span>
+          </div>`).join('')}
+        <div style="height:1px;background:var(--border);margin-top:8px"></div>
+      </div>`;
+    });
+
+    list.innerHTML = html || '<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:0.82rem">Ingen historik</div>';
+  } catch(e) {
+    list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:0.82rem">Kunde inte ladda historik</div>';
+  }
+}
 
 function showToast(msg){
   const t=document.getElementById('toast');

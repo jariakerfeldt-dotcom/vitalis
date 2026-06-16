@@ -1021,7 +1021,7 @@ select option:checked {
               <span id="food-date-display" style="flex:1;font-size:0.84rem;color:var(--cream);font-family:'DM Sans',sans-serif">Idag</span>
               <span style="font-size:0.72rem;color:var(--lime);font-weight:600">VÄLJ DATUM ▼</span>
             </div>
-            <input type="date" id="food-date" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
+            <input type="date" id="food-date" autocomplete="off" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
               onchange="updateFoodDateDisplay(this.value)">
             <!-- Textinput + knapp -->
             <div class="add-row">
@@ -3164,6 +3164,21 @@ function showTab(tab) {
   const navItem = document.querySelector('.nav-item[onclick*="\''+tab+'\'"]');
   if(navItem) navItem.classList.add('active');
   if(window.innerWidth<=800) document.getElementById('sidebar').classList.remove('open');
+  // Återställ alltid datum till idag när mat/aktivitet-flik visas
+  if (tab === 'food') {
+    const fd = document.getElementById('food-date');
+    const ts = getLocalDateStr();
+    if (fd) fd.value = ts;
+    updateFoodDateDisplay(ts);
+    const notice = document.getElementById('food-date-notice');
+    if (notice) notice.remove();
+  }
+  if (tab === 'activity') {
+    const ad = document.getElementById('act-date');
+    const ts = getLocalDateStr();
+    if (ad) ad.value = ts;
+    updateActDateDisplay(ts);
+  }
 }
 
 // ── SIDEBAR MOBILE ──

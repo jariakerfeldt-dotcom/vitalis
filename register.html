@@ -4,142 +4,250 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Vitalis Flow – Skapa konto</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--deep-green:#0f2318;--mid-green:#1a3a2a;--leaf-green:#2d5a3d;--lime:#7ec850;--gold:#c9a84c;--cream:#f5f0e8;--soft-white:#fdfaf5;--text-dim:#8aab96;--border:rgba(126,200,80,0.15);--error:#e05c5c;}
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;overflow-x:hidden;}
-body{background:var(--deep-green);color:var(--cream);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(45,90,61,0.4) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 80% 90%,rgba(201,168,76,0.08) 0%,transparent 50%);pointer-events:none;z-index:0;}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;padding-left:max(20px, env(safe-area-inset-left));padding-right:max(20px, env(safe-area-inset-right));background:rgba(15,35,24,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
-.logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;letter-spacing:0.08em;color:var(--soft-white);text-decoration:none;white-space:nowrap;flex-shrink:0;}
-.logo span{color:var(--lime);}
-.nav-right{display:flex;align-items:center;gap:20px;}
-.lang-switcher{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;overflow:hidden;}
-.lang-btn{padding:6px 14px;background:none;border:none;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:500;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
-.lang-btn.active{background:var(--lime);color:var(--deep-green);font-weight:600;}
-.nav-login{padding:9px 20px;background:transparent;border:1px solid rgba(245,240,232,0.2);border-radius:100px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.82rem;text-decoration:none;transition:all 0.2s;white-space:nowrap;}
-.nav-login:hover{border-color:var(--lime);color:var(--lime);}
-.progress-wrap{position:relative;z-index:1;display:flex;justify-content:center;padding:100px 20px 0;padding-left:max(20px, env(safe-area-inset-left));padding-right:max(20px, env(safe-area-inset-right));}
-.steps{display:flex;align-items:center;}
-.step-item{display:flex;flex-direction:column;align-items:center;gap:7px;}
-.step-circle{width:38px;height:38px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:600;color:var(--text-dim);background:var(--mid-green);transition:all 0.4s;}
-.step-circle.active{border-color:var(--lime);color:var(--deep-green);background:var(--lime);box-shadow:0 0 20px rgba(126,200,80,0.35);}
-.step-circle.done{border-color:var(--lime);color:var(--lime);background:rgba(126,200,80,0.1);}
-.step-label{font-size:0.7rem;color:var(--text-dim);letter-spacing:0.05em;text-align:center;transition:color 0.3s;}
-.step-item.active .step-label{color:var(--lime);}
-.step-line{width:72px;height:2px;background:var(--border);margin-bottom:26px;transition:background 0.4s;flex-shrink:0;}
-.step-line.done{background:var(--lime);}
-.main{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:36px 16px 80px;padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right));overflow-x:hidden;width:100%;box-sizing:border-box;}
-.panel{width:100%;max-width:540px;display:none;animation:fadeUp 0.45s ease both;box-sizing:border-box;}
-.panel.active{display:block;}
-.panel.wide{max-width:1020px;width:100%;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.card{background:rgba(26,58,42,0.55);border:1px solid var(--border);border-radius:24px;padding:44px 40px;backdrop-filter:blur(20px);position:relative;overflow:hidden;}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--lime),transparent);}
-.eyebrow{font-size:0.7rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
-.panel-title{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:300;color:var(--soft-white);line-height:1.15;margin-bottom:8px;}
-.panel-title em{font-style:italic;color:var(--lime);}
-.panel-sub{font-size:0.84rem;color:var(--text-dim);margin-bottom:32px;line-height:1.6;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:16px;}
-label{font-size:0.72rem;font-weight:500;color:var(--text-dim);letter-spacing:0.07em;text-transform:uppercase;}
-.input-wrap{position:relative;}
-input[type="text"],input[type="email"],input[type="tel"],input[type="password"]{width:100%;padding:13px 16px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:13px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s,background 0.2s;-webkit-appearance:none;}
-input::placeholder{color:rgba(138,171,150,0.45);}
-input:focus{border-color:rgba(126,200,80,0.5);background:rgba(255,255,255,0.07);}
-input.error{border-color:var(--error)!important;}
-.input-with-toggle input{padding-right:46px;}
-.toggle-pw{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:1rem;padding:4px;transition:color 0.2s;line-height:1;}
-.toggle-pw:hover{color:var(--lime);}
-.field-error{font-size:0.73rem;color:var(--error);margin-top:3px;display:none;}
-.field-error.show{display:block;}
-.pwd-match{font-size:0.73rem;margin-top:3px;display:none;}
-.pwd-match.show{display:block;}
-.terms-row{display:flex;align-items:flex-start;gap:12px;margin:20px 0;padding:15px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;}
-.custom-check{width:20px;height:20px;border:2px solid var(--border);border-radius:6px;background:rgba(255,255,255,0.04);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all 0.2s;}
-.custom-check.checked{background:var(--lime);border-color:var(--lime);}
-.custom-check.error-check{border-color:var(--error);}
-.custom-check svg{display:none;}
-.custom-check.checked svg{display:block;}
-.terms-text{font-size:0.82rem;color:var(--text-dim);line-height:1.6;}
-.terms-text a{color:var(--lime);text-decoration:none;}
-.btn-primary{width:100%;padding:15px;background:var(--lime);color:var(--deep-green);border:none;border-radius:13px;font-family:'DM Sans',sans-serif;font-size:0.96rem;font-weight:700;cursor:pointer;transition:all 0.25s;letter-spacing:0.03em;margin-top:8px;}
-.btn-primary:hover{background:var(--gold);transform:translateY(-2px);box-shadow:0 12px 28px rgba(201,168,76,0.28);}
-.login-link{text-align:center;margin-top:18px;font-size:0.82rem;color:var(--text-dim);}
-.login-link a{color:var(--lime);text-decoration:none;}
+:root {
+  --deep: #0f2318;
+  --mid: #1a3a2a;
+  --leaf: #2d5a3d;
+  --lime: #7ec850;
+  --gold: #c9a84c;
+  --cream: #f5f0e8;
+  --white: #fdfaf5;
+  --dim: #8aab96;
+  --border: rgba(126,200,80,0.15);
+  --err: #e05c5c;
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { overflow-x: hidden; }
+body {
+  background: var(--deep);
+  color: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-left: var(--safe-l);
+  padding-right: var(--safe-r);
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(45,90,61,0.4) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 80% at 80% 90%, rgba(201,168,76,0.07) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  padding-top: max(16px, calc(var(--safe-t) + 12px));
+  background: rgba(15,35,24,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem; font-weight: 300; letter-spacing: 0.1em;
+  color: var(--white); text-decoration: none;
+}
+.logo span { color: var(--lime); }
+.nav-login {
+  padding: 8px 18px;
+  border: 1px solid rgba(245,240,232,0.25);
+  border-radius: 100px; color: var(--cream);
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+  text-decoration: none; white-space: nowrap;
+}
+
+/* STEPS */
+.steps-wrap {
+  position: relative; z-index: 1;
+  display: flex; justify-content: center;
+  padding-top: max(90px, calc(var(--safe-t) + 74px));
+  padding-bottom: 24px;
+}
+.steps { display: flex; align-items: center; }
+.step { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.step-dot {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 600; color: var(--dim);
+  background: var(--mid); transition: all 0.35s;
+}
+.step-dot.active { border-color: var(--lime); background: var(--lime); color: var(--deep); box-shadow: 0 0 16px rgba(126,200,80,0.35); }
+.step-dot.done   { border-color: var(--lime); background: rgba(126,200,80,0.12); color: var(--lime); }
+.step-lbl { font-size: 0.68rem; color: var(--dim); text-align: center; max-width: 56px; line-height: 1.2; }
+.step.active .step-lbl { color: var(--lime); }
+.step-line { width: 48px; height: 2px; background: var(--border); margin-bottom: 22px; transition: background 0.35s; flex-shrink: 0; }
+.step-line.done { background: var(--lime); }
+
+/* CONTENT */
+.page { position: relative; z-index: 1; padding: 0 16px 100px; }
+
+/* PANELS */
+.panel { display: none; max-width: 480px; margin: 0 auto; }
+.panel.active { display: block; animation: up 0.4s ease both; }
+@keyframes up { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:none } }
+
+.card {
+  background: rgba(26,58,42,0.6);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 20px;
+  position: relative; overflow: hidden;
+  backdrop-filter: blur(16px);
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--lime), transparent);
+}
+
+/* FORM */
+.eyebrow { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.title { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 300; color: var(--white); line-height: 1.15; margin-bottom: 6px; }
+.title em { font-style: italic; color: var(--lime); }
+.sub { font-size: 0.82rem; color: var(--dim); line-height: 1.6; margin-bottom: 24px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.field label { font-size: 0.7rem; font-weight: 500; color: var(--dim); letter-spacing: 0.07em; text-transform: uppercase; }
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 42px !important; }
+.pw-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--dim); font-size: 1rem; line-height: 1; padding: 4px; }
+input[type=text], input[type=email], input[type=tel], input[type=password] {
+  width: 100%; padding: 12px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid var(--border);
+  border-radius: 12px; color: var(--cream);
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+  outline: none; transition: border-color 0.2s, background 0.2s;
+  -webkit-appearance: none;
+}
+input:focus { border-color: rgba(126,200,80,0.5); background: rgba(255,255,255,0.07); }
+input.err { border-color: var(--err) !important; }
+.errmsg { font-size: 0.72rem; color: var(--err); margin-top: 2px; display: none; }
+.errmsg.show { display: block; }
+.matchmsg { font-size: 0.72rem; margin-top: 3px; }
+
+/* Terms */
+.terms-row { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; margin: 16px 0; }
+.chk { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 5px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.2s; }
+.chk.on { background: var(--lime); border-color: var(--lime); }
+.chk.err-border { border-color: var(--err); }
+.chk svg { display: none; }
+.chk.on svg { display: block; }
+.terms-txt { font-size: 0.8rem; color: var(--dim); line-height: 1.6; }
+.terms-txt a { color: var(--lime); text-decoration: none; }
+
+/* Buttons */
+.btn {
+  width: 100%; padding: 14px;
+  background: var(--lime); color: var(--deep);
+  border: none; border-radius: 12px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.94rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; margin-top: 6px;
+}
+.btn:hover { background: var(--gold); }
+.btn:disabled { background: rgba(255,255,255,0.08); color: var(--dim); cursor: not-allowed; }
+.link-row { text-align: center; margin-top: 16px; font-size: 0.8rem; color: var(--dim); }
+.link-row a { color: var(--lime); text-decoration: none; }
+
 /* PLANS */
-.plans-header{text-align:center;margin-bottom:32px;}
-.plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
-.plan-card{background:rgba(26,58,42,0.5);border:2px solid var(--border);border-radius:20px;padding:22px 16px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;display:flex;flex-direction:column;box-sizing:border-box;width:100%;}
-.plan-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent);opacity:0;transition:opacity 0.3s;}
-.plan-card:hover{transform:translateY(-4px);border-color:rgba(126,200,80,0.35);box-shadow:0 16px 40px rgba(0,0,0,0.2);}
-.plan-card:hover::after{opacity:1;}
-.plan-card.selected{border-color:var(--lime);background:rgba(45,90,61,0.55);box-shadow:0 0 36px rgba(126,200,80,0.15);}
-.plan-card.selected::after{opacity:1;}
-.plan-card.popular{border-color:rgba(201,168,76,0.4);}
-.plan-card.popular::after{background:linear-gradient(90deg,transparent,var(--gold),transparent);}
-.plan-card.popular.selected{border-color:var(--gold);box-shadow:0 0 36px rgba(201,168,76,0.2);}
-.plan-badge{display:inline-block;padding:3px 11px;border-radius:100px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;}
-.badge-free{background:rgba(126,200,80,0.12);color:var(--lime);border:1px solid rgba(126,200,80,0.25);}
-.badge-basic{background:rgba(255,255,255,0.06);color:var(--text-dim);border:1px solid var(--border);}
-.badge-popular{background:var(--gold);color:var(--deep-green);}
-.badge-premium{background:rgba(201,168,76,0.12);color:var(--gold);border:1px solid rgba(201,168,76,0.25);}
-.plan-name{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;color:var(--soft-white);margin-bottom:6px;}
-.plan-tagline{font-size:0.76rem;color:var(--text-dim);margin-bottom:18px;line-height:1.5;}
-.plan-price{margin-bottom:20px;}
-.plan-price .amount{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;color:var(--soft-white);line-height:1;}
-.plan-price .currency{font-size:0.9rem;color:var(--text-dim);vertical-align:super;}
-.plan-price .period{font-size:0.74rem;color:var(--text-dim);margin-left:2px;}
-.plan-price .free-label{font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--lime);}
-.plan-notice{font-size:0.68rem;color:rgba(138,171,150,0.6);margin-top:4px;}
-.plan-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:20px;flex:1;}
-.plan-features li{display:flex;align-items:flex-start;gap:8px;font-size:0.78rem;color:var(--cream);line-height:1.4;}
-.plan-features li .ck{color:var(--lime);flex-shrink:0;}
-.plan-features li .cx{color:rgba(138,171,150,0.3);flex-shrink:0;}
-.plan-features li.dim{color:rgba(138,171,150,0.4);}
-.plan-select-btn{width:100%;padding:11px;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:600;cursor:pointer;transition:all 0.25s;border:1.5px solid var(--border);background:transparent;color:var(--cream);margin-top:auto;}
-.plan-card.selected .plan-select-btn,.plan-card:hover .plan-select-btn{background:var(--lime);border-color:var(--lime);color:var(--deep-green);}
-.plan-card.popular .plan-select-btn{background:var(--gold);border-color:var(--gold);color:var(--deep-green);}
-.plan-card.popular:hover .plan-select-btn,.plan-card.popular.selected .plan-select-btn{background:var(--gold);border-color:var(--gold);}
-.plan-check{position:absolute;top:14px;right:14px;width:24px;height:24px;border-radius:50%;background:var(--lime);color:var(--deep-green);font-size:0.75rem;font-weight:700;display:none;align-items:center;justify-content:center;}
-.plan-card.selected .plan-check{display:flex;}
-.plan-card.popular.selected .plan-check{background:var(--gold);}
-.plans-footer{text-align:center;padding-top:8px;}
-.notice-bar{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:100px;font-size:0.78rem;color:var(--text-dim);margin-bottom:20px;}
-.btn-continue{padding:15px 48px;background:var(--lime);color:var(--deep-green);border:none;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.96rem;font-weight:700;cursor:pointer;transition:all 0.25s;}
-.btn-continue:hover{background:var(--gold);transform:translateY(-2px);box-shadow:0 12px 28px rgba(201,168,76,0.28);}
-.btn-continue:disabled{background:rgba(255,255,255,0.06);color:var(--text-dim);cursor:not-allowed;transform:none;box-shadow:none;}
+.plans-header { text-align: center; margin-bottom: 20px; }
+.plan-card {
+  background: rgba(26,58,42,0.5);
+  border: 2px solid var(--border);
+  border-radius: 16px; padding: 20px 16px;
+  cursor: pointer; transition: all 0.25s;
+  position: relative; overflow: hidden;
+  margin-bottom: 12px; width: 100%;
+}
+.plan-card:active { transform: scale(0.98); }
+.plan-card.selected { border-color: var(--lime); background: rgba(45,90,61,0.5); }
+.plan-card.popular { border-color: rgba(201,168,76,0.4); }
+.plan-card.popular.selected { border-color: var(--gold); }
+.plan-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.plan-badge { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; }
+.badge-free { background: rgba(126,200,80,0.12); color: var(--lime); border: 1px solid rgba(126,200,80,0.25); }
+.badge-basic { background: rgba(255,255,255,0.06); color: var(--dim); border: 1px solid var(--border); }
+.badge-pop { background: var(--gold); color: var(--deep); }
+.badge-prem { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.25); }
+.plan-chk { width: 24px; height: 24px; border-radius: 50%; background: var(--lime); color: var(--deep); font-size: 0.75rem; font-weight: 700; display: none; align-items: center; justify-content: center; flex-shrink: 0; }
+.plan-card.selected .plan-chk { display: flex; }
+.plan-card.popular.selected .plan-chk { background: var(--gold); }
+.plan-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 400; color: var(--white); margin: 10px 0 2px; }
+.plan-tag { font-size: 0.76rem; color: var(--dim); margin-bottom: 10px; line-height: 1.4; }
+.plan-price-row { display: flex; align-items: baseline; gap: 2px; margin-bottom: 4px; }
+.plan-price-row .big { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--white); line-height: 1; }
+.plan-price-row .cur { font-size: 0.85rem; color: var(--dim); }
+.plan-price-row .per { font-size: 0.74rem; color: var(--dim); }
+.plan-price-row .free { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; color: var(--lime); }
+.plan-notice { font-size: 0.68rem; color: rgba(138,171,150,0.6); margin-bottom: 12px; }
+.plan-feats { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.plan-feats li { display: flex; align-items: flex-start; gap: 8px; font-size: 0.78rem; color: var(--cream); line-height: 1.4; }
+.plan-feats li.no { color: rgba(138,171,150,0.4); }
+.plan-feats li .ck { color: var(--lime); flex-shrink: 0; }
+.plan-feats li .cx { color: rgba(138,171,150,0.3); flex-shrink: 0; }
+
+/* Fixed bottom button */
+.fixed-bottom {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  padding: 14px 16px;
+  padding-bottom: max(14px, calc(var(--safe-b) + 10px));
+  background: rgba(15,35,24,0.97);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  display: none;
+}
+.fixed-bottom.show { display: block; }
+.fixed-btn {
+  width: 100%; padding: 15px;
+  background: var(--lime); color: var(--deep);
+  border: none; border-radius: 12px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.96rem; font-weight: 700;
+  cursor: pointer; transition: background 0.2s;
+}
+.fixed-btn.gold { background: var(--gold); }
+
+.plans-note { text-align: center; font-size: 0.74rem; color: var(--dim); margin: 12px 0 80px; line-height: 1.6; }
+
 /* SUCCESS */
-.success-wrap{text-align:center;padding:52px 36px;}
-.success-icon{width:80px;height:80px;background:rgba(126,200,80,0.1);border:2px solid var(--lime);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 24px;animation:popIn 0.5s ease both;}
-@keyframes popIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
-.success-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;color:var(--soft-white);margin-bottom:12px;}
-.success-title em{font-style:italic;color:var(--lime);}
-.success-sub{font-size:0.88rem;color:var(--text-dim);line-height:1.7;margin-bottom:28px;max-width:380px;margin-left:auto;margin-right:auto;}
-.success-plan{display:inline-flex;align-items:center;gap:8px;padding:8px 22px;background:rgba(126,200,80,0.1);border:1px solid rgba(126,200,80,0.3);border-radius:100px;font-size:0.85rem;color:var(--lime);margin-bottom:28px;font-weight:500;}
-.btn-dashboard{padding:15px 48px;background:var(--lime);color:var(--deep-green);border:none;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.96rem;font-weight:700;cursor:pointer;transition:all 0.25s;}
-.btn-dashboard:hover{background:var(--gold);transform:translateY(-2px);box-shadow:0 12px 28px rgba(201,168,76,0.28);}
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--leaf-green);color:var(--soft-white);padding:11px 24px;border-radius:100px;font-size:0.84rem;border:1px solid var(--lime);opacity:0;transition:all 0.3s;z-index:999;white-space:nowrap;}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-@media(max-width:900px){.plans-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:600px){
-  nav{padding:14px 16px;}
-  .lang-switcher{display:none;}
-  .card{padding:20px 14px;}
-  .form-row{grid-template-columns:1fr;}
-  .plans-grid{grid-template-columns:1fr;}
-  .panel{max-width:100%;width:100%;}
-  .panel.wide{max-width:100%;width:100%;}
-  .plans-header h1{font-size:1.8rem;}
-  .step-line{width:28px;}
-  .step-circle{width:32px;height:32px;font-size:0.75rem;}
-  .step-label{font-size:0.6rem;max-width:46px;line-height:1.2;}
-  .progress-wrap{padding:86px 8px 0;}
-  .btn-continue{padding:14px 24px;font-size:0.88rem;width:100%;}
-  .notice-bar{font-size:0.7rem;padding:8px 12px;text-align:center;}
-  .plan-price .amount{font-size:2rem;}
-  body{overflow-x:hidden;}
+.success-wrap { text-align: center; }
+.success-icon { width: 72px; height: 72px; background: rgba(126,200,80,0.1); border: 2px solid var(--lime); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 20px; animation: pop 0.5s ease both; }
+@keyframes pop { from { transform: scale(0.5); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+.success-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--white); margin-bottom: 10px; }
+.success-title em { font-style: italic; color: var(--lime); }
+.success-sub { font-size: 0.84rem; color: var(--dim); line-height: 1.7; margin-bottom: 20px; }
+.success-plan-badge { display: inline-flex; align-items: center; gap: 6px; padding: 7px 18px; background: rgba(126,200,80,0.1); border: 1px solid rgba(126,200,80,0.3); border-radius: 100px; font-size: 0.82rem; color: var(--lime); margin-bottom: 20px; }
+.verify-box { background: rgba(126,200,80,0.06); border: 1px solid rgba(126,200,80,0.2); border-radius: 14px; padding: 18px; margin-bottom: 16px; text-align: left; }
+.verify-box .v-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.86rem; font-weight: 600; color: var(--cream); }
+.verify-box p { font-size: 0.78rem; color: var(--dim); line-height: 1.6; }
+.verify-box .timer { margin-top: 10px; padding: 7px 12px; background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2); border-radius: 8px; font-size: 0.72rem; color: var(--gold); }
+.steps-next { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 20px; text-align: left; }
+.steps-next .lbl { font-size: 0.68rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.next-item { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--cream); margin-bottom: 8px; }
+.next-item:last-child { margin-bottom: 0; }
+.n-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; flex-shrink: 0; }
+.n-dot.active { background: var(--lime); color: var(--deep); }
+.n-dot.idle { background: rgba(126,200,80,0.2); color: var(--lime); }
+.btn-dash { display: block; width: 100%; padding: 14px; background: var(--lime); color: var(--deep); border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.94rem; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; transition: background 0.2s; }
+.btn-dash:hover { background: var(--gold); }
+.support-link { margin-top: 14px; font-size: 0.74rem; color: var(--dim); text-align: center; }
+.support-link a { color: var(--lime); text-decoration: none; }
+
+/* Toast */
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--leaf); color: var(--white); padding: 10px 22px; border-radius: 100px; font-size: 0.82rem; border: 1px solid var(--lime); opacity: 0; transition: all 0.3s; z-index: 999; white-space: nowrap; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 400px) {
+  .row2 { grid-template-columns: 1fr; }
+  .plan-card { padding: 16px 14px; }
 }
 </style>
 </head>
@@ -147,164 +255,193 @@ input.error{border-color:var(--error)!important;}
 
 <nav>
   <a href="index.html" class="logo">Vita<span>lis Flow</span></a>
-  <div class="nav-right">
-    <div class="lang-switcher">
-      <button class="lang-btn active" onclick="setLang('sv')" id="lang-sv">SV</button>
-      <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
-      <button class="lang-btn" onclick="setLang('ar')" id="lang-ar">AR</button>
-    </div>
-    <a href="dashboard.html" class="nav-login">Logga in</a>
-  </div>
+  <a href="dashboard.html" class="nav-login">Logga in</a>
 </nav>
 
-<div class="progress-wrap">
+<div class="steps-wrap">
   <div class="steps">
-    <div class="step-item active" id="si1"><div class="step-circle active" id="sc1">1</div><div class="step-label">Dina uppgifter</div></div>
+    <div class="step active" id="si1">
+      <div class="step-dot active" id="sd1">1</div>
+      <div class="step-lbl">Dina uppgifter</div>
+    </div>
     <div class="step-line" id="sl1"></div>
-    <div class="step-item" id="si2"><div class="step-circle" id="sc2">2</div><div class="step-label">Välj plan</div></div>
+    <div class="step active" id="si2">
+      <div class="step-dot" id="sd2">2</div>
+      <div class="step-lbl">Välj plan</div>
+    </div>
     <div class="step-line" id="sl2"></div>
-    <div class="step-item" id="si3"><div class="step-circle" id="sc3">✓</div><div class="step-label">Klart!</div></div>
+    <div class="step" id="si3">
+      <div class="step-dot" id="sd3">✓</div>
+      <div class="step-lbl">Klart!</div>
+    </div>
   </div>
 </div>
 
-<div class="main">
+<div class="page">
 
   <!-- STEG 1 -->
   <div class="panel active" id="panel-1">
     <div class="card">
       <div class="eyebrow">Steg 1 av 2</div>
-      <h1 class="panel-title">Skapa ditt<br><em>Vitalis-konto</em></h1>
-      <p class="panel-sub">Fyll i dina uppgifter nedan. Alla fält är obligatoriska.</p>
-      <div class="form-row">
-        <div class="form-group"><label>Förnamn</label><input type="text" id="fname" placeholder="Anna" autocomplete="given-name"><span class="field-error" id="err-fname">Obligatoriskt fält</span></div>
-        <div class="form-group"><label>Efternamn</label><input type="text" id="lname" placeholder="Lindgren" autocomplete="family-name"><span class="field-error" id="err-lname">Obligatoriskt fält</span></div>
+      <h1 class="title">Skapa ditt<br><em>Vitalis-konto</em></h1>
+      <p class="sub">Fyll i dina uppgifter. Alla fält är obligatoriska.</p>
+
+      <div class="row2">
+        <div class="field">
+          <label>Förnamn</label>
+          <input type="text" id="fname" placeholder="Anna" autocomplete="given-name">
+          <span class="errmsg" id="e-fname">Obligatoriskt</span>
+        </div>
+        <div class="field">
+          <label>Efternamn</label>
+          <input type="text" id="lname" placeholder="Lindgren" autocomplete="family-name">
+          <span class="errmsg" id="e-lname">Obligatoriskt</span>
+        </div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>E-postadress</label><input type="email" id="email" placeholder="anna@email.se" autocomplete="email"><span class="field-error" id="err-email">Ange en giltig e-post</span></div>
-        <div class="form-group"><label>Telefonnummer</label><input type="tel" id="phone" placeholder="+46 70 123 45 67" autocomplete="tel"><span class="field-error" id="err-phone">Obligatoriskt fält</span></div>
+
+      <div class="field">
+        <label>E-postadress</label>
+        <input type="email" id="email" placeholder="din@email.se" autocomplete="email">
+        <span class="errmsg" id="e-email">Ange en giltig e-post</span>
       </div>
-      <div class="form-group">
+
+      <div class="field">
+        <label>Telefonnummer</label>
+        <input type="tel" id="phone" placeholder="+46 70 123 45 67" autocomplete="tel">
+        <span class="errmsg" id="e-phone">Obligatoriskt</span>
+      </div>
+
+      <div class="field">
         <label>Lösenord</label>
-        <div class="input-wrap input-with-toggle">
-          <input type="password" id="password" placeholder="Minst 8 tecken" oninput="checkMatch()">
-          <button class="toggle-pw" type="button" onclick="togglePw('password','eye1')" id="eye1">👁</button>
+        <div class="pw-wrap">
+          <input type="password" id="pw1" placeholder="Minst 8 tecken" oninput="checkMatch()">
+          <button class="pw-eye" type="button" onclick="togglePw('pw1','eye1')" id="eye1">👁</button>
         </div>
-        <span class="field-error" id="err-password">Minst 8 tecken</span>
+        <span class="errmsg" id="e-pw1">Minst 8 tecken</span>
       </div>
-      <div class="form-group">
+
+      <div class="field">
         <label>Bekräfta lösenord</label>
-        <div class="input-wrap input-with-toggle">
-          <input type="password" id="password2" placeholder="Upprepa lösenordet" oninput="checkMatch()">
-          <button class="toggle-pw" type="button" onclick="togglePw('password2','eye2')" id="eye2">👁</button>
+        <div class="pw-wrap">
+          <input type="password" id="pw2" placeholder="Upprepa lösenordet" oninput="checkMatch()">
+          <button class="pw-eye" type="button" onclick="togglePw('pw2','eye2')" id="eye2">👁</button>
         </div>
-        <span class="field-error" id="err-password2">Lösenorden matchar inte</span>
-        <span class="pwd-match" id="pwd-match"></span>
+        <span class="errmsg" id="e-pw2">Lösenorden matchar inte</span>
+        <span class="matchmsg" id="matchmsg"></span>
       </div>
+
       <div class="terms-row">
-        <div class="custom-check" id="terms-check" onclick="toggleTerms()">
-          <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1.5" stroke="#0f2318" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="chk" id="chk" onclick="toggleTerms()">
+          <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+            <path d="M1 5L4.5 8.5L11 1.5" stroke="#0f2318" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-        <div class="terms-text">Jag har läst och godkänner <a href="legal.html" target="_blank">användarvillkoren</a> samt <a href="legal.html" target="_blank">integritetspolicyn</a>. Registreringsdatum: <span id="reg-date"></span></div>
+        <div class="terms-txt">
+          Jag godkänner <a href="legal.html" target="_blank">användarvillkoren</a> och <a href="legal.html" target="_blank">integritetspolicyn</a>.
+          <span style="display:block;margin-top:2px;font-size:0.72rem">Registreringsdatum: <span id="regdate"></span></span>
+        </div>
       </div>
-      <span class="field-error" id="err-terms">Du måste godkänna villkoren</span>
-      <button class="btn-primary" onclick="submitStep1()">Fortsätt till planval →</button>
-      <div class="login-link">Har du redan ett konto? <a href="dashboard.html">Logga in</a></div>
+      <span class="errmsg" id="e-terms">Du måste godkänna villkoren</span>
+
+      <button class="btn" onclick="step1()">Fortsätt till planval →</button>
+
+      <div class="link-row">
+        Har du redan ett konto? <a href="dashboard.html">Logga in</a>
+      </div>
     </div>
   </div>
 
   <!-- STEG 2: PLANER -->
-  <div class="panel wide" id="panel-2">
-    <div class="plans-header" style="text-align:center;padding:0 8px">
+  <div class="panel" id="panel-2">
+    <div class="plans-header">
       <div class="eyebrow" style="display:inline-block">Steg 2 av 2</div>
-      <h1 class="panel-title" style="margin-top:8px">Välj din <em>hälsoplan</em></h1>
-      <p style="font-size:0.84rem;color:var(--text-dim);margin-top:6px;line-height:1.6">Uppgradera eller byta plan när som helst.<br><strong style="color:var(--lime)">30 dagars uppsägningstid</strong> – inga dolda avgifter.</p>
+      <h1 class="title" style="margin-top:6px">Välj din <em>hälsoplan</em></h1>
+      <p style="font-size:0.82rem;color:var(--dim);margin-top:6px;line-height:1.6">
+        Uppgradera när som helst · <strong style="color:var(--lime)">30 dagars uppsägningstid</strong>
+      </p>
     </div>
 
-    <div class="plans-grid">
-
-      <div class="plan-card" id="plan-gratis" onclick="choosePlan('gratis')">
-        <div class="plan-check">✓</div>
-        <div class="plan-badge badge-free">Gratis alltid</div>
-        <div class="plan-name">Gratis</div>
-        <div class="plan-tagline">Kom igång utan kostnad och utforska grundfunktionerna.</div>
-        <div class="plan-price"><span class="free-label">0 kr</span><div class="plan-notice">för alltid</div></div>
-        <ul class="plan-features">
-          <li><span class="ck">✓</span> Matlogg (5/dag)</li>
-          <li><span class="ck">✓</span> Sömnlogg</li>
-          <li><span class="ck">✓</span> BMI & viktkalkylator</li>
-          <li class="dim"><span class="cx">✗</span> AI-coach</li>
-          <li class="dim"><span class="cx">✗</span> Träningsgenerator</li>
-          <li class="dim"><span class="cx">✗</span> Kylskåpsscanning</li>
-        </ul>
-        <button class="plan-select-btn">Välj Gratis</button>
+    <!-- GRATIS -->
+    <div class="plan-card" id="pc-gratis" onclick="pick('gratis')">
+      <div class="plan-top">
+        <span class="plan-badge badge-free">Gratis alltid</span>
+        <div class="plan-chk">✓</div>
       </div>
-
-      <div class="plan-card" id="plan-basic" onclick="choosePlan('basic')">
-        <div class="plan-check">✓</div>
-        <div class="plan-badge badge-basic">Basic</div>
-        <div class="plan-name">Basic</div>
-        <div class="plan-tagline">Ta kontroll över hälsan med smarta verktyg och AI-stöd.</div>
-        <div class="plan-price"><span class="currency">kr</span><span class="amount">49</span><span class="period">/mån</span><div class="plan-notice">30 dagars uppsägningstid</div></div>
-        <ul class="plan-features">
-          <li><span class="ck">✓</span> Obegränsad matlogg</li>
-          <li><span class="ck">✓</span> Sömnanalys & insikter</li>
-          <li><span class="ck">✓</span> Träningsgenerator</li>
-          <li><span class="ck">✓</span> Veckomeny</li>
-          <li><span class="ck">✓</span> AI-coach (10/dag)</li>
-          <li class="dim"><span class="cx">✗</span> AI-fotoskanning</li>
-        </ul>
-        <button class="plan-select-btn">Välj Basic</button>
-      </div>
-
-      <div class="plan-card popular" id="plan-pro" onclick="choosePlan('pro')">
-        <div class="plan-check">✓</div>
-        <div class="plan-badge badge-popular">⭐ Populärast</div>
-        <div class="plan-name">Pro</div>
-        <div class="plan-tagline">Allt du behöver för en aktiv och medveten livsstil.</div>
-        <div class="plan-price"><span class="currency">kr</span><span class="amount">99</span><span class="period">/mån</span><div class="plan-notice">30 dagars uppsägningstid</div></div>
-        <ul class="plan-features">
-          <li><span class="ck">✓</span> Allt i Basic</li>
-          <li><span class="ck">✓</span> Obegränsad AI-coach</li>
-          <li><span class="ck">✓</span> AI-fotoskanning av mat</li>
-          <li><span class="ck">✓</span> Kylskåpsscanning</li>
-          <li><span class="ck">✓</span> Träningsfoto & analys</li>
-          <li><span class="ck">✓</span> Social delning</li>
-        </ul>
-        <button class="plan-select-btn">Välj Pro</button>
-      </div>
-
-      <div class="plan-card" id="plan-premium" onclick="choosePlan('premium')">
-        <div class="plan-check" style="background:var(--gold)">✓</div>
-        <div class="plan-badge badge-premium">✦ Premium</div>
-        <div class="plan-name">Premium</div>
-        <div class="plan-tagline">Maximalt stöd för dig som tar hälsan på allvar.</div>
-        <div class="plan-price"><span class="currency">kr</span><span class="amount">149</span><span class="period">/mån</span><div class="plan-notice">30 dagars uppsägningstid</div></div>
-        <ul class="plan-features">
-          <li><span class="ck">✓</span> Allt i Pro</li>
-          <li><span class="ck">✓</span> Prioriterad support</li>
-          <li><span class="ck">✓</span> Vitalis Band-rabatt</li>
-          <li><span class="ck">✓</span> Personlig träningsplan</li>
-          <li><span class="ck">✓</span> Tidig tillgång till nyheter</li>
-          <li><span class="ck">✓</span> Dedikerad hälsocoach</li>
-        </ul>
-        <button class="plan-select-btn">Välj Premium</button>
-      </div>
-
+      <div class="plan-name">Gratis</div>
+      <div class="plan-tag">Kom igång utan kostnad och utforska grundfunktionerna.</div>
+      <div class="plan-price-row"><span class="free">0 kr</span></div>
+      <div class="plan-notice">för alltid</div>
+      <ul class="plan-feats">
+        <li><span class="ck">✓</span> Matlogg (5/dag)</li>
+        <li><span class="ck">✓</span> Sömnlogg</li>
+        <li><span class="ck">✓</span> BMI & viktkalkylator</li>
+        <li class="no"><span class="cx">✗</span> AI-coach</li>
+        <li class="no"><span class="cx">✗</span> Träningsgenerator</li>
+        <li class="no"><span class="cx">✗</span> Kylskåpsscanning</li>
+      </ul>
     </div>
 
-    <div class="plans-footer">
-      <div class="notice-bar">🔒 30 dagars uppsägningstid &nbsp;·&nbsp; Inga bindningstider</div><br>
-      <button class="btn-continue" id="btn-continue" onclick="submitStep2()" disabled>Välj en plan för att fortsätta</button>
-      <div style="font-size:0.76rem;color:var(--text-dim);margin-top:12px">Faktureras månadsvis · Avsluta när som helst</div>
+    <!-- BASIC -->
+    <div class="plan-card" id="pc-basic" onclick="pick('basic')">
+      <div class="plan-top">
+        <span class="plan-badge badge-basic">Basic</span>
+        <div class="plan-chk">✓</div>
+      </div>
+      <div class="plan-name">Basic</div>
+      <div class="plan-tag">Ta kontroll över hälsan med smarta verktyg och AI-stöd.</div>
+      <div class="plan-price-row"><span class="cur">kr</span><span class="big">49</span><span class="per">/mån</span></div>
+      <div class="plan-notice">30 dagars uppsägningstid</div>
+      <ul class="plan-feats">
+        <li><span class="ck">✓</span> Obegränsad matlogg</li>
+        <li><span class="ck">✓</span> Sömnanalys & insikter</li>
+        <li><span class="ck">✓</span> Träningsgenerator</li>
+        <li><span class="ck">✓</span> AI-coach (10/dag)</li>
+        <li class="no"><span class="cx">✗</span> AI-fotoskanning</li>
+        <li class="no"><span class="cx">✗</span> Kylskåpsscanning</li>
+      </ul>
     </div>
 
-    <!-- Sticky knapp på mobil -->
-    <div id="sticky-plan-btn" style="display:none;position:fixed;bottom:0;left:0;right:0;padding:16px;background:var(--deep-green);border-top:1px solid var(--border);z-index:50">
-      <button onclick="submitStep2()" id="sticky-continue-btn"
-        style="width:100%;padding:15px;background:var(--lime);color:var(--deep-green);border:none;border-radius:13px;font-family:'DM Sans',sans-serif;font-size:0.96rem;font-weight:700;cursor:pointer">
-        Välj en plan för att fortsätta
-      </button>
+    <!-- PRO -->
+    <div class="plan-card popular" id="pc-pro" onclick="pick('pro')">
+      <div class="plan-top">
+        <span class="plan-badge badge-pop">⭐ Populärast</span>
+        <div class="plan-chk">✓</div>
+      </div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-tag">Allt du behöver för en aktiv och medveten livsstil.</div>
+      <div class="plan-price-row"><span class="cur">kr</span><span class="big">99</span><span class="per">/mån</span></div>
+      <div class="plan-notice">30 dagars uppsägningstid</div>
+      <ul class="plan-feats">
+        <li><span class="ck">✓</span> Allt i Basic</li>
+        <li><span class="ck">✓</span> Obegränsad AI-coach</li>
+        <li><span class="ck">✓</span> AI-fotoskanning av mat</li>
+        <li><span class="ck">✓</span> Kylskåpsscanning</li>
+        <li><span class="ck">✓</span> Träningsfoto & analys</li>
+        <li><span class="ck">✓</span> Social delning</li>
+      </ul>
     </div>
+
+    <!-- PREMIUM -->
+    <div class="plan-card" id="pc-premium" onclick="pick('premium')">
+      <div class="plan-top">
+        <span class="plan-badge badge-prem">✦ Premium</span>
+        <div class="plan-chk" style="background:var(--gold)">✓</div>
+      </div>
+      <div class="plan-name">Premium</div>
+      <div class="plan-tag">Maximalt stöd för dig som tar hälsan på allvar.</div>
+      <div class="plan-price-row"><span class="cur">kr</span><span class="big">149</span><span class="per">/mån</span></div>
+      <div class="plan-notice">30 dagars uppsägningstid</div>
+      <ul class="plan-feats">
+        <li><span class="ck">✓</span> Allt i Pro</li>
+        <li><span class="ck">✓</span> Prioriterad support</li>
+        <li><span class="ck">✓</span> Vitalis Band-rabatt</li>
+        <li><span class="ck">✓</span> Personlig träningsplan</li>
+        <li><span class="ck">✓</span> Tidig tillgång till nyheter</li>
+        <li><span class="ck">✓</span> Dedikerad hälsocoach</li>
+      </ul>
+    </div>
+
+    <div class="plans-note">🔒 Inga bindningstider · Avsluta enkelt i profilen · Faktureras månadsvis</div>
   </div>
 
   <!-- STEG 3: KLART -->
@@ -313,207 +450,205 @@ input.error{border-color:var(--error)!important;}
       <div class="success-icon">🌿</div>
       <h1 class="success-title">Välkommen till<br><em>Vitalis Flow!</em></h1>
       <p class="success-sub">Ditt konto är skapat. Din hälsoresa börjar nu!</p>
-      <div class="success-plan">✦ <span id="chosen-plan-name">Pro</span></div>
+      <div class="success-plan-badge">✦ <span id="chosen-plan">Pro</span></div>
 
-      <!-- Verifieringsmail-info -->
-      <div style="background:rgba(126,200,80,0.07);border:1px solid rgba(126,200,80,0.2);border-radius:16px;padding:20px;margin:20px 0;text-align:left">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <span style="font-size:1.4rem">📧</span>
-          <div style="font-size:0.88rem;font-weight:600;color:var(--cream)">Verifiera din e-post</div>
-        </div>
-        <p style="font-size:0.8rem;color:var(--text-dim);line-height:1.6;margin:0">
-          Vi har skickat ett verifieringsmail till <strong style="color:var(--lime)" id="success-email"></strong>.
-          Klicka på länken i mailet för att aktivera ditt konto.
-        </p>
-        <div style="margin-top:10px;padding:8px 12px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:8px;font-size:0.74rem;color:var(--gold)">
-          ⏱ Länken är giltig i 24 timmar · Kolla även skräppost
-        </div>
+      <div class="verify-box">
+        <div class="v-head"><span>📧</span> Verifiera din e-post</div>
+        <p>Vi har skickat ett verifieringsmail till <strong style="color:var(--lime)" id="success-email"></strong>. Klicka på länken för att aktivera ditt konto.</p>
+        <div class="timer">⏱ Länken är giltig i 24 timmar · Kolla även skräppost</div>
       </div>
 
-      <!-- Nästa steg -->
-      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:24px;text-align:left">
-        <div style="font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Nästa steg</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--cream)">
-            <span style="width:22px;height:22px;background:var(--lime);color:var(--deep-green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0">1</span>
-            Gå till dashboard och fyll i din profil
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--cream)">
-            <span style="width:22px;height:22px;background:rgba(126,200,80,0.3);color:var(--lime);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0">2</span>
-            Verifiera din e-post när mailet kommer
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--cream)">
-            <span style="width:22px;height:22px;background:rgba(126,200,80,0.3);color:var(--lime);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0">3</span>
-            Börja logga din hälsa!
-          </div>
-        </div>
+      <div class="steps-next">
+        <div class="lbl">Nästa steg</div>
+        <div class="next-item"><span class="n-dot active">1</span> Gå till dashboard och fyll i din profil</div>
+        <div class="next-item"><span class="n-dot idle">2</span> Verifiera din e-post när mailet kommer</div>
+        <div class="next-item"><span class="n-dot idle">3</span> Börja logga din hälsa!</div>
       </div>
 
-      <button class="btn-dashboard" onclick="window.location.href='dashboard.html'">
-        Gå till min dashboard →
-      </button>
-      <div style="margin-top:16px;font-size:0.76rem;color:var(--text-dim)">
-        Frågor? <a href="mailto:support@vitalisflow.se" style="color:var(--lime);text-decoration:none">support@vitalisflow.se</a>
-      </div>
+      <a href="dashboard.html" class="btn-dash">Gå till min dashboard →</a>
+      <div class="support-link">Frågor? <a href="mailto:support@vitalisflow.se">support@vitalisflow.se</a></div>
     </div>
   </div>
 
 </div>
+
+<!-- FIXED BOTTOM – syns alltid när plan är vald -->
+<div class="fixed-bottom" id="fixed-bottom">
+  <button class="fixed-btn" id="fixed-btn" onclick="step2()">Välj en plan för att fortsätta</button>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = 'https://kzzvrwybrycokorgkobw.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6enZyd3licnljb2tvcmdrb2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNzY3NjcsImV4cCI6MjA5Njg1Mjc2N30.PS3TyH9qPKfE5H7ZlOGR2TtQsCi9BvX7FU3Oll14lgg';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-</script>
-<script>
-document.getElementById('reg-date').textContent = new Date().toLocaleDateString('sv-SE',{year:'numeric',month:'long',day:'numeric'});
+const SURL = 'https://kzzvrwybrycokorgkobw.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6enZyd3licnljb2tvcmdrb2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNzY3NjcsImV4cCI6MjA5Njg1Mjc2N30.PS3TyH9qPKfE5H7ZlOGR2TtQsCi9BvX7FU3Oll14lgg';
+const sb = supabase.createClient(SURL, SKEY);
 
-function togglePw(id,eyeId){const i=document.getElementById(id),b=document.getElementById(eyeId);i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'👁':'🙈';}
+// Init
+document.getElementById('regdate').textContent = new Date().toLocaleDateString('sv-SE',{year:'numeric',month:'long',day:'numeric'});
 
-function checkMatch(){
-  const p1=document.getElementById('password').value,p2=document.getElementById('password2').value,m=document.getElementById('pwd-match');
-  if(!p2){m.style.display='none';return;}
-  m.style.display='block';
-  if(p1===p2){m.textContent='✓ Lösenorden matchar';m.style.color='var(--lime)';}
-  else{m.textContent='✗ Lösenorden matchar inte';m.style.color='var(--error)';}
+// Password toggle
+function togglePw(id, eyeId) {
+  const i = document.getElementById(id), b = document.getElementById(eyeId);
+  i.type = i.type === 'password' ? 'text' : 'password';
+  b.textContent = i.type === 'password' ? '👁' : '🙈';
 }
 
-let termsAccepted=false;
-function toggleTerms(){
-  termsAccepted=!termsAccepted;
-  document.getElementById('terms-check').classList.toggle('checked',termsAccepted);
-  document.getElementById('terms-check').classList.remove('error-check');
-  document.getElementById('err-terms').classList.remove('show');
+// Password match
+function checkMatch() {
+  const p1 = document.getElementById('pw1').value;
+  const p2 = document.getElementById('pw2').value;
+  const msg = document.getElementById('matchmsg');
+  if (!p2) { msg.style.display = 'none'; return; }
+  msg.style.display = 'block';
+  if (p1 === p2) { msg.textContent = '✓ Lösenorden matchar'; msg.style.color = 'var(--lime)'; }
+  else           { msg.textContent = '✗ Lösenorden matchar inte'; msg.style.color = 'var(--err)'; }
 }
 
-function submitStep1(){
-  let ok=true;
-  ['fname','lname','phone'].forEach(id=>{
-    const el=document.getElementById(id),err=document.getElementById('err-'+id);
-    if(!el.value.trim()){el.classList.add('error');err.classList.add('show');ok=false;}
-    else{el.classList.remove('error');err.classList.remove('show');}
+// Terms
+let termsOk = false;
+function toggleTerms() {
+  termsOk = !termsOk;
+  document.getElementById('chk').classList.toggle('on', termsOk);
+  document.getElementById('chk').classList.remove('err-border');
+  document.getElementById('e-terms').classList.remove('show');
+}
+
+// Clear error on input
+['fname','lname','email','phone','pw1','pw2'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', function() {
+    this.classList.remove('err');
+    const e = document.getElementById('e-' + id); if (e) e.classList.remove('show');
   });
-  const em=document.getElementById('email'),eerr=document.getElementById('err-email');
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value)){em.classList.add('error');eerr.classList.add('show');ok=false;}
-  else{em.classList.remove('error');eerr.classList.remove('show');}
-  const pw=document.getElementById('password'),pw2=document.getElementById('password2');
-  if(pw.value.length<8){pw.classList.add('error');document.getElementById('err-password').classList.add('show');ok=false;}
-  else{pw.classList.remove('error');document.getElementById('err-password').classList.remove('show');}
-  if(pw.value!==pw2.value||!pw2.value){pw2.classList.add('error');document.getElementById('err-password2').classList.add('show');ok=false;}
-  else{pw2.classList.remove('error');document.getElementById('err-password2').classList.remove('show');}
-  if(!termsAccepted){document.getElementById('terms-check').classList.add('error-check');document.getElementById('err-terms').classList.add('show');ok=false;}
-  if(!ok)return;
-  goTo(2);showToast('Uppgifter sparade! Välj din plan 🌿');
+});
+
+// STEP 1 validation
+function step1() {
+  let ok = true;
+  ['fname','lname','phone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el.value.trim()) { el.classList.add('err'); document.getElementById('e-'+id).classList.add('show'); ok = false; }
+    else { el.classList.remove('err'); document.getElementById('e-'+id).classList.remove('show'); }
+  });
+  const em = document.getElementById('email');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value)) { em.classList.add('err'); document.getElementById('e-email').classList.add('show'); ok = false; }
+  else { em.classList.remove('err'); document.getElementById('e-email').classList.remove('show'); }
+  const p1 = document.getElementById('pw1'), p2 = document.getElementById('pw2');
+  if (p1.value.length < 8) { p1.classList.add('err'); document.getElementById('e-pw1').classList.add('show'); ok = false; }
+  else { p1.classList.remove('err'); document.getElementById('e-pw1').classList.remove('show'); }
+  if (p1.value !== p2.value || !p2.value) { p2.classList.add('err'); document.getElementById('e-pw2').classList.add('show'); ok = false; }
+  else { p2.classList.remove('err'); document.getElementById('e-pw2').classList.remove('show'); }
+  if (!termsOk) { document.getElementById('chk').classList.add('err-border'); document.getElementById('e-terms').classList.add('show'); ok = false; }
+  if (!ok) return;
+  goTo(2);
+  toast('Uppgifter sparade! Välj din plan 🌿');
 }
 
-let sel=null;
-const planNames={gratis:'Gratis',basic:'Basic',pro:'Pro',premium:'Premium'};
-const planPrices={gratis:0,basic:49,pro:99,premium:149};
+// Plan selection
+const planNames = { gratis:'Gratis', basic:'Basic', pro:'Pro', premium:'Premium' };
+const planPrices = { gratis:0, basic:49, pro:99, premium:149 };
+let chosenPlan = null;
 
-function choosePlan(p){
-  sel=p;
-  ['gratis','basic','pro','premium'].forEach(x=>document.getElementById('plan-'+x).classList.toggle('selected',x===p));
-  const btn=document.getElementById('btn-continue');
-  btn.disabled=false;
-  const label='Välj '+planNames[p]+' – Slutför →';
-  btn.textContent=label;
-  btn.style.background=p==='premium'?'var(--gold)':'var(--lime)';
-  const sticky=document.getElementById('sticky-plan-btn');
-  const stickyBtn=document.getElementById('sticky-continue-btn');
-  if(sticky && window.innerWidth<=600){
-    sticky.style.display='block';
-    stickyBtn.textContent=label;
-    stickyBtn.style.background=p==='premium'?'var(--gold)':'var(--lime)';
-  }
+function pick(p) {
+  chosenPlan = p;
+  ['gratis','basic','pro','premium'].forEach(x => {
+    document.getElementById('pc-'+x).classList.toggle('selected', x === p);
+  });
+  // Update fixed bottom button
+  const fb = document.getElementById('fixed-bottom');
+  const btn = document.getElementById('fixed-btn');
+  fb.classList.add('show');
+  btn.textContent = 'Välj ' + planNames[p] + ' – Slutför registrering →';
+  btn.className = 'fixed-btn' + (p === 'premium' ? ' gold' : '');
 }
 
-async function submitStep2(){
-  if(!sel) return;
-  const btn = document.getElementById('btn-continue');
-  const stickyBtn = document.getElementById('sticky-continue-btn');
-  [btn, stickyBtn].forEach(b => { if(b){ b.disabled=true; b.textContent='⏳ Skapar konto...'; }});
+// STEP 2: create account
+async function step2() {
+  if (!chosenPlan) return;
+  const btn = document.getElementById('fixed-btn');
+  btn.textContent = '⏳ Skapar konto...';
+  btn.disabled = true;
 
   const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
+  const password = document.getElementById('pw1').value;
   const fname = document.getElementById('fname').value.trim();
   const lname = document.getElementById('lname').value.trim();
   const phone = document.getElementById('phone').value.trim();
 
   try {
-    // 1. Skapa konto i Supabase Auth
-    const { data: authData, error: authError } = await sb.auth.signUp({
-      email,
-      password,
+    const { data, error } = await sb.auth.signUp({
+      email, password,
       options: {
         data: { name: fname + ' ' + lname },
         emailRedirectTo: 'https://vitalisflow.se/dashboard.html'
       }
     });
 
-    if (authError) {
-      showToast('❌ ' + (authError.message === 'User already registered' ? 'E-posten finns redan – logga in istället' : authError.message));
-      [btn, stickyBtn].forEach(b => { if(b){ b.disabled=false; b.textContent='Välj '+planNames[sel]+' – Slutför →'; }});
+    if (error) {
+      const msgs = {
+        'User already registered': 'E-posten finns redan – logga in istället',
+        'email rate limit exceeded': 'För många försök – vänta lite och försök igen'
+      };
+      toast('❌ ' + (msgs[error.message] || error.message));
+      btn.textContent = 'Välj ' + planNames[chosenPlan] + ' – Slutför registrering →';
+      btn.disabled = false;
       return;
     }
 
-    const userId = authData.user?.id;
-
-    // 2. Spara profil + plan i Supabase
-    if (userId) {
+    // Save profile + plan
+    if (data.user?.id) {
       await sb.from('profiles').upsert({
-        device_id: userId,
+        device_id: data.user.id,
         fname, lname, email, phone,
-        plan: sel,
-        plan_price: planPrices[sel],
+        plan: chosenPlan,
+        plan_price: planPrices[chosenPlan],
         plan_started: new Date().toISOString(),
         welcomed: false,
         updated_at: new Date().toISOString()
-      }, { onConflict: 'device_id' });
+      }, { onConflict: 'device_id' }).catch(() => {});
     }
 
-    // 3. Spara lokalt
-    localStorage.setItem('vitalis_plan', sel);
+    localStorage.setItem('vitalis_plan', chosenPlan);
     localStorage.setItem('vitalis_welcomed', '');
 
-    // 4. Visa success-steg
-    document.getElementById('chosen-plan-name').textContent = planNames[sel];
-    // Visa email i success-skärmen
-    const successEmail = document.getElementById('success-email');
-    if (successEmail) successEmail.textContent = email;
+    // Show success
+    document.getElementById('chosen-plan').textContent = planNames[chosenPlan];
+    document.getElementById('success-email').textContent = email;
+    document.getElementById('fixed-bottom').classList.remove('show');
     goTo(3);
 
   } catch(e) {
-    console.error('Registration error:', e);
-    showToast('Något gick fel – försök igen');
-    [btn, stickyBtn].forEach(b => { if(b){ b.disabled=false; b.textContent='Välj '+planNames[sel]+' – Slutför →'; }});
+    toast('Något gick fel – försök igen');
+    btn.textContent = 'Välj ' + planNames[chosenPlan] + ' – Slutför →';
+    btn.disabled = false;
   }
 }
 
-function goTo(step){
-  [1,2,3].forEach(s=>{const p=document.getElementById('panel-'+s);if(p)p.classList.remove('active');});
+// Navigation
+function goTo(step) {
+  [1,2,3].forEach(s => {
+    const p = document.getElementById('panel-'+s);
+    if (p) p.classList.remove('active');
+  });
   document.getElementById('panel-'+step).classList.add('active');
-  for(let s=1;s<step;s++){
-    document.getElementById('sc'+s).classList.remove('active');
-    document.getElementById('sc'+s).classList.add('done');
-    document.getElementById('sc'+s).textContent='✓';
+  for (let s = 1; s < step; s++) {
+    const dot = document.getElementById('sd'+s);
+    dot.classList.remove('active'); dot.classList.add('done'); dot.textContent = '✓';
     document.getElementById('si'+s).classList.remove('active');
     document.getElementById('si'+s).classList.add('done');
-    const sl=document.getElementById('sl'+s);if(sl)sl.classList.add('done');
+    const line = document.getElementById('sl'+s); if (line) line.classList.add('done');
   }
-  const sc=document.getElementById('sc'+step);if(sc)sc.classList.add('active');
-  const si=document.getElementById('si'+step);if(si)si.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+  const dot = document.getElementById('sd'+step);
+  if (dot) { dot.classList.add('active'); document.getElementById('si'+step).classList.add('active'); }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function setLang(l){document.documentElement.lang=l;document.dir=l==='ar'?'rtl':'ltr';document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));document.getElementById('lang-'+l).classList.add('active');}
-
-['fname','lname','email','phone','password','password2'].forEach(id=>{
-  document.getElementById(id)?.addEventListener('input',function(){this.classList.remove('error');const e=document.getElementById('err-'+id);if(e)e.classList.remove('show');});
-});
-
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
 </script>
 </body>
 </html>

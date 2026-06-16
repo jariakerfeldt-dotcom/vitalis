@@ -2288,6 +2288,9 @@ function updateAuthUI(user) {
   // Greeting
   const greet = document.getElementById('greeting-name');
   if (greet) greet.textContent = name;
+  // Pre-fill email in profile if empty
+  const pfEmail = document.getElementById('pf-email');
+  if (pfEmail && !pfEmail.value) pfEmail.value = email;
 }
 
 let authMode = 'login';
@@ -2766,10 +2769,18 @@ async function initSupabase() {
       activity: sbProfile.activity||'', goal: sbProfile.goal||'',
       target_weight: sbProfile.target_weight||''
     };
-    // Uppdatera localStorage så befintliga funktioner fungerar
+    // Spara till localStorage
     localStorage.setItem('vitalis_profile', JSON.stringify(profileData));
     if (sbProfile.start_weight) localStorage.setItem('vitalis_start_weight', sbProfile.start_weight);
     if (sbProfile.weight_updated_at) localStorage.setItem('vitalis_weight_updated', sbProfile.weight_updated_at);
+    // Ladda in i UI – kritiskt för ny enhet/mobil
+    setTimeout(() => {
+      loadProfile();
+      updateOverview();
+      calcBMI();
+      calcDailyNeeds();
+      updateGoalProgress();
+    }, 200);
   }
 
   // Ladda mediciner

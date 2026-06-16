@@ -30,7 +30,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .step-item.active .step-label{color:var(--lime);}
 .step-line{width:72px;height:2px;background:var(--border);margin-bottom:26px;transition:background 0.4s;flex-shrink:0;}
 .step-line.done{background:var(--lime);}
-.main{position:relative;z-index:1;display:flex;justify-content:center;padding:36px 20px 80px;}
+.main{position:relative;z-index:1;display:flex;justify-content:center;padding:36px 16px 80px;overflow-x:hidden;width:100%;box-sizing:border-box;}
 .panel{width:100%;max-width:540px;display:none;animation:fadeUp 0.45s ease both;}
 .panel.active{display:block;}
 .panel.wide{max-width:1020px;}
@@ -123,7 +123,24 @@ input.error{border-color:var(--error)!important;}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--leaf-green);color:var(--soft-white);padding:11px 24px;border-radius:100px;font-size:0.84rem;border:1px solid var(--lime);opacity:0;transition:all 0.3s;z-index:999;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 @media(max-width:900px){.plans-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:600px){nav{padding:14px 16px;}.lang-switcher{display:none;}.card{padding:28px 18px;}.form-row{grid-template-columns:1fr;}.plans-grid{grid-template-columns:1fr;}.panel.wide{max-width:100%;}.step-line{width:28px;}.step-circle{width:32px;height:32px;font-size:0.75rem;}.step-label{font-size:0.6rem;max-width:46px;line-height:1.2;}.progress-wrap{padding:86px 8px 0;}}
+@media(max-width:600px){
+  nav{padding:14px 16px;}
+  .lang-switcher{display:none;}
+  .card{padding:20px 14px;}
+  .form-row{grid-template-columns:1fr;}
+  .plans-grid{grid-template-columns:1fr;}
+  .panel{max-width:100%;width:100%;}
+  .panel.wide{max-width:100%;width:100%;}
+  .plans-header h1{font-size:1.8rem;}
+  .step-line{width:28px;}
+  .step-circle{width:32px;height:32px;font-size:0.75rem;}
+  .step-label{font-size:0.6rem;max-width:46px;line-height:1.2;}
+  .progress-wrap{padding:86px 8px 0;}
+  .btn-continue{padding:14px 24px;font-size:0.88rem;width:100%;}
+  .notice-bar{font-size:0.7rem;padding:8px 12px;text-align:center;}
+  .plan-price .amount{font-size:2rem;}
+  body{overflow-x:hidden;}
+}
 </style>
 </head>
 <body>
@@ -197,10 +214,10 @@ input.error{border-color:var(--error)!important;}
 
   <!-- STEG 2: PLANER -->
   <div class="panel wide" id="panel-2">
-    <div class="plans-header">
+    <div class="plans-header" style="text-align:center;padding:0 8px">
       <div class="eyebrow" style="display:inline-block">Steg 2 av 2</div>
       <h1 class="panel-title" style="margin-top:8px">Välj din <em>hälsoplan</em></h1>
-      <p style="font-size:0.84rem;color:var(--text-dim);margin-top:6px;line-height:1.6">Uppgradera eller byta plan när som helst. <strong style="color:var(--lime)">30 dagars uppsägningstid</strong> – inga dolda avgifter.</p>
+      <p style="font-size:0.84rem;color:var(--text-dim);margin-top:6px;line-height:1.6">Uppgradera eller byta plan när som helst.<br><strong style="color:var(--lime)">30 dagars uppsägningstid</strong> – inga dolda avgifter.</p>
     </div>
 
     <div class="plans-grid">
@@ -276,9 +293,17 @@ input.error{border-color:var(--error)!important;}
     </div>
 
     <div class="plans-footer">
-      <div class="notice-bar">🔒 30 dagars uppsägningstid &nbsp;·&nbsp; Inga bindningstider &nbsp;·&nbsp; Avsluta enkelt i profilen</div><br>
+      <div class="notice-bar">🔒 30 dagars uppsägningstid &nbsp;·&nbsp; Inga bindningstider</div><br>
       <button class="btn-continue" id="btn-continue" onclick="submitStep2()" disabled>Välj en plan för att fortsätta</button>
       <div style="font-size:0.76rem;color:var(--text-dim);margin-top:12px">Faktureras månadsvis · Avsluta när som helst</div>
+    </div>
+
+    <!-- Sticky knapp på mobil -->
+    <div id="sticky-plan-btn" style="display:none;position:fixed;bottom:0;left:0;right:0;padding:16px;background:var(--deep-green);border-top:1px solid var(--border);z-index:50">
+      <button onclick="submitStep2()" id="sticky-continue-btn"
+        style="width:100%;padding:15px;background:var(--lime);color:var(--deep-green);border:none;border-radius:13px;font-family:'DM Sans',sans-serif;font-size:0.96rem;font-weight:700;cursor:pointer">
+        Välj en plan för att fortsätta
+      </button>
     </div>
   </div>
 
@@ -345,8 +370,17 @@ function choosePlan(p){
   ['gratis','basic','pro','premium'].forEach(x=>document.getElementById('plan-'+x).classList.toggle('selected',x===p));
   const btn=document.getElementById('btn-continue');
   btn.disabled=false;
-  btn.textContent='Välj '+planNames[p]+' – Slutför registrering →';
+  const label='Välj '+planNames[p]+' – Slutför →';
+  btn.textContent=label;
   btn.style.background=p==='premium'?'var(--gold)':'var(--lime)';
+  // Visa sticky knapp på mobil
+  const sticky=document.getElementById('sticky-plan-btn');
+  const stickyBtn=document.getElementById('sticky-continue-btn');
+  if(sticky && window.innerWidth<=600){
+    sticky.style.display='block';
+    stickyBtn.textContent=label;
+    stickyBtn.style.background=p==='premium'?'var(--gold)':'var(--lime)';
+  }
 }
 function submitStep2(){
   if(!sel)return;

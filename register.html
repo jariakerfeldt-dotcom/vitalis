@@ -198,11 +198,10 @@ input.err { border-color: var(--err) !important; }
 /* Fixed bottom button */
 .fixed-bottom {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-  padding: 14px 16px;
-  padding-bottom: max(14px, calc(var(--safe-b) + 10px));
-  background: rgba(15,35,24,0.97);
-  border-top: 1px solid var(--border);
-  backdrop-filter: blur(16px);
+  padding: 12px 16px;
+  padding-bottom: max(12px, calc(var(--safe-b) + 8px));
+  background: var(--deep);
+  border-top: 2px solid rgba(126,200,80,0.3);
   display: none;
 }
 .fixed-bottom.show { display: block; }
@@ -242,7 +241,7 @@ input.err { border-color: var(--err) !important; }
 .support-link a { color: var(--lime); text-decoration: none; }
 
 /* Toast */
-.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--leaf); color: var(--white); padding: 10px 22px; border-radius: 100px; font-size: 0.82rem; border: 1px solid var(--lime); opacity: 0; transition: all 0.3s; z-index: 999; white-space: nowrap; pointer-events: none; }
+.toast { position: fixed; bottom: 90px; left: 16px; right: 16px; transform: translateY(10px); background: var(--leaf); color: var(--white); padding: 12px 18px; border-radius: 14px; font-size: 0.84rem; border: 1px solid var(--lime); opacity: 0; transition: all 0.3s; z-index: 999; pointer-events: none; text-align: center; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 @media (max-width: 400px) {
@@ -586,13 +585,30 @@ async function step2() {
     });
 
     if (error) {
-      const msgs = {
-        'User already registered': 'E-posten finns redan – logga in istället',
-        'email rate limit exceeded': 'För många försök – vänta lite och försök igen'
-      };
-      toast('❌ ' + (msgs[error.message] || error.message));
-      btn.textContent = 'Välj ' + planNames[chosenPlan] + ' – Slutför registrering →';
-      btn.disabled = false;
+      if (error.message === 'User already registered') {
+        // Visa tydlig ruta med länk till login
+        const fb = document.getElementById('fixed-bottom');
+        fb.innerHTML = `
+          <div style="background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:14px;text-align:center">
+            <div style="font-size:0.86rem;color:var(--cream);font-weight:600;margin-bottom:8px">📧 E-posten är redan registrerad</div>
+            <div style="font-size:0.78rem;color:var(--dim);margin-bottom:12px">Logga in med ditt befintliga konto istället.</div>
+            <a href="dashboard.html" style="display:block;padding:13px;background:var(--lime);color:var(--deep);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;text-decoration:none;margin-bottom:8px">
+              Logga in →
+            </a>
+            <button onclick="resetEmailError()" style="background:none;border:none;color:var(--dim);font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline">
+              Använd annan e-post
+            </button>
+          </div>`;
+        fb.classList.add('show');
+      } else if (error.message === 'email rate limit exceeded') {
+        toast('⏱ För många försök – vänta några minuter och försök igen');
+        btn.textContent = 'Välj ' + planNames[chosenPlan] + ' – Slutför registrering →';
+        btn.disabled = false;
+      } else {
+        toast('❌ ' + error.message);
+        btn.textContent = 'Välj ' + planNames[chosenPlan] + ' – Slutför registrering →';
+        btn.disabled = false;
+      }
       return;
     }
 
@@ -641,6 +657,36 @@ function goTo(step) {
   }
   const dot = document.getElementById('sd'+step);
   if (dot) { dot.classList.add('active'); document.getElementById('si'+step).classList.add('active'); }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetEmailError() {
+  const fb = document.getElementById('fixed-bottom');
+  // Reset fixed bottom to original state
+  fb.innerHTML = `<button class="fixed-btn" id="fixed-btn" onclick="step2()">Välj en plan för att fortsätta</button>`;
+  if (chosenPlan) {
+    const btn = document.getElementById('fixed-btn');
+    btn.textContent = 'Välj ' + planNames[chosenPlan] + ' – Slutför registrering →';
+    btn.className = 'fixed-btn' + (chosenPlan === 'premium' ? ' gold' : '');
+  }
+  // Scroll up to email field and clear it
+  const emailField = document.getElementById('email');
+  if (emailField) {
+    emailField.value = '';
+    emailField.focus();
+    document.getElementById('panel-1').classList.add('active');
+    document.getElementById('panel-2').classList.remove('active');
+    fb.classList.remove('show');
+    // Reset steps
+    document.getElementById('sd1').classList.add('active');
+    document.getElementById('sd1').classList.remove('done');
+    document.getElementById('sd1').textContent = '1';
+    document.getElementById('si1').classList.add('active');
+    document.getElementById('si1').classList.remove('done');
+    document.getElementById('sl1').classList.remove('done');
+    document.getElementById('sd2').classList.remove('active');
+    document.getElementById('si2').classList.remove('active');
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

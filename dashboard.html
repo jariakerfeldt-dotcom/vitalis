@@ -2847,10 +2847,15 @@ async function initSupabase() {
 
 // ── INIT FOOD DATE ──
 (function(){
+  // Sätt alltid dagens datum – aldrig spara gammalt datum
+  const todayStr = getLocalDateStr();
   const el = document.getElementById('food-date');
-  if(el) el.value = getLocalDateStr();
+  if(el) { el.value = todayStr; }
   const el2 = document.getElementById('act-date');
-  if(el2) el2.value = getLocalDateStr();
+  if(el2) { el2.value = todayStr; }
+  // Uppdatera display-texterna
+  updateFoodDateDisplay(todayStr);
+  updateActDateDisplay(todayStr);
 })();
 
 // ── FOOD DATE HELPERS ──

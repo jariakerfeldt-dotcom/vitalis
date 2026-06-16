@@ -697,6 +697,9 @@ select option:checked {
       <span class="icon">🍽️</span><span>Måltidsplanering</span>
       <span class="nav-badge" style="background:var(--gold);color:var(--deep-green)">NY</span>
     </a>
+    <a class="nav-item" onclick="showTab('stats')" href="#">
+      <span class="icon">📊</span><span>Statistik</span>
+    </a>
     <a class="nav-item" onclick="showTab('devices')" href="#">
       <span class="icon">⌚</span><span data-i18n="nav_devices">Enheter</span>
     </a>
@@ -1980,6 +1983,100 @@ select option:checked {
       </div>
     </div>
 
+    <!-- STATS TAB -->
+    <div class="tab-content" id="tab-stats">
+      <div class="card" style="margin-bottom:16px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+
+        <!-- Period-väljare -->
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--soft-white);margin-bottom:14px">📊 Din hälsostatistik</div>
+
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+          <button onclick="setStatsPeriod(30)" id="stats-btn-30"
+            style="padding:7px 14px;background:rgba(126,200,80,0.15);border:1.5px solid rgba(126,200,80,0.4);border-radius:100px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.76rem;font-weight:600;cursor:pointer;transition:all 0.2s">
+            1 mån
+          </button>
+          <button onclick="setStatsPeriod(90)" id="stats-btn-90"
+            style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:100px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.76rem;cursor:pointer;transition:all 0.2s">
+            3 mån
+          </button>
+          <button onclick="setStatsPeriod(180)" id="stats-btn-180"
+            style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:100px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.76rem;cursor:pointer;transition:all 0.2s">
+            6 mån
+          </button>
+          <button onclick="setStatsPeriod(365)" id="stats-btn-365"
+            style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:100px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.76rem;cursor:pointer;transition:all 0.2s">
+            1 år
+          </button>
+          <button onclick="showCustomStatsPeriod()" id="stats-btn-custom"
+            style="padding:7px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);border-radius:100px;color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:0.76rem;cursor:pointer;transition:all 0.2s">
+            📆 Eget
+          </button>
+        </div>
+
+        <!-- Eget datumintervall -->
+        <div id="stats-custom-dates" style="display:none;margin-bottom:14px;display:none;gap:10px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:0.65rem;color:var(--text-dim);margin-bottom:4px">Från</div>
+              <input type="date" id="stats-from" style="padding:8px 12px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none">
+            </div>
+            <div>
+              <div style="font-size:0.65rem;color:var(--text-dim);margin-bottom:4px">Till</div>
+              <input type="date" id="stats-to" style="padding:8px 12px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none">
+            </div>
+            <button onclick="loadCustomStats()" style="padding:8px 16px;background:var(--lime);color:var(--deep-green);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;margin-top:18px">
+              Hämta
+            </button>
+          </div>
+        </div>
+
+        <div id="stats-period-label" style="font-size:0.72rem;color:var(--text-dim);margin-bottom:16px">Visar: senaste 30 dagarna</div>
+
+        <!-- Sammanfattnings-kort -->
+        <div id="stats-summary" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+          <div style="padding:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;text-align:center">
+            <div id="stats-avg-kcal" style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--lime)">–</div>
+            <div style="font-size:0.66rem;color:var(--text-dim);margin-top:3px">Snitt kcal/dag</div>
+          </div>
+          <div style="padding:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;text-align:center">
+            <div id="stats-avg-sleep" style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--gold)">–</div>
+            <div style="font-size:0.66rem;color:var(--text-dim);margin-top:3px">Snitt sömn/natt</div>
+          </div>
+          <div style="padding:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;text-align:center">
+            <div id="stats-total-sessions" style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--cream)">–</div>
+            <div style="font-size:0.66rem;color:var(--text-dim);margin-top:3px">Träningspass</div>
+          </div>
+          <div style="padding:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;text-align:center">
+            <div id="stats-total-act-kcal" style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--lime)">–</div>
+            <div style="font-size:0.66rem;color:var(--text-dim);margin-top:3px">Kcal bränt</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAT-GRAF -->
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px">🥗 Kalorier per dag</div>
+        <div id="stats-food-chart" style="display:flex;align-items:flex-end;gap:3px;height:80px;margin-bottom:8px"></div>
+        <div id="stats-food-labels" style="display:flex;justify-content:space-between;font-size:0.6rem;color:var(--text-dim)"></div>
+      </div>
+
+      <!-- SÖMN-GRAF -->
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px">🌙 Sömntimmar per natt</div>
+        <div id="stats-sleep-chart" style="display:flex;align-items:flex-end;gap:3px;height:80px;margin-bottom:8px"></div>
+        <div id="stats-sleep-labels" style="display:flex;justify-content:space-between;font-size:0.6rem;color:var(--text-dim)"></div>
+      </div>
+
+      <!-- TRÄNINGS-GRAF -->
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px">💪 Träningsminuter per vecka</div>
+        <div id="stats-act-chart" style="display:flex;align-items:flex-end;gap:4px;height:80px;margin-bottom:8px"></div>
+        <div id="stats-act-labels" style="display:flex;justify-content:space-between;font-size:0.6rem;color:var(--text-dim)"></div>
+        <div id="stats-top-exercises" style="margin-top:12px;font-size:0.76rem;color:var(--text-dim)"></div>
+      </div>
+    </div>
+
     <!-- PROFILE TAB -->
     <div class="tab-content" id="tab-profile">
       <div class="profile-header">
@@ -3223,7 +3320,7 @@ function updateSleepDateDisplay(val) {
 const tabMap = {
   overview:'tab-overview', food:'tab-food', sleep:'tab-sleep',
   activity:'tab-activity', ai:'tab-ai', meals:'tab-meals',
-  devices:'tab-devices', profile:'tab-profile'
+  devices:'tab-devices', profile:'tab-profile', stats:'tab-stats'
 };
 
 function showTab(tab) {
@@ -3241,6 +3338,7 @@ function showTab(tab) {
   if (tab === 'food') { setFoodDateBtn('today'); }
   if (tab === 'sleep') { setSleepDateBtn('today'); }
   if (tab === 'activity') { setActDateBtn('today'); }
+  if (tab === 'stats') { setStatsPeriod(30); }
 }
 
 // ── SIDEBAR MOBILE ──
@@ -5536,6 +5634,172 @@ document.addEventListener('click', function(e) {
   const m = document.getElementById('lock-modal');
   if (e.target === m) closeLock();
 });
+
+// ── STATISTIKSIDA ──
+let currentStatsDays = 30;
+
+function setStatsPeriod(days) {
+  currentStatsDays = days;
+  ['30','90','180','365','custom'].forEach(d => {
+    const btn = document.getElementById('stats-btn-' + d);
+    if (!btn) return;
+    const isActive = String(days) === d;
+    btn.style.background = isActive ? 'rgba(126,200,80,0.15)' : 'rgba(255,255,255,0.04)';
+    btn.style.color = isActive ? 'var(--lime)' : 'var(--text-dim)';
+    btn.style.borderColor = isActive ? 'rgba(126,200,80,0.4)' : 'var(--border)';
+    btn.style.fontWeight = isActive ? '600' : '400';
+  });
+  const customEl = document.getElementById('stats-custom-dates');
+  if (customEl) customEl.style.display = 'none';
+  const label = {30:'senaste 30 dagarna', 90:'senaste 3 månaderna', 180:'senaste 6 månaderna', 365:'senaste 12 månaderna'}[days];
+  const lbl = document.getElementById('stats-period-label');
+  if (lbl) lbl.textContent = 'Visar: ' + label;
+  loadStats(days);
+}
+
+function showCustomStatsPeriod() {
+  const el = document.getElementById('stats-custom-dates');
+  if (el) el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+  const today = getLocalDateStr();
+  const from30 = getLocalDateStr(new Date(Date.now() - 30*86400000));
+  document.getElementById('stats-from').value = from30;
+  document.getElementById('stats-to').value = today;
+  ['30','90','180','365'].forEach(d => {
+    const btn = document.getElementById('stats-btn-' + d);
+    if (btn) { btn.style.background = 'rgba(255,255,255,0.04)'; btn.style.color = 'var(--text-dim)'; btn.style.borderColor = 'var(--border)'; btn.style.fontWeight='400'; }
+  });
+  const btn = document.getElementById('stats-btn-custom');
+  if (btn) { btn.style.background = 'rgba(126,200,80,0.15)'; btn.style.color = 'var(--lime)'; btn.style.borderColor = 'rgba(126,200,80,0.4)'; btn.style.fontWeight='600'; }
+}
+
+function loadCustomStats() {
+  const from = document.getElementById('stats-from')?.value;
+  const to = document.getElementById('stats-to')?.value;
+  if (!from || !to) return;
+  const lbl = document.getElementById('stats-period-label');
+  if (lbl) lbl.textContent = `Visar: ${from} → ${to}`;
+  loadStatsRange(from, to);
+}
+
+async function loadStats(days) {
+  const to = getLocalDateStr();
+  const fromDate = new Date(); fromDate.setDate(fromDate.getDate() - days);
+  const from = getLocalDateStr(fromDate);
+  await loadStatsRange(from, to);
+}
+
+async function loadStatsRange(from, to) {
+  // Show loading
+  ['stats-avg-kcal','stats-avg-sleep','stats-total-sessions','stats-total-act-kcal'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = '…';
+  });
+
+  try {
+    // Fetch all three datasets in parallel
+    const [foodRes, sleepRes, actRes] = await Promise.all([
+      sb.from('food_logs').select('log_date,kcal').eq('device_id', DEVICE_ID).gte('log_date', from).lte('log_date', to),
+      sb.from('sleep_logs').select('log_date,hours').eq('device_id', DEVICE_ID).gte('log_date', from).lte('log_date', to),
+      sb.from('activity_logs').select('log_date,minutes,kcal,name').eq('device_id', DEVICE_ID).gte('log_date', from).lte('log_date', to)
+    ]);
+
+    const foodData = foodRes.data || [];
+    const sleepData = sleepRes.data || [];
+    const actData = actRes.data || [];
+
+    // ── SUMMARY ──
+    // Avg kcal per day
+    const foodByDay = {};
+    foodData.forEach(e => { foodByDay[e.log_date] = (foodByDay[e.log_date]||0) + (e.kcal||0); });
+    const dayCount = Object.keys(foodByDay).length;
+    const totalKcalPeriod = Object.values(foodByDay).reduce((s,v)=>s+v,0);
+    const avgKcal = dayCount ? Math.round(totalKcalPeriod / dayCount) : 0;
+
+    // Avg sleep
+    const avgSleep = sleepData.length ? (sleepData.reduce((s,e)=>s+(parseFloat(e.hours)||0),0)/sleepData.length).toFixed(1) : 0;
+
+    // Activity
+    const totalSessions = actData.length;
+    const totalActKcal = actData.reduce((s,e)=>s+(e.kcal||0),0);
+
+    document.getElementById('stats-avg-kcal').textContent = avgKcal || '–';
+    document.getElementById('stats-avg-sleep').textContent = avgSleep ? avgSleep + 'h' : '–';
+    document.getElementById('stats-total-sessions').textContent = totalSessions || '–';
+    document.getElementById('stats-total-act-kcal').textContent = totalActKcal || '–';
+
+    // ── FOOD CHART ──
+    renderStatsChart('stats-food-chart', 'stats-food-labels', foodByDay, from, to, 'var(--lime)', 'kcal');
+
+    // ── SLEEP CHART ──
+    const sleepByDay = {};
+    sleepData.forEach(e => { sleepByDay[e.log_date] = parseFloat(e.hours)||0; });
+    renderStatsChart('stats-sleep-chart', 'stats-sleep-labels', sleepByDay, from, to, 'var(--gold)', 'h', 10);
+
+    // ── ACTIVITY CHART (grouped by week) ──
+    const actByWeek = {};
+    actData.forEach(e => {
+      const d = new Date(e.log_date+'T12:00:00');
+      const weekStart = new Date(d); weekStart.setDate(d.getDate() - d.getDay() + 1);
+      const wk = getLocalDateStr(weekStart);
+      actByWeek[wk] = (actByWeek[wk]||0) + (e.minutes||0);
+    });
+    renderStatsChart('stats-act-chart', 'stats-act-labels', actByWeek, from, to, '#7ec8c8', 'min', 0, true);
+
+    // Top exercises
+    const exCounts = {};
+    actData.forEach(e => { exCounts[e.name] = (exCounts[e.name]||0)+1; });
+    const top = Object.entries(exCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const topEl = document.getElementById('stats-top-exercises');
+    if (topEl && top.length) {
+      topEl.innerHTML = '🏆 Mest gjorda: ' + top.map(([n,c])=>`<span style="color:var(--lime)">${n.replace(/^[^\w\s]/,'').trim().split(' ').slice(0,2).join(' ')}</span> (${c}x)`).join(' · ');
+    }
+
+  } catch(e) { console.log('Stats error:', e); }
+}
+
+function renderStatsChart(chartId, labelsId, dataByDate, from, to, color, unit, maxVal=0, isWeekly=false) {
+  const chart = document.getElementById(chartId);
+  const labelsEl = document.getElementById(labelsId);
+  if (!chart) return;
+
+  const keys = Object.keys(dataByDate).sort();
+  if (!keys.length) { chart.innerHTML = '<div style="width:100%;text-align:center;color:var(--text-dim);font-size:0.78rem;padding-top:30px">Ingen data för perioden</div>'; return; }
+
+  const values = keys.map(k => dataByDate[k]);
+  const max = maxVal || Math.max(...values) || 1;
+
+  // Show max 30 bars, group if more
+  const MAX_BARS = 28;
+  let displayKeys = keys;
+  let displayVals = values;
+
+  if (keys.length > MAX_BARS) {
+    // Group into buckets
+    const bucketSize = Math.ceil(keys.length / MAX_BARS);
+    displayKeys = []; displayVals = [];
+    for (let i = 0; i < keys.length; i += bucketSize) {
+      const slice = values.slice(i, i+bucketSize);
+      displayVals.push(Math.round(slice.reduce((s,v)=>s+v,0) / slice.length));
+      displayKeys.push(keys[i]);
+    }
+  }
+
+  const maxDisplay = Math.max(...displayVals) || 1;
+  chart.innerHTML = displayVals.map((v, i) => {
+    const h = Math.max(4, Math.round((v / maxDisplay) * 72));
+    const isLast = i === displayVals.length - 1;
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px">
+      <div title="${v}${unit}" style="width:100%;border-radius:4px 4px 0 0;height:${h}px;background:${isLast ? color : color.replace(')',',0.6)').replace('var(--lime)','rgba(126,200,80,0.6)').replace('var(--gold)','rgba(201,168,76,0.6)')};transition:height 0.4s ease"></div>
+    </div>`;
+  }).join('');
+  chart.style.display = 'flex';
+
+  // Labels – show first, middle, last
+  if (labelsEl) {
+    const first = new Date(displayKeys[0]+'T12:00:00').toLocaleDateString('sv-SE',{day:'numeric',month:'short'});
+    const last = new Date(displayKeys[displayKeys.length-1]+'T12:00:00').toLocaleDateString('sv-SE',{day:'numeric',month:'short'});
+    labelsEl.innerHTML = `<span>${first}</span><span>${last}</span>`;
+  }
+}
 
 // ── SÖMNHISTORIK & AKTIVITETSHISTORIK DATUMKNAPPAR ──
 function setSleepDateBtn(mode, customVal) {

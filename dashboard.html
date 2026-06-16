@@ -2428,6 +2428,12 @@ sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
       initSupabase();
     }
+    // Användaren klickade verifieringslänken – visa välkomstmodal och gå till profil
+    if (event === 'EMAIL_CONFIRMED' || event === 'USER_UPDATED') {
+      localStorage.removeItem('vitalis_welcomed');
+      await initSupabase();
+      setTimeout(() => showWelcomeModal(), 600);
+    }
   } else {
     currentUser = null;
     DEVICE_ID = 'anon';

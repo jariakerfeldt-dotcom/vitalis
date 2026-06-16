@@ -613,9 +613,9 @@ async function step2() {
       return;
     }
 
-    // Save profile + plan
+    // Save profile + plan (non-blocking, don't fail registration if this fails)
     if (data.user?.id) {
-      await sb.from('profiles').upsert({
+      sb.from('profiles').upsert({
         device_id: data.user.id,
         fname, lname, email, phone,
         plan: chosenPlan,
@@ -623,7 +623,9 @@ async function step2() {
         plan_started: new Date().toISOString(),
         welcomed: false,
         updated_at: new Date().toISOString()
-      }, { onConflict: 'device_id' }).catch(() => {});
+      }, { onConflict: 'device_id' }).then(r => {
+        if (r.error) console.log('Profile save error (non-critical):', r.error);
+      }).catch(e => console.log('Profile save catch:', e));
     }
 
     localStorage.setItem('vitalis_plan', chosenPlan);

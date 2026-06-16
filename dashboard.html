@@ -2127,14 +2127,14 @@ select option:checked {
         <div class="profile-avatar-big" id="profile-avatar-big">–</div>
         <div>
           <div class="profile-name" id="profile-fullname" style="color:var(--text-dim);font-style:italic">Ditt namn visas här</div>
-          <div class="profile-plan">✦ Wellness Pro</div>
+          <div class="profile-plan" id="profile-plan-label">Gratis</div>
         </div>
       </div>
 
       <div class="upgrade-banner">
         <div class="text">
-          <div class="t1" data-i18n="up_title">✦ Wellness Pro – Aktiv</div>
-          <div class="t2" data-i18n="up_sub">Du har tillgång till alla funktioner. Nästa debitering: 8 juli 2025.</div>
+          <div class="t1" id="plan-name-big">Gratis</div>
+          <div class="t2" id="plan-info-text">Du är på gratisplanen. Uppgradera för fler funktioner.</div>
         </div>
         <button class="upgrade-btn" data-i18n="up_btn">Hantera plan</button>
       </div>
@@ -2569,11 +2569,19 @@ async function handleAuth() {
 
   try {
     if (authMode === 'register') {
-      const { error } = await sb.auth.signUp({
+      const { data, error } = await sb.auth.signUp({
         email, password,
         options: { data: { name: name || email.split('@')[0] } }
       });
       if (error) throw error;
+
+      // Supabase returnerar data.user = null när e-post redan finns men ej bekräftats
+      if (!data.user && !data.session) {
+        showAuthError('E-posten är redan registrerad – logga in istället eller använd "Glömt lösenord"');
+        btn.textContent = 'Skapa konto'; btn.disabled = false;
+        return;
+      }
+
       // Visa verifieringsmeddelande
       const btn2 = document.getElementById('auth-submit-btn');
       if (btn2) { btn2.textContent = authMode === 'login' ? 'Logga in' : 'Skapa konto'; btn2.disabled = false; }
@@ -2806,6 +2814,9 @@ function updatePlanBadge(plan) {
   const planLabel = labels[plan] || 'Gratis';
   const planColor = colors[plan] || 'var(--text-dim)';
   if (badge) { badge.textContent = planLabel; badge.style.color = planColor; }
+  // Uppdatera profilsidans plan-label (tidigare hårdkodad "Wellness Pro")
+  const profilePlanLabel = document.getElementById('profile-plan-label');
+  if (profilePlanLabel) { profilePlanLabel.textContent = planLabel; profilePlanLabel.style.color = planColor; }
   // Update profile plan card
   const planNameBig = document.getElementById('plan-name-big');
   if (planNameBig) { planNameBig.textContent = planLabel; }

@@ -648,7 +648,8 @@ async function step2() {
     }
 
     localStorage.setItem('vitalis_plan', chosenPlan);
-    localStorage.setItem('vitalis_welcomed', '');
+    // OBS: vitalis_welcomed sätts INTE här – den sätts först när
+    // användaren bekräftar sin e-post och välkomstmodalen visas i dashboard.
 
     // Show success – använd planNames med fallback för att undvika undefined
     document.getElementById('chosen-plan').textContent = planNames[chosenPlan] || chosenPlan;

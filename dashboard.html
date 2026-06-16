@@ -5455,6 +5455,7 @@ function setLang(lang){
 
 // ── PROFILE SAVE/LOAD ──
 function saveProfile() {
+  const prevProfile = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
   const profile = {
     fname: document.getElementById('pf-fname')?.value || '',
     lname: document.getElementById('pf-lname')?.value || '',
@@ -5468,6 +5469,10 @@ function saveProfile() {
     goal: document.getElementById('pf-goal')?.value || '',
     target_weight: document.getElementById('pf-target-weight')?.value || ''
   };
+  // Återställ startWeight om mål eller målvikt ändras
+  if (profile.goal !== prevProfile.goal || profile.target_weight !== prevProfile.target_weight) {
+    localStorage.removeItem('vitalis_start_weight');
+  }
   try {
     localStorage.setItem('vitalis_profile', JSON.stringify(profile));
     localStorage.setItem('vitalis_weight_updated', new Date().toISOString());
@@ -6630,14 +6635,18 @@ function updateGoalProgress() {
   }
   card.style.display = 'block';
 
-  // Calculate progress
-  const startWeight = parseFloat(localStorage.getItem('vitalis_start_weight') || weight);
-  if (!localStorage.getItem('vitalis_start_weight')) {
+  // Avgör verkligt mål baserat på vikt vs målvikt (ignorera felaktigt sparat goal)
+  const actualGoal = weight > target ? 'lose' : 'gain';
+
+  // Återställ startWeight om det är fel – t.ex. om startWeight = målvikten (gammalt test)
+  let startWeight = parseFloat(localStorage.getItem('vitalis_start_weight'));
+  if (!startWeight || (actualGoal === 'lose' && startWeight <= target) || (actualGoal === 'gain' && startWeight >= target)) {
+    startWeight = weight;
     localStorage.setItem('vitalis_start_weight', weight);
   }
 
   let pct, remaining, direction;
-  if (goal === 'lose') {
+  if (actualGoal === 'lose') {
     const total = startWeight - target;
     const done = startWeight - weight;
     pct = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;

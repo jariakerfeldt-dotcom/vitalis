@@ -613,6 +613,25 @@ async function step2() {
       return;
     }
 
+    // Supabase returnerar data.user = null när e-post redan finns men ej bekräftats ("pending")
+    if (!data.user && !data.session) {
+      const fb = document.getElementById('fixed-bottom');
+      fb.innerHTML = `
+        <div style="background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:14px;text-align:center">
+          <div style="font-size:0.86rem;color:var(--cream);font-weight:600;margin-bottom:8px">📧 E-posten är redan registrerad</div>
+          <div style="font-size:0.78rem;color:var(--dim);margin-bottom:12px">Logga in med ditt befintliga konto istället.</div>
+          <a href="dashboard.html" style="display:block;padding:13px;background:var(--lime);color:var(--deep);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;text-decoration:none;margin-bottom:8px">
+            Logga in →
+          </a>
+          <button onclick="resetEmailError()" style="background:none;border:none;color:var(--dim);font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline">
+            Använd annan e-post
+          </button>
+        </div>`;
+      fb.classList.add('show');
+      btn.disabled = false;
+      return;
+    }
+
     // Save profile + plan (non-blocking, don't fail registration if this fails)
     if (data.user?.id) {
       sb.from('profiles').upsert({
@@ -631,8 +650,8 @@ async function step2() {
     localStorage.setItem('vitalis_plan', chosenPlan);
     localStorage.setItem('vitalis_welcomed', '');
 
-    // Show success
-    document.getElementById('chosen-plan').textContent = planNames[chosenPlan];
+    // Show success – använd planNames med fallback för att undvika undefined
+    document.getElementById('chosen-plan').textContent = planNames[chosenPlan] || chosenPlan;
     document.getElementById('success-email').textContent = email;
     document.getElementById('fixed-bottom').classList.remove('show');
     goTo(3);

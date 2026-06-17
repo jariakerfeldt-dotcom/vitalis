@@ -1091,11 +1091,12 @@ select option:checked {
       <div class="grid-2">
         <div class="card">
           <div class="card-title" data-i18n="c_nutrition">Näring idag</div>
-          <div style="text-align:center;padding:24px 0">
+          <div id="home-nutrition-empty" style="text-align:center;padding:24px 0">
             <div style="font-size:2rem;margin-bottom:8px;opacity:0.3">🥗</div>
             <div style="font-size:0.84rem;color:var(--text-dim)">Inga måltider loggade ännu</div>
             <button onclick="showTab('food')" style="margin-top:12px;padding:8px 18px;background:var(--lime);color:var(--deep-green);border:none;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer">+ Logga din första måltid</button>
           </div>
+          <div id="home-nutrition-list" style="display:none"></div>
         </div>
         <div class="card">
           <div class="card-title" data-i18n="c_weight_trend">Viktutveckling (4 v)</div>
@@ -3314,10 +3315,15 @@ async function initSupabase() {
     // Ladda in i UI
     setTimeout(() => {
       loadProfile();
-      updateOverview();
       calcBMI();
       calcDailyNeeds();
       updateGoalProgress();
+      // OBS: updateOverview() anropades tidigare här också (efter 200ms), parallellt med
+      // matladdningens egen updateOverview() (efter 500ms). De två setTimeout-blocken hade
+      // ingen garanterad ordning – om enheten/nätverket var långsamt kunde den tidiga,
+      // tomma körningen råka exekvera EFTER den korrekta, vilket skrev över rätt kcal-värde
+      // med "Ingen data". updateOverview() körs nu bara från matladdningen + en garanterad
+      // sista körning i slutet av initSupabase().
     }, 200);
   } else {
     // Ny användare – sätt plan från localStorage
@@ -3399,6 +3405,10 @@ async function initSupabase() {
   }, 3000);
   // Kolla om första inloggningen
   await checkFirstLogin();
+  // Sista, garanterade uppdatering av Översikt/Startsidan – körs efter att ALL data
+  // (mat, sömn, profil) har hunnit laddas in, oavsett hur lång tid de individuella
+  // stegen ovan tog. Detta är skyddsnätet mot att "Ingen data" visas trots loggad mat.
+  setTimeout(() => updateOverview(), 800);
   console.log('🌿 Vitalis Flow: Supabase ansluten ✓');
 }
 
@@ -3767,6 +3777,8 @@ function showTab(tab) {
   if (tab === 'sleep') { setSleepDateBtn('today'); }
   if (tab === 'activity') { setActDateBtn('today'); }
   if (tab === 'stats') { setStatsPeriod(30); }
+  // Säkerställ att översikt/startsida alltid visar aktuell data oavsett async-laddningstiming
+  if (tab === 'overview' || tab === 'food') { updateFoodStats(); }
 }
 
 // ── SIDEBAR MOBILE ──
@@ -4341,20 +4353,62 @@ function deleteFood(btn){
   updateFoodStats();
 }
 function updateOverview() {
-  // Kalorier – från matlogg
+  // Kalorier – från matlogg. Räknar om direkt från DOM (food-list) istället för att
+  // bara lita på totalKcal-variabeln, eftersom den uppdateras async efter Supabase-laddning
+  // och kunde hinna före/efter detta anrop beroende på timing (flikbyte, omladdning m.m.) –
+  // det gjorde att Översikt/Startsidan kunde visa "ingen data" trots att Matloggen hade rätt summa.
   const kcalEl = document.getElementById('overview-kcal');
   const kcalSub = document.getElementById('overview-kcal-sub');
+  const foodList = document.getElementById('food-list');
+  let actualKcal = totalKcal;
+  if (foodList) {
+    const domSum = Array.from(foodList.querySelectorAll('.food-item'))
+      .reduce((sum, item) => sum + (parseInt(item.getAttribute('data-kcal')) || 0), 0);
+    if (domSum > actualKcal) actualKcal = domSum; // ta det högsta av de två källorna
+  }
   if (kcalEl) {
-    if (totalKcal > 0) {
-      kcalEl.innerHTML = totalKcal.toLocaleString('sv') + '<span class="unit"> kcal</span>';
+    if (actualKcal > 0) {
+      kcalEl.innerHTML = actualKcal.toLocaleString('sv') + '<span class="unit"> kcal</span>';
       kcalEl.style.color = 'var(--lime)';
-      if (kcalSub) { kcalSub.textContent = Math.max(0, 2000 - totalKcal) + ' kcal kvar av mål'; kcalSub.style.fontStyle = 'normal'; }
+      if (kcalSub) { kcalSub.textContent = Math.max(0, 2000 - actualKcal) + ' kcal kvar av mål'; kcalSub.style.fontStyle = 'normal'; }
     } else {
       kcalEl.innerHTML = '–<span class="unit"> kcal</span>';
       kcalEl.style.color = 'var(--text-dim)';
       if (kcalSub) { kcalSub.textContent = 'Ingen data – logga mat'; kcalSub.style.fontStyle = 'italic'; }
     }
   }
+
+  // Startsidans "Näring idag"-kort – tidigare helt statisk HTML som aldrig uppdaterades
+  // oavsett hur många måltider som faktiskt loggats. Speglar nu food-list direkt.
+  const homeEmpty = document.getElementById('home-nutrition-empty');
+  const homeList = document.getElementById('home-nutrition-list');
+  if (homeEmpty && homeList && foodList) {
+    const items = Array.from(foodList.querySelectorAll('.food-item'));
+    if (items.length > 0) {
+      homeEmpty.style.display = 'none';
+      homeList.style.display = 'block';
+      homeList.innerHTML = items.slice(0, 4).map(item => {
+        const name = item.getAttribute('data-name') || item.querySelector('.food-name')?.textContent || 'Måltid';
+        const kcal = item.getAttribute('data-kcal') || '0';
+        const time = item.getAttribute('data-time') || '';
+        const emoji = item.querySelector('.food-emoji')?.textContent || '🍽';
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:8px;min-width:0">
+            <span style="font-size:1rem">${emoji}</span>
+            <span style="font-size:0.8rem;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px">${name}</span>
+          </div>
+          <span style="font-size:0.78rem;color:var(--lime);flex-shrink:0">${kcal} kcal</span>
+        </div>`;
+      }).join('');
+      if (items.length > 4) {
+        homeList.innerHTML += `<div style="text-align:center;margin-top:8px"><button onclick="showTab('food')" style="background:none;border:none;color:var(--lime);font-size:0.76rem;cursor:pointer;text-decoration:underline">Visa alla ${items.length} måltider →</button></div>`;
+      }
+    } else {
+      homeEmpty.style.display = 'block';
+      homeList.style.display = 'none';
+    }
+  }
+
   // Vikt – från profil
   try {
     const p = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
@@ -4681,8 +4735,15 @@ function renderWeeklyChart() {
 }
 
 function updateFoodStats(){
-  const goal=2000; const remaining=Math.max(0,goal-totalKcal);
-  const meals=document.getElementById('food-list').querySelectorAll('.food-item').length;
+  const goal=2000;
+  const list = document.getElementById('food-list');
+  // Räkna om totalKcal direkt från DOM – inte bara lita på variabeln, som kunde vara
+  // 0 om denna funktion råkade köras innan Supabase-laddningen hunnit fylla på den.
+  const domKcal = list ? Array.from(list.querySelectorAll('.food-item'))
+    .reduce((sum, item) => sum + (parseInt(item.getAttribute('data-kcal')) || 0), 0) : 0;
+  if (domKcal > totalKcal) totalKcal = domKcal;
+  const remaining=Math.max(0,goal-totalKcal);
+  const meals=list ? list.querySelectorAll('.food-item').length : 0;
   document.getElementById('total-kcal').innerHTML=totalKcal.toLocaleString('sv')+'<span class="unit"> kcal</span>';
   document.getElementById('remaining-kcal').innerHTML=remaining.toLocaleString('sv')+'<span class="unit"> kcal</span>';
   document.getElementById('meal-count').textContent=meals;

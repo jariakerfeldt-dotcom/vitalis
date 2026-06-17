@@ -4034,6 +4034,9 @@ async function analyzeFoodPhotos() {
   btn.textContent = '⏳ Analyserar...';
   if (scanLoading) scanLoading.style.display = 'block';
 
+  // Spara bilderna för granskningskortet innan vi ev. rensar dem
+  const photosForReview = [...foodPhotosB64];
+
   try {
     // Komprimera alla bilder (ta bort data-URL-prefix, behåll bara base64)
     const compressedImages = await Promise.all(
@@ -4046,8 +4049,19 @@ async function analyzeFoodPhotos() {
     }));
     content.push({
       type: 'text',
-      text: `Analysera maten på bilden/bilderna och uppskatta totala näringsvärden för hela måltiden. Om det är flera bilder av samma måltid (t.ex. olika vinklar), räkna det som EN måltid. Om det är uppenbart olika rätter, summera ihop dem till en total. Svara ENDAST med JSON i detta exakta format, inget annat:
-{"name":"maträttens namn på svenska","kcal":nummer,"protein_g":nummer,"carbs_g":nummer,"fat_g":nummer,"confidence":"hög/medel/låg","note":"kort kommentar om uppskattningen på svenska"}`
+      text: `Du är en noggrann nutritionist som analyserar foton för en matloggningsapp. Titta noga på bilden/bilderna innan du svarar.
+
+STEG 1 – Avgör vad bilden faktiskt visar:
+- "meal" = en tillagad/serverad måltid eller maträtt redo att ätas (på tallrik, i skål, smörgås, osv)
+- "groceries" = oöppnade förpackningar, råvaror, eller mat i kylskåp/bil/påse som INTE är en serverad måltid
+- "unclear" = otydlig bild, för långt avstånd, eller inte mat alls
+
+STEG 2:
+- Om "meal": uppskatta totala näringsvärden. Flera bilder av SAMMA måltid (olika vinklar) = en måltid. Tydligt olika rätter = summera ihop.
+- Om "groceries" eller "unclear": gissa INTE en hel tillagad rätt. Lista istället vilka produkter/varor du kan identifiera, sätt kcal/näring till 0, och förklara i "note" att det inte verkar vara en serverad måltid.
+
+Svara ENDAST med JSON i detta exakta format, inget annat:
+{"image_type":"meal/groceries/unclear","name":"kort beskrivning på svenska","kcal":nummer,"protein_g":nummer,"carbs_g":nummer,"fat_g":nummer,"confidence":"hög/medel/låg","note":"kort kommentar på svenska – vid groceries/unclear, förklara vad du ser och att det inte är en färdig måltid"}`
     });
 
     const data = await fetchAI({
@@ -4064,38 +4078,11 @@ async function analyzeFoodPhotos() {
     const clean = text.replace(/```json|```/g, '').trim();
     const result = JSON.parse(clean);
 
-    // Lägg till måltiden i loggen (samma flöde som addFood/dbAddFood)
-    const selectedDate = getFoodDate();
-    const today = getLocalDateStr();
-    const isToday = selectedDate === today;
-    const now = new Date();
-    const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+    // Visa granskningskort med bild – INGET sparas automatiskt längre.
+    // Användaren ser AI:ns gissning + originalbilden och kan redigera innan den läggs till.
+    showFoodAIResultCard(result, photosForReview);
 
-    if (isToday) {
-      totalKcal += result.kcal;
-      const item = document.createElement('div');
-      item.className = 'food-item';
-      item.setAttribute('data-kcal', result.kcal);
-      item.setAttribute('data-name', result.name);
-      item.setAttribute('data-time', time);
-      item.style.cursor = 'pointer';
-      item.innerHTML = makeFoodItemHTML('📸 ' + result.name, result.kcal, time, '');
-      item.style.opacity = '0'; item.style.transform = 'translateY(-8px)';
-      const empty = document.getElementById('food-empty-state');
-      if (empty) empty.style.display = 'none';
-      document.getElementById('food-list').appendChild(item);
-      setTimeout(() => { item.style.transition = 'all 0.3s'; item.style.opacity = '1'; item.style.transform = 'none'; }, 10);
-      updateFoodStats();
-      dbAddFood('📸 ' + result.name, result.kcal, 'ai_photo').then(r => {
-        if (r && r.data && r.data[0]) item.setAttribute('data-sb-id', r.data[0].id);
-      });
-    } else {
-      dbAddFoodForDate('📸 ' + result.name, result.kcal, 'ai_photo', selectedDate);
-    }
-
-    showFoodAIResultCard(result);
-
-    // Rensa bilder och återställ
+    // Rensa fotogridet (bilderna lever vidare i granskningskortet)
     foodPhotosB64 = [];
     renderFoodPhotoGrid();
     updateFoodAnalyzeBtn();
@@ -4112,7 +4099,7 @@ async function analyzeFoodPhotos() {
   if (foodPhotosB64.length === 0) updateFoodAnalyzeBtn();
 }
 
-function showFoodAIResultCard(r) {
+function showFoodAIResultCard(r, photos) {
   let card = document.getElementById('food-ai-result-card');
   if (!card) {
     card = document.createElement('div');
@@ -4122,37 +4109,120 @@ function showFoodAIResultCard(r) {
     photoArea?.insertAdjacentElement('afterend', card);
   }
   card.style.display = 'block';
+
+  // Spara bilderna globalt så confirmFoodAIResult kan bädda in dem i matposten
+  window._foodAIReviewPhotos = photos || [];
+
+  const isMeal = r.image_type === 'meal' || !r.image_type; // bakåtkompatibelt om fältet saknas
+  const warningBanner = !isMeal ? `
+    <div style="display:flex;gap:8px;align-items:flex-start;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.35);border-radius:10px;padding:10px 12px;margin-bottom:12px">
+      <span style="font-size:1rem">⚠️</span>
+      <div style="font-size:0.74rem;color:var(--cream);line-height:1.5">
+        Det här ser inte ut som en färdig måltid – snarare ${r.image_type === 'groceries' ? 'oöppnade varor/råvaror' : 'en otydlig bild'}.
+        Granska och justera värdena nedan innan du sparar, eller ta en ny bild av den tillagade måltiden.
+      </div>
+    </div>` : '';
+
+  const photoThumbs = (photos || []).map(src =>
+    `<img src="${src}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid rgba(126,200,80,0.3)">`
+  ).join('');
+
   card.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px">
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:1.3rem">✅</span>
+        <span style="font-size:1.3rem">${isMeal ? '🔍' : '⚠️'}</span>
         <div>
-          <div style="font-size:0.88rem;font-weight:700;color:var(--cream)">${r.name}</div>
-          <div style="font-size:0.7rem;color:var(--text-dim)">Tillagt i matloggen · Träffsäkerhet: ${r.confidence}</div>
+          <div style="font-size:0.82rem;font-weight:700;color:var(--cream)">Granska innan du sparar</div>
+          <div style="font-size:0.68rem;color:var(--text-dim)">Träffsäkerhet: ${r.confidence || 'okänd'} · Justera om något är fel</div>
         </div>
       </div>
-      <button onclick="document.getElementById('food-ai-result-card').style.display='none'" style="background:none;border:none;color:var(--text-dim);font-size:1.1rem;cursor:pointer;padding:0 4px;line-height:1">✕</button>
+      <button onclick="cancelFoodAIResult()" style="background:none;border:none;color:var(--text-dim);font-size:1.1rem;cursor:pointer;padding:0 4px;line-height:1">✕</button>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <div style="flex:1;text-align:center;background:rgba(255,255,255,0.04);border-radius:10px;padding:8px 4px">
-        <div style="font-size:1rem;font-weight:700;color:var(--lime)">${r.kcal}</div>
-        <div style="font-size:0.62rem;color:var(--text-dim)">kcal</div>
+
+    ${photoThumbs ? `<div style="display:flex;gap:6px;margin-bottom:12px">${photoThumbs}</div>` : ''}
+    ${warningBanner}
+
+    <div style="margin-bottom:8px">
+      <label style="font-size:0.64rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:4px">Namn</label>
+      <input id="far-name" type="text" value="${(r.name||'').replace(/"/g,'&quot;')}" style="width:100%;padding:9px 12px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none">
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="flex:1">
+        <label style="font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;display:block;margin-bottom:4px">Kcal</label>
+        <input id="far-kcal" type="number" value="${r.kcal||0}" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;color:var(--lime);font-weight:700;text-align:center;outline:none">
       </div>
-      <div style="flex:1;text-align:center;background:rgba(255,255,255,0.04);border-radius:10px;padding:8px 4px">
-        <div style="font-size:1rem;font-weight:700;color:var(--cream)">${r.protein_g}g</div>
-        <div style="font-size:0.62rem;color:var(--text-dim)">Protein</div>
+      <div style="flex:1">
+        <label style="font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;display:block;margin-bottom:4px">Protein g</label>
+        <input id="far-protein" type="number" value="${r.protein_g||0}" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;color:var(--cream);text-align:center;outline:none">
       </div>
-      <div style="flex:1;text-align:center;background:rgba(255,255,255,0.04);border-radius:10px;padding:8px 4px">
-        <div style="font-size:1rem;font-weight:700;color:var(--cream)">${r.carbs_g}g</div>
-        <div style="font-size:0.62rem;color:var(--text-dim)">Kolhydrater</div>
+      <div style="flex:1">
+        <label style="font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;display:block;margin-bottom:4px">Kolhyd. g</label>
+        <input id="far-carbs" type="number" value="${r.carbs_g||0}" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;color:var(--cream);text-align:center;outline:none">
       </div>
-      <div style="flex:1;text-align:center;background:rgba(255,255,255,0.04);border-radius:10px;padding:8px 4px">
-        <div style="font-size:1rem;font-weight:700;color:var(--cream)">${r.fat_g}g</div>
-        <div style="font-size:0.62rem;color:var(--text-dim)">Fett</div>
+      <div style="flex:1">
+        <label style="font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;display:block;margin-bottom:4px">Fett g</label>
+        <input id="far-fat" type="number" value="${r.fat_g||0}" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:8px;color:var(--cream);text-align:center;outline:none">
       </div>
     </div>
-    <div style="font-size:0.72rem;color:var(--text-dim);line-height:1.5">⚠️ ${r.note}</div>
+
+    <div style="font-size:0.72rem;color:var(--text-dim);line-height:1.5;margin-bottom:12px">💬 ${r.note || ''}</div>
+
+    <button onclick="confirmFoodAIResult()" style="width:100%;padding:13px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer">
+      ✓ Lägg till i matloggen
+    </button>
   `;
+}
+
+function cancelFoodAIResult() {
+  const card = document.getElementById('food-ai-result-card');
+  if (card) card.style.display = 'none';
+  window._foodAIReviewPhotos = null;
+}
+
+async function confirmFoodAIResult() {
+  const name = document.getElementById('far-name')?.value?.trim() || 'Måltid';
+  const kcal = Math.max(0, parseInt(document.getElementById('far-kcal')?.value) || 0);
+  const protein = parseInt(document.getElementById('far-protein')?.value) || 0;
+  const carbs = parseInt(document.getElementById('far-carbs')?.value) || 0;
+  const fat = parseInt(document.getElementById('far-fat')?.value) || 0;
+  const photos = window._foodAIReviewPhotos || [];
+  const firstPhoto = photos[0] || null; // bara första bilden bäddas in i matposten (per session)
+
+  const selectedDate = getFoodDate();
+  const today = getLocalDateStr();
+  const isToday = selectedDate === today;
+  const now = new Date();
+  const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+
+  if (isToday) {
+    totalKcal += kcal;
+    const item = document.createElement('div');
+    item.className = 'food-item';
+    item.setAttribute('data-kcal', kcal);
+    item.setAttribute('data-name', name);
+    item.setAttribute('data-time', time);
+    item.setAttribute('data-protein', protein);
+    item.setAttribute('data-carbs', carbs);
+    item.setAttribute('data-fat', fat);
+    if (firstPhoto) item.dataset.photo = firstPhoto; // gör bilden klickbar via openMealDetail
+    item.style.cursor = 'pointer';
+    item.innerHTML = makeFoodItemHTML('📸 ' + name, kcal, time, '');
+    item.style.opacity = '0'; item.style.transform = 'translateY(-8px)';
+    const empty = document.getElementById('food-empty-state');
+    if (empty) empty.style.display = 'none';
+    document.getElementById('food-list').appendChild(item);
+    setTimeout(() => { item.style.transition = 'all 0.3s'; item.style.opacity = '1'; item.style.transform = 'none'; }, 10);
+    updateFoodStats();
+    dbAddFood('📸 ' + name, kcal, 'ai_photo').then(r => {
+      if (r && r.data && r.data[0]) item.setAttribute('data-sb-id', r.data[0].id);
+    });
+  } else {
+    dbAddFoodForDate('📸 ' + name, kcal, 'ai_photo', selectedDate);
+  }
+
+  showToast(`✓ ${name} – ${kcal} kcal tillagt`);
+  cancelFoodAIResult();
 }
 
 async function addFood(){

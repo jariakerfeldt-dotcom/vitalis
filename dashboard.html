@@ -1650,12 +1650,12 @@ select option:checked {
         <div style="margin-top:10px">
           <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">⚡ Snabbval</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
-            <button onclick="quickAddActivity('🚶 Promenad',30,150)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🚶 Promenad</button>
-            <button onclick="quickAddActivity('🏃 Löpning',45,400)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏃 Löpning</button>
-            <button onclick="quickAddActivity('🚴 Cykling',60,350)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🚴 Cykling</button>
-            <button onclick="quickAddActivity('🏋️ Styrketräning',45,300)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏋️ Styrka</button>
-            <button onclick="quickAddActivity('🧘 Yoga',30,120)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🧘 Yoga</button>
-            <button onclick="quickAddActivity('🏊 Simning',45,380)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏊 Simning</button>
+            <button onclick="quickAddActivity('🚶 Promenad',30,0)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🚶 Promenad</button>
+            <button onclick="quickAddActivity('🏃 Löpning',30,0)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏃 Löpning</button>
+            <button onclick="quickAddActivity('🚴 Cykling',30,0)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🚴 Cykling</button>
+            <button onclick="quickAddActivity('🏋️ Styrketräning',30,0)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏋️ Styrka</button>
+            <button onclick="quickAddActivity('🧘 Yoga',30,0)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🧘 Yoga</button>
+            <button onclick="quickAddActivity('🏊 Simning',30,0)" style="padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:100px;color:var(--cream);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--lime)'" onmouseout="this.style.borderColor='var(--border)'">🏊 Simning</button>
           </div>
         </div>
 
@@ -4153,22 +4153,53 @@ function showFoodAIResultCard(r) {
   `;
 }
 
-function addFood(){
+async function addFood(){
   const input = document.getElementById('food-input');
   const val = input.value.trim(); if(!val) return;
-  const kcal = Math.floor(Math.random()*420)+80;
+  const btn = document.querySelector('button[onclick="addFood()"]');
   const selectedDate = getFoodDate();
   const today = getLocalDateStr();
   const isToday = selectedDate === today;
+  const dateLabel = getFoodDateLabel();
+
+  input.value = '';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Analyserar...'; }
+  showToast('🔍 AI uppskattar näringsvärden...');
+
+  // Riktig AI-uppskattning istället för slumptal – samma modell/prompt-princip som fotoanalysen,
+  // men textbaserad. Faller tillbaka på en rimlig schablon om AI-anropet misslyckas.
+  let kcal, em = '🍽';
+  try {
+    const data = await fetchAI({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 300,
+      messages: [{
+        role: 'user',
+        content: `Uppskatta näringsvärden för denna måltid, beskriven av en användare på svenska: "${val}".
+Anta en normal/typisk portionsstorlek om inget annat anges. Svara ENDAST med JSON, inget annat:
+{"kcal":nummer,"emoji":"en enda passande emoji för måltiden"}`
+      }]
+    });
+    if (!data || !data.content) throw new Error('Tomt AI-svar');
+    const text = data.content[0].text.trim();
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    kcal = Math.max(0, Math.round(parsed.kcal));
+    if (parsed.emoji) em = parsed.emoji;
+  } catch (err) {
+    console.log('AI text-food estimation error:', err);
+    // Fallback: rimlig schablon (genomsnittlig måltid) istället för rent slumptal
+    kcal = 350;
+    showToast('⚠️ Kunde inte AI-analysera – sparade med en schablonuppskattning');
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = '+ Lägg till'; }
 
   // Bara lägg till i UI om det är idag
   if (isToday) totalKcal += kcal;
 
   const now = new Date();
   const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-  const emojis = ['🍽','🥘','🍱','🥙','🍛','🥗','🍜'];
-  const em = emojis[Math.floor(Math.random()*emojis.length)];
-  const dateLabel = getFoodDateLabel();
 
   if (isToday) {
     // Visa i listan direkt
@@ -4194,8 +4225,7 @@ function addFood(){
     dbAddFoodForDate(em + ' ' + val, kcal, 'manual', selectedDate);
   }
 
-  input.value='';
-  showToast(isToday ? 'Måltid tillagd ✓' : `✓ Sparat för ${dateLabel}`);
+  showToast(isToday ? `✓ ${kcal} kcal tillagt` : `✓ Sparat för ${dateLabel} – ${kcal} kcal`);
 }
 function deleteFood(btn){
   const item = btn.closest('.food-item');
@@ -5338,13 +5368,14 @@ function addActivity(){
   const actDate = getActDate();
   const today = new Date().toISOString().split('T')[0];
 
-  let name = '', defaultMin = 0, defaultKcal = 0;
+  let name = '', defaultMin = 0;
 
   if (select?.value && select.value !== '' && select.value !== 'custom') {
     const parts = select.value.split('|');
     name = parts[0];
     defaultMin = parseInt(parts[1]) || 0;
-    defaultKcal = parseInt(parts[2]) || 0;
+    // OBS: parts[2] (gammalt hårdkodat kcal-värde från dropdownen) används inte längre –
+    // kcal räknas nu alltid via MET-motorn nedan så tid och vikt faktiskt påverkar resultatet.
   }
 
   const freeText = input?.value?.trim();
@@ -5353,7 +5384,11 @@ function addActivity(){
   else if (freeText) name += ' + ' + freeText;
 
   const finalMin = minutes || defaultMin;
-  const finalKcal = defaultKcal || (finalMin ? Math.round(finalMin * 6.5) : (sets * reps ? Math.round(sets * reps * 0.5) : 50));
+  // Kcal räknas alltid om via MET-motorn (övningstyp × kroppsvikt × tid) –
+  // tidigare användes en grov klumpformel (min×6.5) som inte tog hänsyn till övningstyp eller vikt.
+  const finalKcal = finalMin
+    ? calcActivityKcal(name, finalMin)
+    : calcStrengthKcal(sets, reps, 0);
 
   // Detaljlabel
   let detail = '';
@@ -5404,7 +5439,68 @@ function addActivity(){
   showToast(msg);
 }
 
-function quickAddActivity(name, minutes, kcal) {
+// ── KCAL-MOTOR (MET-baserad, samma princip som Apple Health/Fitbit) ──
+// kcal = MET × vikt(kg) × tid(h). MET-värden från Compendium of Physical Activities.
+// Ersätter tidigare hårdkodade/slumpmässiga kcal-uppskattningar i hela appen.
+const MET_VALUES = {
+  'promenad': 3.5, 'walk': 3.5,
+  'löpning': 9.8, 'jogging': 7.0, 'run': 9.8,
+  'cykling': 7.5, 'cycling': 7.5,
+  'simning': 7.0, 'swim': 7.0,
+  'yoga': 2.5,
+  'styrka': 5.0, 'styrketräning': 5.0, 'strength': 5.0, 'gym': 5.0,
+  'boxning': 9.0, 'boxing': 9.0,
+  'tennis': 7.3, 'fotboll': 8.0, 'football': 8.0, 'soccer': 8.0,
+  'basket': 6.5, 'basketball': 6.5,
+  'core': 4.0, 'core-träning': 4.0, 'mage': 4.0,
+  'rodd': 7.0, 'rowing': 7.0,
+  'vandring': 6.0, 'hiking': 6.0,
+  'dans': 5.5, 'dance': 5.5,
+  'hiit': 8.5,
+  'crosstrainer': 7.0,
+  'klättring': 8.0, 'climbing': 8.0
+};
+const DEFAULT_MET = 5.0; // medelintensivt pass om övningen är okänd
+
+function getUserWeightKg() {
+  const profile = JSON.parse(localStorage.getItem('vitalis_profile') || '{}');
+  const w = parseFloat(profile.weight);
+  return (w && w > 30 && w < 300) ? w : 75; // 75kg som rimligt default om vikt saknas
+}
+
+function findMET(activityName) {
+  if (!activityName) return DEFAULT_MET;
+  const lower = activityName.toLowerCase();
+  for (const key in MET_VALUES) {
+    if (lower.includes(key)) return MET_VALUES[key];
+  }
+  return DEFAULT_MET;
+}
+
+// Huvudfunktion: räkna ut kcal från övningsnamn + minuter, baserat på faktisk kroppsvikt
+function calcActivityKcal(activityName, minutes) {
+  if (!minutes || minutes <= 0) return 0;
+  const met = findMET(activityName);
+  const weight = getUserWeightKg();
+  const hours = minutes / 60;
+  return Math.round(met * weight * hours);
+}
+
+// Styrketräning med set×reps men utan angiven tid: uppskatta ~30 sek arbete per rep
+function calcStrengthKcal(sets, reps, minutes) {
+  if (minutes > 0) return calcActivityKcal('styrka', minutes);
+  if (sets && reps) {
+    const estMinutes = (sets * reps * 4) / 60; // ~4 sek/rep inkl. vila
+    return calcActivityKcal('styrka', Math.max(estMinutes, 5));
+  }
+  return 0;
+}
+
+function quickAddActivity(name, minutes, providedKcal) {
+  // Om ett redan beräknat kcal-värde skickas in (t.ex. från en riktig AI-genererad träningsplan)
+  // används det. Annars (våra statiska snabbvalsknappar) räknas kcal om via MET-motorn
+  // baserat på faktisk kroppsvikt + minuter – tidigare var kcal hårdkodat och oberoende av tid.
+  const kcal = (providedKcal && providedKcal > 0) ? providedKcal : calcActivityKcal(name, minutes);
   dbAddActivity(name, minutes, kcal, 'quick');
   const list = document.getElementById('activity-list');
   if (list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';

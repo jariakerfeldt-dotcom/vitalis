@@ -2527,6 +2527,24 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ── AUTH STATE ──
 let currentUser = null;
 let DEVICE_ID = localStorage.getItem('vitalis_device_id') || 'anon';
+// Sant så snart vi vet DEVICE_ID:s slutgiltiga värde (inloggad ELLER bekräftat utloggad).
+// Används för att förhindra att data sparas mot 'anon' under det korta fönstret innan
+// Supabase auth hunnit lösa sig vid sidladdning – annars hamnar loggad data "osynligt"
+// kopplad till fel device_id och försvinner från vyn nästa gång appen öppnas inloggad.
+let authReady = false;
+
+function waitForAuthReady(maxWaitMs = 4000) {
+  return new Promise(resolve => {
+    if (authReady) return resolve();
+    const start = Date.now();
+    const check = setInterval(() => {
+      if (authReady || Date.now() - start > maxWaitMs) {
+        clearInterval(check);
+        resolve();
+      }
+    }, 50);
+  });
+}
 
 // Lyssna på auth-ändringar
 sb.auth.onAuthStateChange(async (event, session) => {
@@ -2534,6 +2552,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
     currentUser = session.user;
     DEVICE_ID = session.user.id;
     localStorage.setItem('vitalis_device_id', DEVICE_ID);
+    authReady = true;
     hideAuthModal();
     updateAuthUI(session.user);
     if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
@@ -2548,23 +2567,26 @@ sb.auth.onAuthStateChange(async (event, session) => {
   } else {
     currentUser = null;
     DEVICE_ID = 'anon';
+    authReady = true;
     showAuthModal();
   }
 });
 
 // Kolla om redan inloggad
+// OBS: onAuthStateChange ovan triggar redan på 'INITIAL_SESSION' och anropar initSupabase().
+// Detta separata getSession()-anrop gjorde EXAKT samma jobb en gång till, vilket innebar att
+// initSupabase() (inklusive dbLoadTodayFood och DOM-byggande av matloggen) kunde köra TVÅ
+// GÅNGER PARALLELLT vid varje sidladdning. Två parallella körningar av samma async-flöde mot
+// samma DOM-element är en sannolik orsak till att matloggen ibland visas tom eller dubbel
+// beroende på vilken körning som "vann" racet. Vi använder nu bara auth-listenern som källa.
+let _authResolved = false;
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) {
-    currentUser = session.user;
-    DEVICE_ID = session.user.id;
-    localStorage.setItem('vitalis_device_id', DEVICE_ID);
-    hideAuthModal();
-    updateAuthUI(session.user);
-    initSupabase();
-  } else {
-    showAuthModal();
+  if (!session?.user) {
+    // Om onAuthStateChange redan hunnit hantera inloggning (sällan, men möjligt), rör vi inget.
+    if (!currentUser) showAuthModal();
   }
+  _authResolved = true;
 })();
 
 function showAuthModal() {
@@ -3844,12 +3866,16 @@ function openMealDetailShare(item) {
   setTimeout(() => shareMealDetail(), 100);
 }
 
-function quickAddFood(name, kcal) {
+async function quickAddFood(name, kcal) {
   const selectedDate = getFoodDate();
   const today = getLocalDateStr();
   const isToday = selectedDate === today;
-  if (isToday) totalKcal += kcal;
-  else { dbAddFoodForDate(name, kcal, 'quick', selectedDate); showToast(`✓ ${name} sparat för ${getFoodDateLabel()}`); return; }
+  if (!isToday) { dbAddFoodForDate(name, kcal, 'quick', selectedDate); showToast(`✓ ${name} sparat för ${getFoodDateLabel()}`); return; }
+
+  // Säkerställ riktigt DEVICE_ID innan vi sparar (samma skydd som addFood/confirmFoodAIResult)
+  if (!authReady) await waitForAuthReady();
+
+  totalKcal += kcal;
   const now = new Date();
   const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
   const item = document.createElement('div');
@@ -3884,6 +3910,13 @@ function quickAddFood(name, kcal) {
   item.style.opacity='0'; list.appendChild(item);
   setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
   updateFoodStats(); showToast(name+' tillagd ✓');
+
+  // KRITISK FIX: detta saknades helt tidigare – dagens snabbval sparades ENDAST lokalt
+  // i DOM/totalKcal, aldrig till Supabase. Det gjorde att maten visades korrekt under
+  // sessionen men försvann permanent nästa gång appen laddades och frågade databasen.
+  dbAddFood(name, kcal, 'quick').then(r => {
+    if (r && r.data && r.data[0]) item.setAttribute('data-sb-id', r.data[0].id);
+  });
 }
 
 // ── MEAL DETAIL MODAL ──
@@ -4216,6 +4249,9 @@ function cancelFoodAIResult() {
 }
 
 async function confirmFoodAIResult() {
+  // Samma skydd som addFood() – vänta in riktigt DEVICE_ID innan vi sparar till Supabase.
+  if (!authReady) await waitForAuthReady();
+
   const name = document.getElementById('far-name')?.value?.trim() || 'Måltid';
   const kcal = Math.max(0, parseInt(document.getElementById('far-kcal')?.value) || 0);
   const protein = parseInt(document.getElementById('far-protein')?.value) || 0;
@@ -4264,6 +4300,16 @@ async function addFood(){
   const input = document.getElementById('food-input');
   const val = input.value.trim(); if(!val) return;
   const btn = document.querySelector('button[onclick="addFood()"]');
+
+  // Säkerställ att vi vet det riktiga DEVICE_ID:t innan vi sparar – annars riskerar posten
+  // att hamna kopplad till 'anon' om man loggar mat innan Supabase-auth hunnit lösa sig,
+  // vilket gör att den "försvinner" nästa gång appen öppnas (då frågar vi med rätt user-ID).
+  if (!authReady) {
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Loggar in...'; }
+    await waitForAuthReady();
+    if (btn) { btn.disabled = false; btn.textContent = '+ Lägg till'; }
+  }
+
   const selectedDate = getFoodDate();
   const today = getLocalDateStr();
   const isToday = selectedDate === today;

@@ -3154,12 +3154,14 @@ async function dbAddFoodForDate(name, kcal, source, logDate) {
 }
 
 // ── DB: SÖMNLOGG ──
-async function dbAddSleep(hours, quality, label) {
+async function dbAddSleep(hours, quality, label, logDate) {
   try {
+    const date = logDate || getLocalDateStr();
     await sb.from('sleep_logs').insert({
       device_id: DEVICE_ID,
       hours, quality, label,
-      log_date: getLocalDateStr()
+      log_date: date,
+      logged_at: new Date(date + 'T12:00:00').toISOString()
     });
   } catch(e) { console.log('Supabase sleep save:', e); }
 }
@@ -6863,7 +6865,15 @@ function toggleFavoritesSection() {
 
 // ── SLEEP LOG ──
 function quickAddSleep(hours, label) {
-  addSleepEntry(hours, label, new Date());
+  // Respektera valt datum (Idag/Igår/kalender) – tidigare hårdkodades alltid dagens datum här,
+  // vilket gjorde att "Igår"-valet ignorerades helt för snabbvalsknapparna.
+  const dateVal = document.getElementById('sleep-date')?.value || getLocalDateStr();
+  const date = new Date(dateVal + 'T12:00:00');
+  // Härled kvalitet från antal timmar (robustare än att matcha emoji-tecken)
+  let quality = 'bra';
+  if (hours < 5) quality = 'dalig';
+  else if (hours < 7) quality = 'okej';
+  addSleepEntry(hours, label, date, quality, dateVal);
 }
 
 function addSleep() {
@@ -6871,18 +6881,19 @@ function addSleep() {
   if (!h || h <= 0 || h > 24) { showToast('Ange antal timmar (1–24)'); return; }
   const q = document.getElementById('sleep-quality')?.value || 'bra';
   const labels = { bra:'😊 Bra sömn', okej:'🙂 Okej sömn', dalig:'😴 Dålig sömn', orolig:'😰 Orolig sömn' };
-  const dateVal = document.getElementById('sleep-date')?.value;
-  const date = dateVal ? new Date(dateVal + 'T12:00:00') : new Date();
-  addSleepEntry(h, labels[q] || '😊 Bra sömn', date);
+  const dateVal = document.getElementById('sleep-date')?.value || getLocalDateStr();
+  const date = new Date(dateVal + 'T12:00:00');
+  addSleepEntry(h, labels[q] || '😊 Bra sömn', date, q, dateVal);
   document.getElementById('sleep-hours').value = '';
 }
 
-function addSleepEntry(hours, label, dateObj) {
+function addSleepEntry(hours, label, dateObj, quality, dateStr) {
   const list = document.getElementById('sleep-list');
   if (!list) return;
   if (list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
   const d = dateObj || new Date();
-  const dateStr = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+  const displayDate = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+  const logDate = dateStr || getLocalDateStr(d);
   const item = document.createElement('div');
   item.className = 'activity-item';
   const color = hours >= 8 ? 'var(--lime)' : hours >= 7 ? 'var(--gold)' : '#e05c5c';
@@ -6890,7 +6901,7 @@ function addSleepEntry(hours, label, dateObj) {
     <div class="activity-icon">🌙</div>
     <div class="activity-text">
       <div class="title">${label}</div>
-      <div class="time">${dateStr}</div>
+      <div class="time">${displayDate}</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <div class="activity-val" style="color:${color}">${hours}h</div>
@@ -6899,14 +6910,16 @@ function addSleepEntry(hours, label, dateObj) {
   item.style.opacity = '0';
   list.appendChild(item);
   setTimeout(() => { item.style.transition='opacity 0.3s'; item.style.opacity='1'; }, 10);
-  showToast(`🌙 ${hours}h sömn loggad ✓`);
-  // Supabase synk
-  dbAddSleep(hours, quality || 'bra', label);
-  // Update overview
-  const slEl = document.getElementById('overview-sleep');
-  const slSub = document.getElementById('overview-sleep-sub');
-  if (slEl) { slEl.innerHTML = hours + '<span class="unit"> h</span>'; slEl.style.color = hours >= 7 ? 'var(--lime)' : hours >= 6 ? 'var(--gold)' : '#e05c5c'; }
-  if (slSub) { slSub.textContent = label; slSub.style.fontStyle = 'normal'; }
+  showToast(`🌙 ${hours}h sömn loggad för ${displayDate} ✓`);
+  // Supabase synk – skickar nu med rätt datum istället för att alltid spara som idag
+  dbAddSleep(hours, quality || 'bra', label, logDate);
+  // Update overview – bara om det loggade datumet faktiskt är idag
+  if (logDate === getLocalDateStr()) {
+    const slEl = document.getElementById('overview-sleep');
+    const slSub = document.getElementById('overview-sleep-sub');
+    if (slEl) { slEl.innerHTML = hours + '<span class="unit"> h</span>'; slEl.style.color = hours >= 7 ? 'var(--lime)' : hours >= 6 ? 'var(--gold)' : '#e05c5c'; }
+    if (slSub) { slSub.textContent = label; slSub.style.fontStyle = 'normal'; }
+  }
 }
 
 // ── FOOD FAVORITES ──

@@ -1289,26 +1289,28 @@ select option:checked {
       <div class="grid-3" style="margin-bottom:20px">
         <div class="card metric-big">
           <div class="card-title" data-i18n="sl_last">Senaste natten</div>
-          <div class="val" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
-          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
+          <div class="val" id="sleep-last-night-val" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
+          <div id="sleep-last-night-sub" style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="sl_avg">Veckosnitt</div>
-          <div class="val" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
-          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
+          <div class="val" id="sleep-week-avg-val" style="color:var(--text-dim)">–<span class="unit"> h</span></div>
+          <div id="sleep-week-avg-sub" style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
         </div>
         <div class="card metric-big">
           <div class="card-title" data-i18n="sl_score">Sömnpoäng</div>
-          <div class="val" style="color:var(--text-dim)">–</div>
-          <div style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
+          <div class="val" id="sleep-score-val" style="color:var(--text-dim)">–</div>
+          <div id="sleep-score-sub" style="font-size:0.72rem;color:var(--text-dim);font-style:italic;margin-top:4px">Ingen data</div>
         </div>
       </div>
       <div class="card" style="margin-bottom:20px">
         <div class="card-title" data-i18n="sl_week">Sömn senaste 7 nätterna</div>
-        <div style="text-align:center;padding:28px 0">
-          <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">💤</div>
-          <div style="font-size:0.84rem;color:var(--text-dim)">Ingen sömndata ännu</div>
-          <div style="font-size:0.75rem;color:var(--text-dim);opacity:0.7;margin-top:4px">Koppla en enhet eller logga manuellt för att se din sömnkurva</div>
+        <div id="sleep-7day-chart-wrap">
+          <div style="text-align:center;padding:28px 0">
+            <div style="font-size:2rem;opacity:0.25;margin-bottom:8px">💤</div>
+            <div style="font-size:0.84rem;color:var(--text-dim)">Ingen sömndata ännu</div>
+            <div style="font-size:0.75rem;color:var(--text-dim);opacity:0.7;margin-top:4px">Koppla en enhet eller logga manuellt för att se din sömnkurva</div>
+          </div>
         </div>
       </div>
       <div class="card">
@@ -3430,7 +3432,7 @@ async function initSupabase() {
   // Sista, garanterade uppdatering av Översikt/Startsidan – körs efter att ALL data
   // (mat, sömn, profil) har hunnit laddas in, oavsett hur lång tid de individuella
   // stegen ovan tog. Detta är skyddsnätet mot att "Ingen data" visas trots loggad mat.
-  setTimeout(() => updateOverview(), 800);
+  setTimeout(() => { updateOverview(); updateSleepOverview(); }, 800);
   console.log('🌿 Vitalis Flow: Supabase ansluten ✓');
 }
 
@@ -3796,7 +3798,7 @@ function showTab(tab) {
   if(window.innerWidth<=800) document.getElementById('sidebar').classList.remove('open');
   // Återställ alltid datum till idag vid flikbyte
   if (tab === 'food') { setFoodDateBtn('today'); }
-  if (tab === 'sleep') { setSleepDateBtn('today'); }
+  if (tab === 'sleep') { setSleepDateBtn('today'); updateSleepOverview(); }
   if (tab === 'activity') { setActDateBtn('today'); }
   if (tab === 'stats') { setStatsPeriod(30); }
   // Säkerställ att översikt/startsida alltid visar aktuell data oavsett async-laddningstiming
@@ -6794,6 +6796,89 @@ function resetDateButtons() {
 const _origShowTab = showTab;
 
 // ── SÖMNHISTORIK ──
+// ── SÖMNÖVERSIKT (toppkort + 7-dagarsgraf) ──
+// Dessa fanns tidigare som statisk placeholder-HTML utan id:n – ingen JS-funktion kunde
+// alltså uppdatera dem, oavsett hur mycket sömndata som faktiskt fanns loggad. "Sömnhistorik"
+// längst ner fungerade separat (egen funktion, eget element), vilket gjorde diskrepansen
+// förvirrande: historiken visade data men korten/grafen ovanför visade "Ingen data" jämt.
+async function updateSleepOverview() {
+  if (!DEVICE_ID || DEVICE_ID === 'anon') return;
+  let data = [];
+  try {
+    const { data: rows } = await sb.from('sleep_logs')
+      .select('*').eq('device_id', DEVICE_ID)
+      .order('log_date', { ascending: false }).limit(7);
+    data = rows || [];
+  } catch(e) { console.log('updateSleepOverview error:', e); return; }
+
+  if (!data.length) return; // lämna placeholders som de är
+
+  // Senaste natten
+  const last = data[0];
+  const lastEl = document.getElementById('sleep-last-night-val');
+  const lastSub = document.getElementById('sleep-last-night-sub');
+  if (lastEl) {
+    lastEl.innerHTML = last.hours + '<span class="unit"> h</span>';
+    lastEl.style.color = last.hours >= 7 ? 'var(--lime)' : last.hours >= 6 ? 'var(--gold)' : '#e05c5c';
+  }
+  if (lastSub) {
+    const d = new Date(last.log_date + 'T12:00:00');
+    lastSub.textContent = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+    lastSub.style.fontStyle = 'normal';
+  }
+
+  // Veckosnitt
+  const avg = data.reduce((sum, e) => sum + (e.hours || 0), 0) / data.length;
+  const avgEl = document.getElementById('sleep-week-avg-val');
+  const avgSub = document.getElementById('sleep-week-avg-sub');
+  if (avgEl) {
+    avgEl.innerHTML = avg.toFixed(1) + '<span class="unit"> h</span>';
+    avgEl.style.color = avg >= 7 ? 'var(--lime)' : avg >= 6 ? 'var(--gold)' : '#e05c5c';
+  }
+  if (avgSub) { avgSub.textContent = `Baserat på ${data.length} natt${data.length===1?'':'er'}`; avgSub.style.fontStyle = 'normal'; }
+
+  // Sömnpoäng – enkel modell: 100 vid 8h, skalar ned proportionellt under/över idealet
+  const score = Math.max(0, Math.min(100, Math.round(100 - Math.abs(8 - avg) * 15)));
+  const scoreEl = document.getElementById('sleep-score-val');
+  const scoreSub = document.getElementById('sleep-score-sub');
+  if (scoreEl) {
+    scoreEl.textContent = score;
+    scoreEl.style.color = score >= 80 ? 'var(--lime)' : score >= 60 ? 'var(--gold)' : '#e05c5c';
+  }
+  if (scoreSub) {
+    scoreSub.textContent = score >= 80 ? 'Utmärkt sömnmönster' : score >= 60 ? 'Okej, kan förbättras' : 'Behöver mer sömn';
+    scoreSub.style.fontStyle = 'normal';
+  }
+
+  // 7-dagarsgraf
+  const chartWrap = document.getElementById('sleep-7day-chart-wrap');
+  if (chartWrap) {
+    const byDate = {};
+    data.forEach(e => { byDate[e.log_date] = e.hours; });
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      days.push({ date: getLocalDateStr(d), label: ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'][d.getDay()] });
+    }
+    const maxH = Math.max(8, ...data.map(e => e.hours || 0));
+    chartWrap.innerHTML = `
+      <div style="display:flex;align-items:flex-end;gap:6px;height:90px;margin-bottom:8px">
+        ${days.map(d => {
+          const h = byDate[d.date] || 0;
+          const barH = h > 0 ? Math.max(6, (h / maxH) * 80) : 2;
+          const color = h === 0 ? 'rgba(255,255,255,0.08)' : h >= 7 ? 'var(--lime)' : h >= 6 ? 'var(--gold)' : '#e05c5c';
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:0.62rem;color:var(--text-dim)">${h > 0 ? h+'h' : ''}</div>
+            <div style="width:100%;max-width:28px;height:${barH}px;background:${color};border-radius:4px 4px 0 0;transition:height 0.3s"></div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:6px">
+        ${days.map(d => `<div style="flex:1;text-align:center;font-size:0.68rem;color:var(--text-dim)">${d.label}</div>`).join('')}
+      </div>`;
+  }
+}
+
 async function toggleSleepHistory() {
   const list = document.getElementById('sleep-history-list');
   const btn = document.getElementById('sleep-history-toggle');
@@ -7147,6 +7232,8 @@ function addSleepEntry(hours, label, dateObj, quality, dateStr) {
     if (slEl) { slEl.innerHTML = hours + '<span class="unit"> h</span>'; slEl.style.color = hours >= 7 ? 'var(--lime)' : hours >= 6 ? 'var(--gold)' : '#e05c5c'; }
     if (slSub) { slSub.textContent = label; slSub.style.fontStyle = 'normal'; }
   }
+  // Uppdatera sömn-flikens egna toppkort + 7-dagarsgraf (saknade JS-koppling helt tidigare)
+  setTimeout(() => updateSleepOverview(), 300);
 }
 
 // ── FOOD FAVORITES ──

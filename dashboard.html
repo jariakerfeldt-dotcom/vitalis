@@ -3368,6 +3368,8 @@ async function initSupabase() {
       updateOverview();
     }, 500);
   }
+  // Veckoöversikten kräver DEVICE_ID – ladda om den nu att vi vet vem användaren är
+  loadWeeklyChartData();
 
   // Ladda senaste sömn
   const recentSleep = await dbLoadRecentSleep(1);
@@ -4466,6 +4468,48 @@ function downloadFoodShareCard() {
 
 // ── WEEKLY CALORIE CHART ──
 const weeklyData = { 0:0,1:0,2:0,3:0,4:0,5:0,6:0 }; // 0=Sun,1=Mon...6=Sat
+
+// Hämtar veckans (mån–sön) faktiska kalorier från Supabase – tidigare uppdaterades
+// weeklyData bara för dagens datum, så övriga dagar visades alltid som 0.
+async function loadWeeklyChartData() {
+  if (!currentUser || !DEVICE_ID || DEVICE_ID === 'anon') { renderWeeklyChart(); return; }
+  try {
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0=sön
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + mondayOffset);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    const fromStr = getLocalDateStr(monday);
+    const toStr = getLocalDateStr(sunday);
+
+    const { data, error } = await sb.from('food_logs')
+      .select('log_date,kcal')
+      .eq('device_id', DEVICE_ID)
+      .gte('log_date', fromStr)
+      .lte('log_date', toStr);
+
+    if (error) throw error;
+
+    // Nollställ veckan, fyll på med riktiga summor per dag
+    [0,1,2,3,4,5,6].forEach(d => weeklyData[d] = 0);
+    (data || []).forEach(row => {
+      const d = new Date(row.log_date + 'T12:00:00');
+      const dow = d.getDay();
+      weeklyData[dow] = (weeklyData[dow] || 0) + (row.kcal || 0);
+    });
+
+    // Dagens session kan innehålla mat som ännu inte hunnit synkas – ta det högsta av de två
+    const todayDay = now.getDay();
+    weeklyData[todayDay] = Math.max(weeklyData[todayDay] || 0, totalKcal || 0);
+
+  } catch (e) {
+    console.log('loadWeeklyChartData error:', e);
+  }
+  renderWeeklyChart();
+}
 const dayLabels = ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'];
 
 function renderWeeklyChart() {
@@ -4518,11 +4562,11 @@ function updateFoodStats(){
   document.getElementById('remaining-kcal').innerHTML=remaining.toLocaleString('sv')+'<span class="unit"> kcal</span>';
   document.getElementById('meal-count').textContent=meals;
   updateOverview();
-  renderWeeklyChart();
+  loadWeeklyChartData();
 }
 
 // Init chart on load
-renderWeeklyChart();
+loadWeeklyChartData();
 updateActivityStats();
 renderActivityFreqChart();
 document.getElementById('food-input').addEventListener('keydown',e=>{if(e.key==='Enter')addFood();});

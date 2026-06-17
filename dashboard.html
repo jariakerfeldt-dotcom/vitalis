@@ -3130,7 +3130,7 @@ async function dbAddFood(name, kcal, source='manual') {
 
 async function dbLoadTodayFood() {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalDateStr(); // måste matcha vad dbAddFood sparar – UTC-datum kunde skilja sig från lokalt datum runt midnatt
     const { data } = await sb.from('food_logs')
       .select('*').eq('device_id', DEVICE_ID).eq('log_date', today)
       .order('logged_at', { ascending: true });
@@ -3380,7 +3380,7 @@ async function initSupabase() {
     setTimeout(() => {
       const slEl = document.getElementById('overview-sleep');
       const slSub = document.getElementById('overview-sleep-sub');
-      const today = new Date().toISOString().split('T')[0];
+      const today = getLocalDateStr(); // lokal tid, matchar log_date som sparas vid loggning
       if (s.log_date === today) {
         if (slEl) { slEl.innerHTML = s.hours + '<span class="unit"> h</span>'; slEl.style.color = s.hours >= 7 ? 'var(--lime)' : s.hours >= 6 ? 'var(--gold)' : '#e05c5c'; }
         if (slSub) { slSub.textContent = s.label||'Loggad'; slSub.style.fontStyle='normal'; }
@@ -3458,9 +3458,9 @@ function getFoodDate() {
 function getFoodDateLabel() {
   const val = document.getElementById('food-date')?.value;
   if (!val) return 'Idag';
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateStr();
   const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-  const yest = yesterday.toISOString().split('T')[0];
+  const yest = getLocalDateStr(yesterday);
   if (val === today) return 'Idag';
   if (val === yest) return 'Igår';
   const d = new Date(val + 'T12:00:00');
@@ -3470,9 +3470,9 @@ function getFoodDateLabel() {
 function updateFoodDateDisplay(val) {
   const display = document.getElementById('food-date-display');
   if (!display) return;
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateStr();
   const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-  const yest = yesterday.toISOString().split('T')[0];
+  const yest = getLocalDateStr(yesterday);
   let label;
   if (!val || val === today) label = 'Idag';
   else if (val === yest) label = 'Igår';
@@ -3488,7 +3488,7 @@ function updateFoodDateDisplay(val) {
 }
 
 function updateFoodDateNotice(val) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateStr();
   let notice = document.getElementById('food-date-notice');
   if (val && val !== today) {
     if (!notice) {
@@ -3708,8 +3708,8 @@ function updateSleepDateDisplay(val) {
   const display = document.getElementById('sleep-date-display');
   const today = new Date();
   const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
-  const todayStr = today.toISOString().split('T')[0];
-  const yestStr = yesterday.toISOString().split('T')[0];
+  const todayStr = getLocalDateStr(today);
+  const yestStr = getLocalDateStr(yesterday);
   let label;
   if (!val || val === todayStr) label = 'Idag';
   else if (val === yestStr) label = 'Igår';
@@ -5319,15 +5319,15 @@ function shareWorkout() {
 // ── ACTIVITY DATE HELPERS ──
 function getActDate() {
   const val = document.getElementById('act-date')?.value;
-  return val || new Date().toISOString().split('T')[0];
+  return val || getLocalDateStr();
 }
 
 function updateActDateDisplay(val) {
   const display = document.getElementById('act-date-display');
   if (!display) return;
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateStr();
   const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-  const yest = yesterday.toISOString().split('T')[0];
+  const yest = getLocalDateStr(yesterday);
   let label;
   if (!val || val === today) { label = 'Idag'; display.style.color = 'var(--cream)'; }
   else if (val === yest) { label = 'Igår'; display.style.color = 'var(--gold)'; }
@@ -5402,7 +5402,7 @@ function renderActivityFreqChart() {
   const days = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i);
-    days.push(d.toISOString().split('T')[0]);
+    days.push(getLocalDateStr(d));
   }
   const labels = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
   const today = new Date().getDay(); // 0=sun
@@ -5438,7 +5438,7 @@ function addActivity(){
   const reps = parseInt(document.getElementById('act-reps')?.value) || 0;
   const minutes = parseInt(document.getElementById('act-minutes')?.value) || 0;
   const actDate = getActDate();
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateStr(); // måste matcha getActDate()'s tidszon-logik, annars blir actDate!==today-jämförelsen fel runt midnatt
 
   let name = '', defaultMin = 0;
 
@@ -5993,7 +5993,7 @@ checkWeightReminder();
 // Set today as default sleep date
 (function(){
   const el = document.getElementById('sleep-date');
-  if(el) { el.value = new Date().toISOString().split('T')[0]; }
+  if(el) { el.value = getLocalDateStr(); }
 })();
 
 // ── MEDICINE SYSTEM ──

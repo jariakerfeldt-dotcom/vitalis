@@ -1335,7 +1335,7 @@ select option:checked {
           <div style="font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Logga manuellt</div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <!-- Datum – klickbar rad med dold input -->
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <div id="sleep-date-row" style="display:flex;gap:6px;flex-wrap:wrap">
               <button id="sleep-date-today" onclick="setSleepDateBtn('today')"
                 style="flex:1;padding:8px 12px;background:rgba(126,200,80,0.15);border:1.5px solid rgba(126,200,80,0.4);border-radius:10px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer">
                 🌙 Idag
@@ -3719,6 +3719,29 @@ function updateSleepDateDisplay(val) {
     label = label.charAt(0).toUpperCase() + label.slice(1);
   }
   if (display) { display.textContent = label; display.style.color = 'var(--cream)'; }
+  updateSleepDateNotice(val);
+}
+
+// Visar en tydlig, ständigt synlig notis om vilket datum som faktiskt loggas för –
+// tidigare fanns ingen bekräftelse alls efter att man valt ett datum i kalendern,
+// så man visste inte vilket datum man loggade timmar för innan man tryckte "Logga sömn".
+function updateSleepDateNotice(val) {
+  const today = getLocalDateStr();
+  let notice = document.getElementById('sleep-date-notice');
+  if (val && val !== today) {
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.id = 'sleep-date-notice';
+      notice.style.cssText = 'margin-bottom:8px;padding:8px 12px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);border-radius:10px;font-size:0.76rem;color:var(--gold);display:flex;align-items:center;gap:8px';
+      const row = document.getElementById('sleep-date-row');
+      if (row) row.insertAdjacentElement('afterend', notice);
+    }
+    const d = new Date(val + 'T12:00:00');
+    const label = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+    notice.innerHTML = `🌙 Loggar sömn för <strong>${label}</strong> – sparas på rätt datum`;
+  } else if (notice) {
+    notice.remove();
+  }
 }
 
 // ── TAB NAVIGATION ──
@@ -6634,6 +6657,8 @@ function setSleepDateBtn(mode, customVal) {
   const btnY = document.getElementById('sleep-date-yesterday');
   if (btnT) { btnT.style.background = mode==='today'?'rgba(126,200,80,0.15)':'rgba(255,255,255,0.04)'; btnT.style.color = mode==='today'?'var(--lime)':'var(--text-dim)'; btnT.style.borderColor = mode==='today'?'rgba(126,200,80,0.4)':'var(--border)'; }
   if (btnY) { btnY.style.background = mode==='yesterday'?'rgba(126,200,80,0.15)':'rgba(255,255,255,0.04)'; btnY.style.color = mode==='yesterday'?'var(--lime)':'var(--text-dim)'; btnY.style.borderColor = mode==='yesterday'?'rgba(126,200,80,0.4)':'var(--border)'; }
+  // Visa/uppdatera den gula notisen om vilket datum som faktiskt loggas – saknades helt tidigare
+  updateSleepDateNotice(date);
 }
 
 function setActDateBtn(mode, customVal) {

@@ -5379,25 +5379,9 @@ function quickAddActivity(name, minutes, kcal) {
   showToast(name + ' loggad ✓');
 }
 
-function addActivity(){
-  const input = document.getElementById('activity-input');
-  const val = input.value.trim(); if(!val) return;
-  const list = document.getElementById('activity-list');
-  if(list.querySelector('[style*="opacity:0.25"]')) list.innerHTML='';
-  const now = new Date();
-  const time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-  const icons = ['🏃','🚴','🧘','🏋️','🤸','⛹️','🎾','🏊'];
-  const ic = icons[Math.floor(Math.random()*icons.length)];
-  const item = document.createElement('div');
-  item.className='activity-item';
-  item.innerHTML=`<div class="activity-icon">${ic}</div><div class="activity-text"><div class="title">${val}</div><div class="time">${time}</div></div><div class="activity-val">Loggad</div>`;
-  item.style.opacity='0';
-  list.appendChild(item);
-  setTimeout(()=>{item.style.transition='opacity 0.3s';item.style.opacity='1';},10);
-  input.value=''; showToast('Aktivitet loggad ✓');
-  dbAddActivity(val, 0, 0, 'manual');
-}
-document.getElementById('activity-input').addEventListener('keydown',e=>{if(e.key==='Enter')addActivity();});
+// OBS: en duplicerad, trasig addActivity()-funktion fanns här tidigare och skrev
+// över den korrekta versionen ovan (rad ~5288). Den ignorerade valt datum (kalender/igår)
+// och sparade alltid med dagens datum. Borttagen – addActivity() ovan används nu korrekt.
 
 // ── AI CHAT ──
 const aiReplies = [

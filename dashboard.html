@@ -3941,6 +3941,173 @@ function saveMealAsFavorite() {
 }
 
 
+// ── MULTI-PHOTO MATFOTO (saknades helt – knapparna anropade odefinierade funktioner) ──
+function addFoodPhotos(event) {
+  const files = Array.from(event.target.files || []);
+  if (!files.length) return;
+
+  const remainingSlots = 4 - foodPhotosB64.length;
+  if (remainingSlots <= 0) {
+    showToast('Max 4 bilder – ta bort en för att lägga till fler');
+    event.target.value = '';
+    return;
+  }
+  const filesToAdd = files.slice(0, remainingSlots);
+
+  let loaded = 0;
+  filesToAdd.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      foodPhotosB64.push(e.target.result); // fullständig data-URL för förhandsvisning
+      loaded++;
+      if (loaded === filesToAdd.length) {
+        renderFoodPhotoGrid();
+        updateFoodAnalyzeBtn();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = ''; // tillåt samma fil igen
+}
+
+function renderFoodPhotoGrid() {
+  const grid = document.getElementById('food-img-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  foodPhotosB64.forEach((src, i) => {
+    const thumb = document.createElement('div');
+    thumb.style.cssText = 'width:72px;height:72px;border-radius:12px;position:relative;flex-shrink:0;overflow:hidden;border:1.5px solid rgba(126,200,80,0.3)';
+    thumb.innerHTML = `
+      <img src="${src}" style="width:100%;height:100%;object-fit:cover;display:block">
+      <button onclick="removeFoodPhoto(${i})" style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(10,25,16,0.85);border:none;color:#fff;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
+    `;
+    grid.appendChild(thumb);
+  });
+
+  // + Foto-knapp – visas bara om under 4 bilder
+  if (foodPhotosB64.length < 4) {
+    const addBtn = document.createElement('div');
+    addBtn.id = 'food-add-img-btn';
+    addBtn.onclick = () => document.getElementById('food-multi-photo').click();
+    addBtn.style.cssText = 'width:72px;height:72px;border:2px dashed rgba(126,200,80,0.3);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0';
+    addBtn.innerHTML = `<span style="font-size:1.5rem">📷</span><span style="font-size:0.6rem;color:var(--lime);margin-top:3px;font-weight:600">+ Foto</span>`;
+    grid.appendChild(addBtn);
+  }
+}
+
+function removeFoodPhoto(index) {
+  foodPhotosB64.splice(index, 1);
+  renderFoodPhotoGrid();
+  updateFoodAnalyzeBtn();
+}
+
+function updateFoodAnalyzeBtn() {
+  const btn = document.getElementById('food-analyze-multi-btn');
+  if (!btn) return;
+  if (foodPhotosB64.length > 0) {
+    btn.style.background = 'var(--lime)';
+    btn.style.color = 'var(--deep-green)';
+    btn.style.borderColor = 'var(--lime)';
+    btn.style.borderStyle = 'solid';
+    btn.style.fontWeight = '700';
+    btn.textContent = `🔍 Analysera ${foodPhotosB64.length} bild${foodPhotosB64.length > 1 ? 'er' : ''} med AI`;
+  } else {
+    btn.style.background = 'rgba(126,200,80,0.08)';
+    btn.style.color = 'var(--text-dim)';
+    btn.style.borderColor = 'rgba(126,200,80,0.25)';
+    btn.style.borderStyle = 'dashed';
+    btn.style.fontWeight = '500';
+    btn.textContent = '📷 Lägg till bilder och analysera med AI';
+  }
+}
+
+async function analyzeFoodPhotos() {
+  if (!foodPhotosB64.length) return;
+  const btn = document.getElementById('food-analyze-multi-btn');
+  const scanLoading = document.getElementById('food-scan-loading');
+  btn.disabled = true;
+  btn.textContent = '⏳ Analyserar...';
+  if (scanLoading) scanLoading.style.display = 'block';
+
+  try {
+    // Komprimera alla bilder (ta bort data-URL-prefix, behåll bara base64)
+    const compressedImages = await Promise.all(
+      foodPhotosB64.map(src => compressImage(src.split(',')[1], 600))
+    );
+
+    const content = compressedImages.map(b64 => ({
+      type: 'image',
+      source: { type: 'base64', media_type: 'image/jpeg', data: b64 }
+    }));
+    content.push({
+      type: 'text',
+      text: `Analysera maten på bilden/bilderna och uppskatta totala näringsvärden för hela måltiden. Om det är flera bilder av samma måltid (t.ex. olika vinklar), räkna det som EN måltid. Om det är uppenbart olika rätter, summera ihop dem till en total. Svara ENDAST med JSON i detta exakta format, inget annat:
+{"name":"maträttens namn på svenska","kcal":nummer,"protein_g":nummer,"carbs_g":nummer,"fat_g":nummer,"confidence":"hög/medel/låg","note":"kort kommentar om uppskattningen på svenska"}`
+    });
+
+    const data = await fetchAI({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content }]
+    }, msg => {
+      const p = scanLoading?.querySelector('p');
+      if (p) p.textContent = msg;
+    });
+
+    if (!data || !data.content) throw new Error('Tomt svar från AI');
+    const text = data.content[0].text.trim();
+    const clean = text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+
+    // Lägg till måltiden i loggen (samma flöde som addFood/dbAddFood)
+    const selectedDate = getFoodDate();
+    const today = getLocalDateStr();
+    const isToday = selectedDate === today;
+    const now = new Date();
+    const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+
+    if (isToday) {
+      totalKcal += result.kcal;
+      const item = document.createElement('div');
+      item.className = 'food-item';
+      item.setAttribute('data-kcal', result.kcal);
+      item.setAttribute('data-name', result.name);
+      item.setAttribute('data-time', time);
+      item.style.cursor = 'pointer';
+      item.innerHTML = makeFoodItemHTML('📸 ' + result.name, result.kcal, time, '');
+      item.style.opacity = '0'; item.style.transform = 'translateY(-8px)';
+      const empty = document.getElementById('food-empty-state');
+      if (empty) empty.style.display = 'none';
+      document.getElementById('food-list').appendChild(item);
+      setTimeout(() => { item.style.transition = 'all 0.3s'; item.style.opacity = '1'; item.style.transform = 'none'; }, 10);
+      updateFoodStats();
+      dbAddFood('📸 ' + result.name, result.kcal, 'ai_photo').then(r => {
+        if (r && r.data && r.data[0]) item.setAttribute('data-sb-id', r.data[0].id);
+      });
+    } else {
+      dbAddFoodForDate('📸 ' + result.name, result.kcal, 'ai_photo', selectedDate);
+    }
+
+    showToast(`✓ ${result.name} – ${result.kcal} kcal tillagt`);
+
+    // Rensa bilder och återställ
+    foodPhotosB64 = [];
+    renderFoodPhotoGrid();
+    updateFoodAnalyzeBtn();
+
+  } catch (err) {
+    console.log('Food photo analysis error:', err);
+    showToast('⚠️ Kunde inte analysera bilden – försök igen');
+    btn.disabled = false;
+    updateFoodAnalyzeBtn();
+  }
+
+  if (scanLoading) scanLoading.style.display = 'none';
+  btn.disabled = false;
+  if (foodPhotosB64.length === 0) updateFoodAnalyzeBtn();
+}
+
 function addFood(){
   const input = document.getElementById('food-input');
   const val = input.value.trim(); if(!val) return;

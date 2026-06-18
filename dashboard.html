@@ -1560,7 +1560,7 @@ select option:checked {
         <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--soft-white);margin-bottom:12px">+ Logga träning</div>
 
         <!-- Datumväljare – knappar -->
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <div id="act-date-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
           <button id="act-date-today" onclick="setActDateBtn('today')"
             style="flex:1;padding:8px 12px;background:rgba(126,200,80,0.15);border:1.5px solid rgba(126,200,80,0.4);border-radius:10px;color:var(--lime);font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer">
             💪 Idag
@@ -5563,7 +5563,7 @@ function renderActivityFreqChart() {
 }
 
 // ── UPDATED addActivity ──
-function addActivity(){
+async function addActivity(){
   const select = document.getElementById('act-exercise-select');
   const input = document.getElementById('activity-input');
   const sets = parseInt(document.getElementById('act-sets')?.value) || 0;
@@ -5586,6 +5586,11 @@ function addActivity(){
   if (!name && !freeText) { showToast('Välj övning eller skriv i fritext!'); return; }
   if (!name) name = freeText;
   else if (freeText) name += ' + ' + freeText;
+
+  // Säkerställ riktigt DEVICE_ID innan vi sparar – samma skydd som mat-loggningen.
+  // Utan detta kan ett pass loggat strax efter sidladdning hamna kopplat till 'anon'
+  // istället för det riktiga kontot och "försvinna" nästa gång appen öppnas.
+  if (!authReady) await waitForAuthReady();
 
   const finalMin = minutes || defaultMin;
   // Kcal räknas alltid om via MET-motorn (övningstyp × kroppsvikt × tid) –
@@ -5700,11 +5705,13 @@ function calcStrengthKcal(sets, reps, minutes) {
   return 0;
 }
 
-function quickAddActivity(name, minutes, providedKcal) {
+async function quickAddActivity(name, minutes, providedKcal) {
   // Om ett redan beräknat kcal-värde skickas in (t.ex. från en riktig AI-genererad träningsplan)
   // används det. Annars (våra statiska snabbvalsknappar) räknas kcal om via MET-motorn
   // baserat på faktisk kroppsvikt + minuter – tidigare var kcal hårdkodat och oberoende av tid.
   const kcal = (providedKcal && providedKcal > 0) ? providedKcal : calcActivityKcal(name, minutes);
+  // Säkerställ riktigt DEVICE_ID innan vi sparar – samma skydd som övriga snabbvalsknappar.
+  if (!authReady) await waitForAuthReady();
   dbAddActivity(name, minutes, kcal, 'quick');
   const list = document.getElementById('activity-list');
   if (list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
@@ -6136,8 +6143,10 @@ const typeLabels = {
   vitamin:'🌿 Vitamin', kosttillskott:'⚗️ Kosttillskott', smärtlindring:'💉 Smärtlindring'
 };
 
-function saveMedicines() {
+async function saveMedicines() {
   try { localStorage.setItem('vitalis_medicines', JSON.stringify(medicines)); } catch(e){}
+  // Säkerställ riktigt DEVICE_ID innan vi sparar till Supabase.
+  if (!authReady) await waitForAuthReady();
   dbSaveMedicines(medicines);
 }
 
@@ -6783,6 +6792,28 @@ function setActDateBtn(mode, customVal) {
   const btnY = document.getElementById('act-date-yesterday');
   if (btnT) { btnT.style.background = mode==='today'?'rgba(126,200,80,0.15)':'rgba(255,255,255,0.04)'; btnT.style.color = mode==='today'?'var(--lime)':'var(--text-dim)'; btnT.style.borderColor = mode==='today'?'rgba(126,200,80,0.4)':'var(--border)'; }
   if (btnY) { btnY.style.background = mode==='yesterday'?'rgba(126,200,80,0.15)':'rgba(255,255,255,0.04)'; btnY.style.color = mode==='yesterday'?'var(--lime)':'var(--text-dim)'; btnY.style.borderColor = mode==='yesterday'?'rgba(126,200,80,0.4)':'var(--border)'; }
+  // Visa/uppdatera gul notis om vilket datum passet loggas för – saknades helt tidigare,
+  // så kalenderval gav ingen synlig bekräftelse (såg ut som att inget hände).
+  updateActDateNotice(date);
+}
+
+function updateActDateNotice(val) {
+  const today = getLocalDateStr();
+  let notice = document.getElementById('act-date-notice');
+  if (val && val !== today) {
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.id = 'act-date-notice';
+      notice.style.cssText = 'margin-bottom:10px;padding:8px 12px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);border-radius:10px;font-size:0.76rem;color:var(--gold);display:flex;align-items:center;gap:8px';
+      const row = document.getElementById('act-date-row');
+      if (row) row.insertAdjacentElement('afterend', notice);
+    }
+    const d = new Date(val + 'T12:00:00');
+    const label = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+    notice.innerHTML = `💪 Loggar träning för <strong>${label}</strong> – sparas på rätt datum`;
+  } else if (notice) {
+    notice.remove();
+  }
 }
 
 // Återställ alla datum-knappar till idag vid flikbyte
@@ -7199,9 +7230,11 @@ function addSleep() {
   document.getElementById('sleep-hours').value = '';
 }
 
-function addSleepEntry(hours, label, dateObj, quality, dateStr) {
+async function addSleepEntry(hours, label, dateObj, quality, dateStr) {
   const list = document.getElementById('sleep-list');
   if (!list) return;
+  // Säkerställ riktigt DEVICE_ID innan vi sparar – täcker både manuell loggning och snabbval.
+  if (!authReady) await waitForAuthReady();
   if (list.querySelector('[style*="opacity:0.25"]')) list.innerHTML = '';
   const d = dateObj || new Date();
   const displayDate = d.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
@@ -7242,7 +7275,9 @@ function getFoodFavorites() {
   catch(e) { return []; }
 }
 
-function saveFoodFavorite(name, kcal) {
+async function saveFoodFavorite(name, kcal) {
+  // Säkerställ riktigt DEVICE_ID innan vi sparar till Supabase.
+  if (!authReady) await waitForAuthReady();
   dbSaveFoodFavorite(name, kcal);
   const favs = getFoodFavorites();
   if (favs.find(f => f.name === name)) { showToast('Redan sparad som favorit ⭐'); return; }

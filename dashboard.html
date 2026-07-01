@@ -2257,38 +2257,38 @@ select option:checked {
           <div class="card-title" data-i18n="pr_personal">Personliga uppgifter</div>
           <div class="profile-field">
             <label data-i18n="label_fname">Förnamn</label>
-            <input type="text" id="pf-fname" class="profile-input" placeholder="Ditt förnamn" oninput="saveProfile()">
+            <input type="text" id="pf-fname" class="profile-input" placeholder="Ditt förnamn" oninput="markProfileDirty()">
           </div>
           <div class="profile-field">
             <label data-i18n="label_lname">Efternamn</label>
-            <input type="text" id="pf-lname" class="profile-input" placeholder="Ditt efternamn" oninput="saveProfile()">
+            <input type="text" id="pf-lname" class="profile-input" placeholder="Ditt efternamn" oninput="markProfileDirty()">
           </div>
           <div class="profile-field">
             <label data-i18n="label_email">E-post</label>
-            <input type="email" id="pf-email" class="profile-input" placeholder="din@email.se" oninput="saveProfile()">
+            <input type="email" id="pf-email" class="profile-input" placeholder="din@email.se" oninput="markProfileDirty()">
           </div>
           <div class="profile-field">
             <label data-i18n="label_phone">Telefon</label>
-            <input type="tel" id="pf-phone" class="profile-input" placeholder="+46 70 000 00 00" oninput="saveProfile()">
+            <input type="tel" id="pf-phone" class="profile-input" placeholder="+46 70 000 00 00" oninput="markProfileDirty()">
           </div>
         </div>
         <div class="card">
           <div class="card-title" data-i18n="pr_health">Hälsoprofil</div>
           <div class="profile-field">
             <label data-i18n="pr_weight">Vikt (kg)</label>
-            <input type="number" id="pf-weight" class="profile-input" placeholder="t.ex. 70" min="30" max="300" step="0.1" oninput="saveProfile();calcBMI();updateGoalProgress()">
+            <input type="number" id="pf-weight" class="profile-input" placeholder="t.ex. 70" min="30" max="300" step="0.1" oninput="markProfileDirty();calcBMI();updateGoalProgress()">
           </div>
           <div class="profile-field">
             <label data-i18n="pr_height">Längd (cm)</label>
-            <input type="number" id="pf-height" class="profile-input" placeholder="t.ex. 170" min="100" max="250" oninput="saveProfile();calcBMI()">
+            <input type="number" id="pf-height" class="profile-input" placeholder="t.ex. 170" min="100" max="250" oninput="markProfileDirty();calcBMI()">
           </div>
           <div class="profile-field">
             <label>Födelseår</label>
-            <input type="number" id="pf-birthyear" class="profile-input" placeholder="t.ex. 1990" min="1920" max="2010" oninput="saveProfile();calcDailyNeeds()">
+            <input type="number" id="pf-birthyear" class="profile-input" placeholder="t.ex. 1990" min="1920" max="2010" oninput="markProfileDirty();calcDailyNeeds()">
           </div>
           <div class="profile-field">
             <label>Kön</label>
-            <select id="pf-gender" class="profile-input" onchange="saveProfile();calcDailyNeeds()">
+            <select id="pf-gender" class="profile-input" onchange="markProfileDirty();calcDailyNeeds()">
               <option value="" disabled selected>Välj</option>
               <option value="man">Man</option>
               <option value="kvinna">Kvinna</option>
@@ -2297,7 +2297,7 @@ select option:checked {
           </div>
           <div class="profile-field">
             <label>Aktivitetsnivå</label>
-            <select id="pf-activity" class="profile-input" onchange="saveProfile();calcDailyNeeds()">
+            <select id="pf-activity" class="profile-input" onchange="markProfileDirty();calcDailyNeeds()">
               <option value="" disabled selected>Välj</option>
               <option value="1.2">Stillasittande (lite/ingen träning)</option>
               <option value="1.375">Lätt aktiv (1–3 dagar/vecka)</option>
@@ -2312,7 +2312,7 @@ select option:checked {
           </div>
           <div class="profile-field">
             <label data-i18n="pr_goal">Mål</label>
-            <select id="pf-goal" class="profile-input" onchange="saveProfile();calcDailyNeeds();updateGoalProgress()">
+            <select id="pf-goal" class="profile-input" onchange="markProfileDirty();calcDailyNeeds();updateGoalProgress()">
               <option value="" disabled selected>Välj ditt mål</option>
               <option value="lose">Gå ner i vikt</option>
               <option value="maintain">Hålla vikten</option>
@@ -2326,9 +2326,17 @@ select option:checked {
           <!-- Target weight – shown for lose/gain -->
           <div class="profile-field" id="target-weight-field" style="display:none">
             <label>Målvikt (kg)</label>
-            <input type="number" id="pf-target-weight" class="profile-input" placeholder="t.ex. 75" min="30" max="300" step="0.1" oninput="saveProfile();updateGoalProgress()">
+            <input type="number" id="pf-target-weight" class="profile-input" placeholder="t.ex. 75" min="30" max="300" step="0.1" oninput="markProfileDirty();updateGoalProgress()">
           </div>
         </div>
+
+        <!-- SPARA PROFIL -->
+        <div id="profile-unsaved-notice" style="display:none;margin-top:16px;padding:10px 14px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);border-radius:10px;font-size:0.78rem;color:var(--gold);display:none;align-items:center;gap:8px">
+          <span>●</span> Du har osparade ändringar
+        </div>
+        <button id="profile-save-btn" onclick="saveProfileManual()" style="width:100%;margin-top:16px;padding:14px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.25s">
+          💾 Spara profil
+        </button>
       </div>
 
       <!-- GOAL PROGRESS CARD -->
@@ -3827,6 +3835,18 @@ const tabMap = {
 };
 
 function showTab(tab) {
+  // Varna om man lämnar profilfliken med osparade ändringar
+  const leavingProfile = document.getElementById(tabMap['profile'])?.classList.contains('active');
+  if (leavingProfile && tab !== 'profile' && profileDirty) {
+    const choice = confirm('Du har osparade ändringar i din profil.\n\nVill du spara dem innan du lämnar?\n\n(OK = spara, Avbryt = lämna utan att spara)');
+    if (choice) {
+      saveProfileManual();
+    } else {
+      profileDirty = false;
+      const notice = document.getElementById('profile-unsaved-notice');
+      if (notice) notice.style.display = 'none';
+    }
+  }
   Object.values(tabMap).forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.classList.remove('active');
@@ -6043,6 +6063,68 @@ function setLang(lang){
 }
 
 // ── PROFILE SAVE/LOAD ──
+// ── PROFIL: AKTIV SPARNING ──
+// Användaren sparar nu profilen aktivt via knappen istället för autospar vid varje tecken.
+// markProfileDirty() flaggar bara osparade ändringar; saveProfileManual() sparar på riktigt.
+let profileDirty = false;
+
+function markProfileDirty() {
+  profileDirty = true;
+  const notice = document.getElementById('profile-unsaved-notice');
+  const btn = document.getElementById('profile-save-btn');
+  if (notice) notice.style.display = 'flex';
+  if (btn) { btn.textContent = '💾 Spara profil'; btn.style.background = 'var(--gold)'; }
+}
+
+async function saveProfileManual() {
+  const btn = document.getElementById('profile-save-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Sparar...'; }
+
+  // Säkerställ inloggning innan vi sparar (annars riskerar vi 'anon')
+  if (!authReady) await waitForAuthReady();
+
+  // saveProfile() bygger profil-objektet, sparar lokalt och köar molnsparning
+  saveProfile();
+
+  // Vänta in att den debouncade molnsparningen hinner gå, kör den direkt istället
+  const profile = JSON.parse(localStorage.getItem('vitalis_profile') || '{}');
+  clearTimeout(_profileSaveTimer);
+  if (currentUser) {
+    try {
+      await dbSaveProfile({
+        fname: profile.fname || '', lname: profile.lname || '',
+        email: profile.email || currentUser?.email || '', phone: profile.phone || '',
+        weight: parseFloat(profile.weight) || null,
+        height: parseFloat(profile.height) || null,
+        birthyear: parseInt(profile.birthyear) || null,
+        gender: profile.gender || '', activity: parseFloat(profile.activity) || 1.55,
+        goal: profile.goal || '', target_weight: parseFloat(profile.target_weight) || null,
+        welcomed: !!profile.fname
+      });
+    } catch(e) { console.log('Profile save error:', e); }
+  }
+
+  profileDirty = false;
+  const notice = document.getElementById('profile-unsaved-notice');
+  if (notice) notice.style.display = 'none';
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = '✓ Sparat!';
+    btn.style.background = 'var(--lime)';
+    setTimeout(() => { if (!profileDirty && btn) btn.textContent = '💾 Spara profil'; }, 2500);
+  }
+  showToast('✓ Profil sparad');
+}
+
+// Varna om användaren lämnar sidan/appen med osparade ändringar
+window.addEventListener('beforeunload', (e) => {
+  if (profileDirty) {
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+});
+
 function saveProfile() {
   const prevProfile = JSON.parse(localStorage.getItem('vitalis_profile')||'{}');
   const profile = {
@@ -6069,21 +6151,60 @@ function saveProfile() {
   // Markera som välkomnad i Supabase när profilen sparas med namn
   if (profile.fname && currentUser) {
     localStorage.setItem('vitalis_welcomed', '1');
-    sb.from('profiles').upsert({
-      device_id: currentUser.id, welcomed: true, updated_at: new Date().toISOString()
-    }, { onConflict: 'device_id' }).catch(()=>{});
   }
+  // Spara HELA profilen till Supabase (debounced) – tidigare sparades bara welcomed-flaggan
+  // hit, medan vikt/längd/ålder m.m. bara hamnade i localStorage. Det gjorde att fälten var
+  // tomma på en ny enhet trots att användaren fyllt i dem. oninput triggar vid varje tecken,
+  // därför debounce så vi inte spammar databasen medan användaren skriver.
+  scheduleProfileCloudSave(profile);
   updateProfileUI(profile);
   updateOverview();
   calcDailyNeeds();
   updateGoalProgress();
 }
 
-function loadProfile() {
+let _profileSaveTimer = null;
+function scheduleProfileCloudSave(profile) {
+  if (!currentUser || !authReady) return;
+  clearTimeout(_profileSaveTimer);
+  _profileSaveTimer = setTimeout(() => {
+    dbSaveProfile({
+      fname: profile.fname || '', lname: profile.lname || '',
+      email: profile.email || currentUser?.email || '', phone: profile.phone || '',
+      weight: parseFloat(profile.weight) || null,
+      height: parseFloat(profile.height) || null,
+      birthyear: parseInt(profile.birthyear) || null,
+      gender: profile.gender || '', activity: parseFloat(profile.activity) || 1.55,
+      goal: profile.goal || '', target_weight: parseFloat(profile.target_weight) || null,
+      welcomed: !!profile.fname
+    });
+  }, 800);
+}
+
+async function loadProfile() {
   try {
-    const saved = localStorage.getItem('vitalis_profile');
-    if (!saved) return;
-    const p = JSON.parse(saved);
+    let saved = localStorage.getItem('vitalis_profile');
+    let p = saved ? JSON.parse(saved) : null;
+
+    // Om localStorage är tomt ELLER saknar kärnfält (t.ex. ny enhet/webbläsare, rensad cache,
+    // privat läge) – hämta profilen direkt från Supabase istället. Tidigare lästes profilen
+    // ENBART från localStorage, vilket gjorde att fälten blev tomma på en ny enhet trots att
+    // datan fanns kvar i databasen.
+    const looksEmpty = !p || (!p.weight && !p.height && !p.fname);
+    if (looksEmpty && DEVICE_ID && DEVICE_ID !== 'anon') {
+      const sb2 = await dbLoadProfile();
+      if (sb2) {
+        p = {
+          fname: sb2.fname||'', lname: sb2.lname||'', email: sb2.email||currentUser?.email||'',
+          phone: sb2.phone||'', weight: sb2.weight||'', height: sb2.height||'',
+          birthyear: sb2.birthyear||'', gender: sb2.gender||'', activity: sb2.activity||'',
+          goal: sb2.goal||'', target_weight: sb2.target_weight||''
+        };
+        localStorage.setItem('vitalis_profile', JSON.stringify(p));
+      }
+    }
+
+    if (!p) return;
     if (document.getElementById('pf-fname')) document.getElementById('pf-fname').value = p.fname||'';
     if (document.getElementById('pf-lname')) document.getElementById('pf-lname').value = p.lname||'';
     if (document.getElementById('pf-email')) document.getElementById('pf-email').value = p.email||'';
@@ -6099,7 +6220,11 @@ function loadProfile() {
     calcBMI();
     calcDailyNeeds();
     updateGoalProgress();
-  } catch(e){}
+    // Nyss inläst data är per definition redan sparad – nollställ osparad-flaggan
+    profileDirty = false;
+    const notice = document.getElementById('profile-unsaved-notice');
+    if (notice) notice.style.display = 'none';
+  } catch(e){ console.log('loadProfile error:', e); }
 }
 
 function updateProfileUI(p) {

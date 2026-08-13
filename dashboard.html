@@ -743,6 +743,39 @@ select option:checked {
   </div>
 </div>
 
+<!-- ONBOARDING WIZARD – en fråga i taget -->
+<div id="onboard-modal" style="display:none;position:fixed;inset:0;z-index:920;background:rgba(10,25,16,0.9);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:440px;background:var(--mid-green);border:1px solid rgba(126,200,80,0.2);border-radius:24px;padding:32px 28px 28px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--lime),transparent)"></div>
+
+    <!-- Progressindikator -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Steg <span id="onboard-step-num">1</span> av <span id="onboard-step-total">8</span></div>
+      <div id="onboard-pct" style="font-size:0.72rem;color:var(--lime);font-weight:600">0%</div>
+    </div>
+    <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:24px">
+      <div id="onboard-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--lime),var(--gold));border-radius:100px;transition:width 0.4s ease"></div>
+    </div>
+
+    <!-- Fråga -->
+    <div id="onboard-question" style="font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:300;color:var(--soft-white);margin-bottom:6px;line-height:1.3">Fråga</div>
+    <div id="onboard-hint" style="font-size:0.8rem;color:var(--text-dim);margin-bottom:20px;line-height:1.5"></div>
+
+    <!-- Inmatningsområde (byts dynamiskt) -->
+    <div id="onboard-input-area" style="margin-bottom:20px"></div>
+
+    <!-- Felmeddelande -->
+    <div id="onboard-error" style="display:none;font-size:0.76rem;color:#e05c5c;margin-bottom:14px;text-align:center"></div>
+
+    <!-- Navigering -->
+    <div style="display:flex;gap:10px">
+      <button id="onboard-back-btn" onclick="onboardBack()" style="display:none;padding:13px 20px;background:rgba(255,255,255,0.05);color:var(--text-dim);border:1px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer">← Tillbaka</button>
+      <button id="onboard-next-btn" onclick="onboardNext()" style="flex:1;padding:14px;background:var(--lime);color:var(--deep-green);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;transition:all 0.2s">Nästa →</button>
+    </div>
+  </div>
+</div>
+
+
 
 <!-- PLAN MODAL – Hantera / byta plan -->
 <div id="plan-modal" onclick="if(event.target===this)closePlanModal()">
@@ -2823,9 +2856,221 @@ function showAuthError(msg, isSuccess = false) {
 
 // ── VÄLKOMSTMODAL ──
 function showWelcomeModal() {
-  const modal = document.getElementById('welcome-modal');
-  if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  // Starta onboarding-wizarden istället för den gamla statiska modalen.
+  startOnboarding();
 }
+
+// ══════════════ ONBOARDING-WIZARD ══════════════
+// Frågorna ställs en och en. Varje steg definierar typ av inmatning, validering och vilket
+// profilfält svaret sparas till. Målvikt-steget hoppas över om målet är "behåll vikt".
+const ONBOARD_STEPS = [
+  { key:'fname', type:'text', q:'Vad heter du?', hint:'Vi använder ditt förnamn för att göra appen personlig.', placeholder:'Ditt förnamn',
+    validate:v => v.trim().length >= 1 || 'Ange ditt förnamn' },
+  { key:'birthyear', type:'number', q:'Vilket år är du född?', hint:'Används för att beräkna ditt dagliga kaloribehov.', placeholder:'t.ex. 1990', min:1920, max:2015,
+    validate:v => { const n=parseInt(v); return (n>=1920 && n<=2015) || 'Ange ett giltigt födelseår'; } },
+  { key:'height', type:'number', q:'Hur lång är du?', hint:'I centimeter – används för BMI och kaloriberäkning.', placeholder:'t.ex. 175', suffix:'cm', min:100, max:250,
+    validate:v => { const n=parseFloat(v); return (n>=100 && n<=250) || 'Ange längd mellan 100–250 cm'; } },
+  { key:'weight', type:'number', q:'Vad väger du?', hint:'I kilogram – används för BMI, kalorier och viktmål.', placeholder:'t.ex. 75', suffix:'kg', min:30, max:300, step:'0.1',
+    validate:v => { const n=parseFloat(v); return (n>=30 && n<=300) || 'Ange vikt mellan 30–300 kg'; } },
+  { key:'gender', type:'choice', q:'Vad är ditt kön?', hint:'Påverkar beräkningen av ditt kaloribehov.',
+    choices:[{v:'man',l:'👨 Man'},{v:'kvinna',l:'👩 Kvinna'},{v:'annat',l:'⚧ Annat / vill ej ange'}],
+    validate:v => !!v || 'Välj ett alternativ' },
+  { key:'activity', type:'choice', q:'Hur aktiv är du?', hint:'Välj det som stämmer bäst med din vardag.',
+    choices:[
+      {v:'1.2',l:'🛋 Stillasittande (lite/ingen träning)'},
+      {v:'1.375',l:'🚶 Lätt aktiv (1–3 dagar/vecka)'},
+      {v:'1.55',l:'🏃 Måttligt aktiv (3–5 dagar/vecka)'},
+      {v:'1.725',l:'💪 Mycket aktiv (6–7 dagar/vecka)'},
+      {v:'1.9',l:'🔥 Extremt aktiv (fysiskt jobb + träning)'}
+    ],
+    validate:v => !!v || 'Välj ett alternativ' },
+  { key:'goal', type:'choice', q:'Vad är ditt mål?', hint:'Vi anpassar ditt kalorimål efter detta.',
+    choices:[{v:'lose',l:'📉 Gå ner i vikt'},{v:'maintain',l:'⚖️ Behålla vikten'},{v:'gain',l:'📈 Gå upp / bygga muskler'}],
+    validate:v => !!v || 'Välj ett alternativ' },
+  { key:'target_weight', type:'number', q:'Vad är din målvikt?', hint:'I kilogram – vi visar din progress mot detta.', placeholder:'t.ex. 70', suffix:'kg', min:30, max:300, step:'0.1',
+    validate:v => { const n=parseFloat(v); return (n>=30 && n<=300) || 'Ange målvikt mellan 30–300 kg'; },
+    skipIf:answers => answers.goal === 'maintain' }
+];
+
+let onboardIndex = 0;
+let onboardAnswers = {};
+
+function startOnboarding() {
+  onboardIndex = 0;
+  onboardAnswers = {};
+  // Förfyll med ev. redan sparade värden (om profilen är delvis ifylld)
+  try {
+    const existing = JSON.parse(localStorage.getItem('vitalis_profile') || '{}');
+    ONBOARD_STEPS.forEach(s => { if (existing[s.key]) onboardAnswers[s.key] = existing[s.key]; });
+  } catch(e){}
+  document.getElementById('onboard-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  renderOnboardStep();
+}
+
+function getActiveSteps() {
+  // Filtrera bort steg som ska hoppas över baserat på tidigare svar (t.ex. målvikt vid "behåll")
+  return ONBOARD_STEPS.filter(s => !s.skipIf || !s.skipIf(onboardAnswers));
+}
+
+function renderOnboardStep() {
+  const steps = getActiveSteps();
+  if (onboardIndex >= steps.length) { finishOnboarding(); return; }
+  const step = steps[onboardIndex];
+  const area = document.getElementById('onboard-input-area');
+  const errEl = document.getElementById('onboard-error');
+  errEl.style.display = 'none';
+
+  // Progress
+  document.getElementById('onboard-step-num').textContent = onboardIndex + 1;
+  document.getElementById('onboard-step-total').textContent = steps.length;
+  const pct = Math.round((onboardIndex / steps.length) * 100);
+  document.getElementById('onboard-pct').textContent = pct + '%';
+  document.getElementById('onboard-progress-bar').style.width = pct + '%';
+
+  document.getElementById('onboard-question').textContent = step.q;
+  document.getElementById('onboard-hint').textContent = step.hint || '';
+
+  const prev = onboardAnswers[step.key] || '';
+
+  if (step.type === 'text' || step.type === 'number') {
+    const suffix = step.suffix ? `<span style="position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:0.9rem">${step.suffix}</span>` : '';
+    area.innerHTML = `
+      <div style="position:relative">
+        <input id="onboard-input" type="${step.type}" value="${prev}" placeholder="${step.placeholder||''}"
+          ${step.min!=null?`min="${step.min}"`:''} ${step.max!=null?`max="${step.max}"`:''} ${step.step?`step="${step.step}"`:''}
+          style="width:100%;padding:16px;${step.suffix?'padding-right:48px;':''}background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:14px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:1.05rem;outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='var(--lime)'" onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')onboardNext()">
+        ${suffix}
+      </div>`;
+    setTimeout(() => { const inp = document.getElementById('onboard-input'); if(inp) inp.focus(); }, 100);
+  } else if (step.type === 'choice') {
+    area.innerHTML = step.choices.map(c => `
+      <button onclick="onboardSelectChoice('${c.v}')" data-val="${c.v}"
+        class="onboard-choice"
+        style="width:100%;padding:15px 16px;margin-bottom:8px;background:${prev===c.v?'rgba(126,200,80,0.12)':'rgba(255,255,255,0.04)'};border:1.5px solid ${prev===c.v?'var(--lime)':'var(--border)'};border-radius:13px;color:${prev===c.v?'var(--lime)':'var(--cream)'};font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:${prev===c.v?'600':'500'};cursor:pointer;text-align:left;transition:all 0.15s">
+        ${c.l}
+      </button>`).join('');
+  }
+
+  // Navigeringsknappar
+  document.getElementById('onboard-back-btn').style.display = onboardIndex > 0 ? 'block' : 'none';
+  const nextBtn = document.getElementById('onboard-next-btn');
+  nextBtn.textContent = (onboardIndex === steps.length - 1) ? 'Slutför ✓' : 'Nästa →';
+}
+
+function onboardSelectChoice(val) {
+  const steps = getActiveSteps();
+  const step = steps[onboardIndex];
+  onboardAnswers[step.key] = val;
+  // Uppdatera markering visuellt
+  document.querySelectorAll('.onboard-choice').forEach(b => {
+    const sel = b.getAttribute('data-val') === val;
+    b.style.background = sel ? 'rgba(126,200,80,0.12)' : 'rgba(255,255,255,0.04)';
+    b.style.borderColor = sel ? 'var(--lime)' : 'var(--border)';
+    b.style.color = sel ? 'var(--lime)' : 'var(--cream)';
+    b.style.fontWeight = sel ? '600' : '500';
+  });
+  document.getElementById('onboard-error').style.display = 'none';
+}
+
+function onboardNext() {
+  const steps = getActiveSteps();
+  const step = steps[onboardIndex];
+  const errEl = document.getElementById('onboard-error');
+
+  let value;
+  if (step.type === 'choice') {
+    value = onboardAnswers[step.key];
+  } else {
+    const inp = document.getElementById('onboard-input');
+    value = inp ? inp.value : '';
+    onboardAnswers[step.key] = value;
+  }
+
+  // Validera
+  const result = step.validate(value || '');
+  if (result !== true) {
+    errEl.textContent = result;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  onboardIndex++;
+  renderOnboardStep();
+}
+
+function onboardBack() {
+  if (onboardIndex > 0) { onboardIndex--; renderOnboardStep(); }
+}
+
+async function finishOnboarding() {
+  // Bygg profil-objekt från svaren
+  const existing = JSON.parse(localStorage.getItem('vitalis_profile') || '{}');
+  const profile = {
+    ...existing,
+    fname: onboardAnswers.fname || existing.fname || '',
+    birthyear: onboardAnswers.birthyear || existing.birthyear || '',
+    height: onboardAnswers.height || existing.height || '',
+    weight: onboardAnswers.weight || existing.weight || '',
+    gender: onboardAnswers.gender || existing.gender || '',
+    activity: onboardAnswers.activity || existing.activity || '1.55',
+    goal: onboardAnswers.goal || existing.goal || '',
+    target_weight: onboardAnswers.target_weight || existing.target_weight || '',
+    email: existing.email || currentUser?.email || ''
+  };
+
+  // Visa sparar-status
+  const nextBtn = document.getElementById('onboard-next-btn');
+  if (nextBtn) { nextBtn.textContent = '⏳ Sparar...'; nextBtn.disabled = true; }
+
+  // Spara lokalt
+  try { localStorage.setItem('vitalis_profile', JSON.stringify(profile)); } catch(e){}
+  localStorage.setItem('vitalis_welcomed', '1');
+
+  // Fyll i profilformulärets fält så de matchar
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  setVal('pf-fname', profile.fname);
+  setVal('pf-birthyear', profile.birthyear);
+  setVal('pf-height', profile.height);
+  setVal('pf-weight', profile.weight);
+  setVal('pf-gender', profile.gender);
+  setVal('pf-activity', profile.activity);
+  setVal('pf-goal', profile.goal);
+  setVal('pf-target-weight', profile.target_weight);
+
+  // Spara till Supabase
+  if (!authReady) await waitForAuthReady();
+  if (currentUser) {
+    try {
+      await dbSaveProfile({
+        fname: profile.fname, lname: profile.lname || '',
+        email: profile.email, phone: profile.phone || '',
+        weight: parseFloat(profile.weight) || null,
+        height: parseFloat(profile.height) || null,
+        birthyear: parseInt(profile.birthyear) || null,
+        gender: profile.gender, activity: parseFloat(profile.activity) || 1.55,
+        goal: profile.goal, target_weight: parseFloat(profile.target_weight) || null,
+        welcomed: true
+      });
+    } catch(e) { console.log('Onboarding save error:', e); }
+  }
+
+  // Stäng wizard, uppdatera UI
+  document.getElementById('onboard-modal').style.display = 'none';
+  document.body.style.overflow = '';
+  if (nextBtn) { nextBtn.textContent = 'Slutför ✓'; nextBtn.disabled = false; }
+
+  updateProfileUI(profile);
+  calcBMI();
+  calcDailyNeeds();
+  updateGoalProgress();
+  updateOverview();
+  if (typeof updatePlanBadge === 'function') { /* plan hanteras separat */ }
+  showToast(`Välkommen ${profile.fname}! Din profil är klar 🌿`);
+}
+
 
 function closeWelcomeModal() {
   const modal = document.getElementById('welcome-modal');
@@ -2851,17 +3096,15 @@ function goToProfileFromWelcome() {
 }
 
 async function checkFirstLogin() {
-  // Kolla localStorage först för snabb respons
-  if (localStorage.getItem('vitalis_welcomed') === '1') return;
-
   try {
-    const { data } = await sb.from('profiles').select('welcomed, fname, weight').eq('device_id', DEVICE_ID).maybeSingle();
+    const { data } = await sb.from('profiles').select('welcomed, fname, weight, height, birthyear').eq('device_id', DEVICE_ID).maybeSingle();
 
-    // Profilen är tillräcklig om fname ELLER weight finns – oavsett welcomed-flaggan
-    const profileLooksFilled = !!(data?.fname || data?.weight);
+    // Profilen räknas som komplett nog om kärnfälten (vikt, längd, födelseår) finns.
+    // Onboarding-wizarden ska visas både vid allra första inloggning OCH när profilen
+    // är ofullständig – t.ex. om användaren avbröt tidigare eller data aldrig sparades.
+    const coreComplete = !!(data?.weight && data?.height && data?.birthyear);
 
-    if (profileLooksFilled) {
-      // Synka welcomed=true om det inte redan är satt
+    if (coreComplete) {
       if (!data?.welcomed) {
         sb.from('profiles').upsert({ device_id: DEVICE_ID, welcomed: true, updated_at: new Date().toISOString() }, { onConflict: 'device_id' }).catch(()=>{});
       }
@@ -2869,19 +3112,13 @@ async function checkFirstLogin() {
       return;
     }
 
-    // Ingen profil alls eller ofullständig – visa välkomstmodal
-    if (!data?.welcomed) {
-      setTimeout(() => showWelcomeModal(), 800);
-      return;
-    }
-
-    // welcomed=true men ingen fname/weight – subtil påminnelse
-    localStorage.setItem('vitalis_welcomed', '1');
-    setTimeout(() => showToast('💡 Fyll i din profil för bättre upplevelse'), 1500);
+    // Ofullständig profil → starta frågebatteriet
+    setTimeout(() => showWelcomeModal(), 800);
 
   } catch(e) {
-    // Fallback – visa modal bara om localStorage inte säger annat
-    if (!localStorage.getItem('vitalis_welcomed')) {
+    // Vid fel: visa wizarden bara om vi inte redan vet att profilen är klar lokalt
+    const localProfile = JSON.parse(localStorage.getItem('vitalis_profile') || '{}');
+    if (!(localProfile.weight && localProfile.height && localProfile.birthyear)) {
       setTimeout(() => showWelcomeModal(), 800);
     }
   }
